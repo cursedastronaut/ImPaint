@@ -61,8 +61,15 @@ class Image {
 	//Écrit le contenu de l'image cible en PPM.
 	void ecrire(const string& nomFichier = "output.ppm");
 	//Tourne l'image cible à droite
-	Image rotationD();	
-		rgbVec img;
+	Image rotationD();
+	//Tourne l'image cible à droite
+	Image rotationG();
+	//Tourne l'image cible à droite
+	Image rotationH();
+	//Tourne l'image cible à droite
+	Image rotationB();
+	
+	rgbVec img;
 	private:
 		uint32_t longueur;
 		uint32_t hauteur;

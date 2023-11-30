@@ -26,6 +26,8 @@ void VisualIDK::Update() {
 		post = post.changeContraste(contrasteF);
 	if (rotationD)
 		post = post.rotationD();
+	if (rotationG)
+		post = post.rotationG();
 }
 
 void VisualIDK::Draw() {
@@ -47,6 +49,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Contraste", &contraste);
 	ImGui::InputFloat("c", &contrasteF, 0.1f, 0.2f);
 	ImGui::Checkbox("Rotation Droite", &rotationD);
+	ImGui::Checkbox("Rotation Gauche", &rotationG);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);

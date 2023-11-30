@@ -247,7 +247,7 @@ Image Image::contrasteDown(float contrastFactor) {
 }
 Image Image::rotationD() {
 	//On inverse les dimensions (x*y -> y*x)
-	Image output = Image(395, 395);
+	Image output = Image(hauteur, longueur);
 	
 	for (uint32_t x = 0; x < hauteur; ++x) {
 		for (uint32_t y = 0; y < longueur; ++y) {
@@ -256,7 +256,27 @@ Image Image::rotationD() {
 			output.img.blue[y][hauteur - 1 - x] = img.blue[x][y];
 		}
 	}
-	cout << hauteur << ", " << longueur << endl;
-	cout << output.longueur << ", " << output.hauteur << endl;
 	return output;
+}
+
+Image Image::rotationG() {
+	//On inverse les dimensions (x*y -> y*x)
+	Image output = Image(hauteur, longueur);
+	
+	for (uint32_t x = 0; x < hauteur; ++x) {
+		for (uint32_t y = 0; y < longueur; ++y) {
+			output.img.red[longueur - 1 - y][x] = img.red[x][y];
+			output.img.green[longueur - 1 - y][x] = img.green[x][y];
+			output.img.blue[longueur - 1 - y][x] = img.blue[x][y];
+		}
+	}
+	return output;
+}
+
+Image Image::rotationH() {
+
+}
+
+Image Image::rotationB() {
+
 }
