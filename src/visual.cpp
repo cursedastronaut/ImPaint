@@ -50,6 +50,9 @@ void VisualIDK::Update() {
 		post = post.rognerB(1);
 	if (agrandissement)
 		post = post.agrandissement(2);
+	if (retrecissement)
+		post = post.retrecissement(2);
+
 }
 
 void VisualIDK::Draw() {
@@ -79,6 +82,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Rognement Haut", &rognerH);
 	ImGui::Checkbox("Rognement Bas", &rognerB);
 	ImGui::Checkbox("Agrandissement", &agrandissement);
+	ImGui::Checkbox("Retrécisssement", &retrecissement);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);

@@ -76,9 +76,10 @@ class Image {
 	Image rognerH(uint32_t nb = 1);
 	//Retire nb lignes à partir du bas
 	Image rognerB(uint32_t nb = 1);
-	//Permet d'agrandir l'image par un facteur nb (Proche Voisin)
+	//Permet d'agrandir l'image cible par un facteur nb (Proche Voisin)
 	Image agrandissement(uint32_t nb = 1);
-	
+	//Permets de rétrécir l'image cible par un facteur nb
+	Image retrecissement(uint32_t nb = 1);
 	//Permets d'obtenir la longueur (x)
 	uint32_t getLongueur();
 	//Permets d'obtenir la largeur (y)

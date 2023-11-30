@@ -396,3 +396,43 @@ Image Image::agrandissement(uint32_t nb) {
 	return output;
 
 }
+
+Image Image::retrecissement(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || nb <= 0)
+        return Image(0, 0);
+
+    // Calculer les nouvelles dimensions
+    uint32_t nouvelleLongueur = longueur / nb;
+    uint32_t nouvelleHauteur = hauteur / nb;
+
+    // Créer une nouvelle image rétrécie
+    Image output(nouvelleLongueur, nouvelleHauteur);
+
+    for (uint32_t x = 0; x < nouvelleLongueur; ++x) {
+        for (uint32_t y = 0; y < nouvelleHauteur; ++y) {
+            // Calculer les indices de début et de fin du bloc dans l'image d'origine
+            uint32_t origXStart = x * nb;
+            uint32_t origXEnd = origXStart + nb;
+            uint32_t origYStart = y * nb;
+            uint32_t origYEnd = origYStart + nb;
+
+            // Calculer la moyenne des valeurs dans le bloc
+            int redSum = 0, greenSum = 0, blueSum = 0;
+
+            for (uint32_t origX = origXStart; origX < origXEnd; ++origX) {
+                for (uint32_t origY = origYStart; origY < origYEnd; ++origY) {
+                    redSum += img.red[origX][origY];
+                    greenSum += img.green[origX][origY];
+                    blueSum += img.blue[origX][origY];
+                }
+            }
+
+            // Remplir la nouvelle image avec la moyenne des valeurs du bloc
+            output.img.red[x][y] = redSum / (nb * nb);
+            output.img.green[x][y] = greenSum / (nb * nb);
+            output.img.blue[x][y] = blueSum / (nb * nb);
+        }
+    }
+
+    return output;
+}

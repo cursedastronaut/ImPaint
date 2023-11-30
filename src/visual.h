@@ -63,6 +63,7 @@ class VisualIDK {
 	bool rognerB = false;
 	bool dontRefresh = false;
 	bool agrandissement = false;
+	bool retrecissement = false;
 	float luminosityF = 1.0f;
 	float contrasteF = 1.0f;
 	int pixelSize = 1.0f;
