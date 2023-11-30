@@ -22,6 +22,9 @@ class Image {
 	//Constructeur de la classe Image
 	//Prend un nom de fichier PPM (type P3), et le lit.
 	Image(const string& nomFichier);
+	//Constructeur de la classe Image
+	//Prend deux dimensions, et créé une image noire.
+	Image(uint32_t longueur, uint32_t hauteur);
 
 	//Affiche le contenu de chaque vecteur de couleur, séparément.
 	void afficher();
@@ -55,10 +58,10 @@ class Image {
 	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 0.9f)
 	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
 	Image contrasteDown(const float contrastFactor = 0.1f);
-	
 	//Écrit le contenu de l'image cible en PPM.
 	void ecrire(const string& nomFichier = "output.ppm");
-	
+	//Tourne l'image cible à droite
+	Image rotationD();	
 	private:
 		rgbVec img;
 		uint32_t longueur;
