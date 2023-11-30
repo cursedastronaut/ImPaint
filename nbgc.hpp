@@ -2,7 +2,7 @@
 #define _NBGC_
 #include <iostream>
 #include <vector>
-
+#define LUMINOSITY_CHANGE 0.1f
 using namespace std;
 
 struct rgbVec {
@@ -24,7 +24,14 @@ class Image {
     vector<int> Image::histogrammeGris();
 
     vector<vector<vector<int>>> Image::histogrammeCouleur();
-    private:
+    
+	Image noirEtBlanc();
+
+	Image luminosityUp();
+
+	Image luminosityDown();
+	
+	private:
         rgbVec img;
         uint32_t longueur;
         uint32_t largeur;

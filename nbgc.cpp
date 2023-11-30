@@ -108,3 +108,33 @@ Image Image::noirEtBlanc() {
     return Image(output, output, output);
 
 }
+
+Image Image::luminosityUp() {
+    vector<vector<int>> output_red(longueur, vector<int>(largeur, 0));
+    vector<vector<int>> output_green(longueur, vector<int>(largeur, 0));
+    vector<vector<int>> output_blue(longueur, vector<int>(largeur, 0));
+    for (size_t x = 0; x < longueur; ++x) {
+        for (size_t y = 0; y < largeur; ++y) {
+            output_red[x][y] = img.red[x][y] * (1 + LUMINOSITY_CHANGE);
+            output_green[x][y] = img.green[x][y] * (1 + LUMINOSITY_CHANGE);
+            output_blue[x][y] = img.blue[x][y] * (1 + LUMINOSITY_CHANGE);
+        }
+    }
+
+    return Image(output_red, output_green, output_blue);
+}
+
+Image Image::luminosityDown() {
+    vector<vector<int>> output_red(longueur, vector<int>(largeur, 0));
+    vector<vector<int>> output_green(longueur, vector<int>(largeur, 0));
+    vector<vector<int>> output_blue(longueur, vector<int>(largeur, 0));
+    for (size_t x = 0; x < longueur; ++x) {
+        for (size_t y = 0; y < largeur; ++y) {
+            output_red[x][y] = img.red[x][y] * (1 - LUMINOSITY_CHANGE);
+            output_green[x][y] = img.green[x][y] * (1 - LUMINOSITY_CHANGE);
+            output_blue[x][y] = img.blue[x][y] * (1 - LUMINOSITY_CHANGE);
+        }
+    }
+
+    return Image(output_red, output_green, output_blue);
+}
