@@ -28,6 +28,10 @@ void VisualIDK::Update() {
 		post = post.rotationD();
 	if (rotationG)
 		post = post.rotationG();
+	if (retournementH)
+		post = post.retournementH();
+	if (retournementV)
+		post = post.retournementV();
 }
 
 void VisualIDK::Draw() {
@@ -50,6 +54,8 @@ void VisualIDK::UI() {
 	ImGui::InputFloat("c", &contrasteF, 0.1f, 0.2f);
 	ImGui::Checkbox("Rotation Droite", &rotationD);
 	ImGui::Checkbox("Rotation Gauche", &rotationG);
+	ImGui::Checkbox("Retournement Horizontal", &retournementH);
+	ImGui::Checkbox("Retournement Vertical", &retournementV);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);

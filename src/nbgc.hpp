@@ -64,10 +64,10 @@ class Image {
 	Image rotationD();
 	//Tourne l'image cible à droite
 	Image rotationG();
-	//Tourne l'image cible à droite
-	Image rotationH();
-	//Tourne l'image cible à droite
-	Image rotationB();
+	//Retourne l'image horizontalement
+	Image retournementH();
+	//Retourne l'image verticalement
+	Image retournementV();
 	
 	rgbVec img;
 	private:

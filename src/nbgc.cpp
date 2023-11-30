@@ -273,10 +273,30 @@ Image Image::rotationG() {
 	return output;
 }
 
-Image Image::rotationH() {
+Image Image::retournementH() {
+	Image output(longueur, hauteur);
 
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			output.img.red[x][y] = img.red[x][hauteur - 1 - y];
+			output.img.green[x][y] = img.green[x][hauteur - 1 - y];
+			output.img.blue[x][y] = img.blue[x][hauteur - 1 - y];
+		}
+	}
+
+	return output;
 }
 
-Image Image::rotationB() {
+Image Image::retournementV() {
+	Image output(longueur, hauteur);
 
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			output.img.red[x][y] = img.red[longueur - 1 - x][y];
+			output.img.green[x][y] = img.green[longueur - 1 - x][y];
+			output.img.blue[x][y] = img.blue[longueur - 1 - x][y];
+		}
+	}
+
+	return output;
 }

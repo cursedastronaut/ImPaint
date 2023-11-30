@@ -55,6 +55,8 @@ class VisualIDK {
 	bool contraste = false;
 	bool rotationD = false;
 	bool rotationG = false;
+	bool retournementH = false;
+	bool retournementV = false;
 	bool dontRefresh = false;
 
 	float luminosityF = 1.0f;
