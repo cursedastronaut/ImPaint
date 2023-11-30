@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #define LUMINOSITY_CHANGE 0.1f
+#define CONTRAST_CHANGE 1.0f
 using namespace std;
 
 struct rgbVec {
@@ -35,16 +36,26 @@ class Image {
 	vector<int> histogrammeGris();
 	//Renvoie l'histogramme coloré de l'image cible.
 	vector<vector<vector<int>>> histogrammeCouleur();
-	//Renvoie l'image, modifié pour être en noir absolu, ou blanc absolu.
+	//Renvoie l'image cible, modifié pour être en noir absolu, ou blanc absolu.
 	Image noirEtBlanc();
-	//Change la luminosité de l'image selon un facteur fourni. (Par défaut, 0.1f)
+	//Change la luminosité de l'image cible selon un facteur fourni. (Par défaut, 0.1f)
 	Image changeLuminosity(const float luminosityFactor = LUMINOSITY_CHANGE);
-	//Augmente la luminosité de l'image selon un facteur fourni (Par défaut, 1.1f)
+	//Augmente la luminosité de l'image cible selon un facteur fourni (Par défaut, 1.1f)
 	//Formule: facteur = 1 + luminosity (où luminosity est le facteur fourni.)
 	Image luminosityUp(const float luminosity = LUMINOSITY_CHANGE);
-	//Augmente la luminosité de l'image selon un facteur fourni (Par défaut, 0.9f)
+	//Augmente la luminosité de l'image cible selon un facteur fourni (Par défaut, 0.9f)
 	//Formule: facteur = 1 - luminosity (où luminosity est le facteur fourni.)
 	Image luminosityDown(const float luminosity = LUMINOSITY_CHANGE);
+	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 1.0f)
+	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
+	Image changeContraste(const float contrastFactor = CONTRAST_CHANGE);
+	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 1.1f)
+	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
+	Image contrasteUp(const float contrastFactor = 0.1f);
+	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 0.9f)
+	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
+	Image contrasteDown(const float contrastFactor = 0.1f);
+	
 	//Écrit le contenu de l'image cible en PPM.
 	void ecrire(const string& nomFichier = "output.ppm");
 	
