@@ -14,7 +14,7 @@ struct rgbVec {
 class Image {
     public:
     //Constructor of Image class
-    Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue, uint32_t longueur, uint32_t largeur);
+    Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue);
 
     private:
         rgbVec img;
