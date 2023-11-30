@@ -125,11 +125,11 @@ Image Image::changeLuminosity(const float luminosityFactor) {
 }
 
 Image Image::luminosityUp(const float luminosity) {
-	return changeLuminosity(luminosity);
+	return changeLuminosity(1 + luminosity);
 }
 
 Image Image::luminosityDown(const float luminosity) {
-	return changeLuminosity(luminosity);
+	return changeLuminosity(1 - luminosity);
 }
 
 Image::Image(const string& nomFichier) {
