@@ -21,25 +21,31 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	hauteur = red[0].size();
 }
 
+Image::Image(uint32_t longueur, uint32_t hauteur) {
+	img.blue.resize(hauteur, vector<int>(longueur, 0));
+	img.green.resize(hauteur, vector<int>(longueur, 0));
+	img.red.resize(hauteur, vector<int>(longueur, 0));
+}
+
 void Image::afficher() {
-	for (size_t x = 0; x < img.red.size(); ++x) {
-		for (uint8_t y = 0; y < img.red[0].size(); ++y)
+	for (uint32_t x = 0; x < img.red.size(); ++x) {
+		for (uint32_t y = 0; y < img.red[0].size(); ++y)
 			cout << img.red[x][y] << ",";
 		cout << endl;
 	}
 	
 	cout << endl;
 
-	for (size_t x = 0; x < img.green.size(); ++x) {
-		for (uint8_t y = 0; y < img.green[0].size(); ++y)
+	for (uint32_t x = 0; x < img.green.size(); ++x) {
+		for (uint32_t y = 0; y < img.green[0].size(); ++y)
 			cout << img.green[x][y] << ",";
 		cout << endl;
 	}
 
 	cout << endl;
 	
-	for (size_t x = 0; x < img.blue.size(); ++x) {
-		for (uint8_t y = 0; y < img.blue[0].size(); ++y)
+	for (uint32_t x = 0; x < img.blue.size(); ++x) {
+		for (uint32_t y = 0; y < img.blue[0].size(); ++y)
 			cout << img.blue[x][y] << ",";
 		cout << endl;
 	}
@@ -55,8 +61,8 @@ Image Image::composanteRouge() {
 
 bool Image::detection(int r, int v, int b) {
 	bool status = false;
-	for (size_t x = 0; x < img.red.size() && !status; ++x) {
-		for (uint8_t y = 0; y < img.red[0].size() && !status; ++y)
+	for (uint32_t x = 0; x < img.red.size() && !status; ++x) {
+		for (uint32_t y = 0; y < img.red[0].size() && !status; ++y)
 			if ((r == img.red[x][y]) && (v == img.green[x][y]) && (b == img.blue[x][y])){
 				status = true;
 			}
@@ -66,8 +72,8 @@ bool Image::detection(int r, int v, int b) {
 
 Image Image::niveauxGris() {
 	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
-	for (size_t x = 0; x < longueur; ++x)
-		for (uint8_t y = 0; y < hauteur; ++y)
+	for (uint32_t x = 0; x < longueur; ++x)
+		for (uint32_t y = 0; y < hauteur; ++y)
 			output[x][y] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
 
 	return Image(output, output, output);
@@ -75,8 +81,8 @@ Image Image::niveauxGris() {
 
 vector<int> Image::histogrammeGris() {
 	vector<int> output(longueur * hauteur, 0);
-	for (uint8_t y = 0; y < hauteur; ++y)
-		for (size_t x = 0; x < longueur; ++x)
+	for (uint32_t y = 0; y < hauteur; ++y)
+		for (uint32_t x = 0; x < longueur; ++x)
 			output[y * hauteur + x] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
 
 	return output;
@@ -84,7 +90,7 @@ vector<int> Image::histogrammeGris() {
 
 vector<vector<vector<int>>> Image::histogrammeCouleur() {
 	vector<vector<vector<int>>> output(longueur, vector<vector<int>>(hauteur, vector<int>(hauteur, 0)));
-	for (uint8_t y = 0; y < hauteur; ++y) {
+	for (uint32_t y = 0; y < hauteur; ++y) {
 		for (uint8_t x = 0; x < longueur; ++x) {
 			output[y * hauteur + x][0][0] = img.red[x][y];
 			output[0][y * hauteur + x][0] = img.green[x][y];
@@ -96,8 +102,8 @@ vector<vector<vector<int>>> Image::histogrammeCouleur() {
 
 Image Image::noirEtBlanc() {
 	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
-	for (size_t x = 0; x < longueur; ++x)
-		for (uint8_t y = 0; y < hauteur; ++y)
+	for (uint32_t x = 0; x < longueur; ++x)
+		for (uint32_t y = 0; y < hauteur; ++y)
 			if((img.red[x][y] + img.green[x][y] + img.blue[x][y])/3 < 127){
 				output[x][y] = 0;
 			}
@@ -114,7 +120,7 @@ Image Image::changeLuminosity(const float luminosityFactor) {
 	vector<vector<int>> output_green(longueur, vector<int>(hauteur, 0));
 	vector<vector<int>> output_blue(longueur, vector<int>(hauteur, 0));
 	for (uint8_t x = 0; x < longueur; ++x) {
-		for (uint8_t y = 0; y < hauteur; ++y) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
 			output_red[x][y] = img.red[x][y] * (1 + luminosityFactor);
 			output_green[x][y] = img.green[x][y] * (1 + luminosityFactor);
 			output_blue[x][y] = img.blue[x][y] * (1 + luminosityFactor);
@@ -206,7 +212,7 @@ void Image::ecrire(const string& nomFichier) {
 			<< longueur << " " << hauteur << " " << 255 << endl;
 	
 	for (uint8_t x = 0; x < longueur; ++x) {
-		for (uint8_t y = 0; y < hauteur; ++y) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
 			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
 		}
 	}
@@ -216,7 +222,7 @@ void Image::ecrire(const string& nomFichier) {
 Image Image::changeContraste(const float contrastFactor) {
 	Image output(img.red, img.green, img.blue);
 	for (uint8_t x = 0; x < longueur; ++x) {
-		for (uint8_t y = 0; y < hauteur; ++y) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
 			output.img.red[x][y] = (output.img.red[x][y] * contrastFactor > 255 ? 255 : output.img.red[x][y] * contrastFactor);
 			output.img.green[x][y] = (output.img.green[x][y] * contrastFactor > 255 ? 255 : output.img.green[x][y] * contrastFactor);
 			output.img.blue[x][y] = (output.img.blue[x][y] * contrastFactor > 255 ? 255 : output.img.blue[x][y] * contrastFactor);
@@ -232,4 +238,18 @@ Image Image::contrasteUp(const float contrastFactor) {
 
 Image Image::contrasteDown(const float contrastFactor) {
 	return changeContraste(1.f - contrastFactor);
+}
+Image Image::rotationD() {
+	//On inverse les dimensions (x*y -> y*x)
+	Image output(hauteur, longueur);
+	/*
+	for (uint8_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			output.img.red[y][longueur - 1 - x] = img.red[x][y];
+			output.img.green[y][longueur - 1 - x] = img.green[x][y];
+			output.img.blue[y][longueur - 1 - x] = img.blue[x][y];
+		}
+	}*/
+
+	return output;
 }
