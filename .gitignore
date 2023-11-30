@@ -3,6 +3,8 @@
 #Assets
 *.ppm
 !ppm_tests/*.ppm
+*.png
+*.jpg
 #Executables
 *.exe
 main
