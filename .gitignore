@@ -1,10 +1,18 @@
+#Old
+.old
 #IDE
 .vscode
+*.code-workspace
 #Assets
 *.ppm
 !ppm_tests/*.ppm
 *.png
 *.jpg
+*.ini
+#Objects
+objects/*.o
+#Useless imguiStuff
+externals/imgui/
 #Executables
 *.exe
 main

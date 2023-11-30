@@ -42,28 +42,28 @@ class Image {
 	//Renvoie l'image cible, modifié pour être en noir absolu, ou blanc absolu.
 	Image noirEtBlanc();
 	//Change la luminosité de l'image cible selon un facteur fourni. (Par défaut, 0.1f)
-	Image changeLuminosity(const float luminosityFactor = LUMINOSITY_CHANGE);
+	Image changeLuminosity(float luminosityFactor = LUMINOSITY_CHANGE);
 	//Augmente la luminosité de l'image cible selon un facteur fourni (Par défaut, 1.1f)
 	//Formule: facteur = 1 + luminosity (où luminosity est le facteur fourni.)
-	Image luminosityUp(const float luminosity = LUMINOSITY_CHANGE);
+	Image luminosityUp(float luminosity = LUMINOSITY_CHANGE);
 	//Augmente la luminosité de l'image cible selon un facteur fourni (Par défaut, 0.9f)
 	//Formule: facteur = 1 - luminosity (où luminosity est le facteur fourni.)
-	Image luminosityDown(const float luminosity = LUMINOSITY_CHANGE);
+	Image luminosityDown(float luminosity = LUMINOSITY_CHANGE);
 	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 1.0f)
 	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
-	Image changeContraste(const float contrastFactor = CONTRAST_CHANGE);
+	Image changeContraste(float contrastFactor = CONTRAST_CHANGE);
 	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 1.1f)
 	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
-	Image contrasteUp(const float contrastFactor = 0.1f);
+	Image contrasteUp(float contrastFactor = 0.1f);
 	//Change le contraste de l'image cible selon un facteur fourni. (Par défaut, 0.9f)
 	//Formule: facteur = 1 - contraste (où contraste est le facteur fourni.)
-	Image contrasteDown(const float contrastFactor = 0.1f);
+	Image contrasteDown(float contrastFactor = 0.1f);
 	//Écrit le contenu de l'image cible en PPM.
 	void ecrire(const string& nomFichier = "output.ppm");
 	//Tourne l'image cible à droite
 	Image rotationD();	
-	private:
 		rgbVec img;
+	private:
 		uint32_t longueur;
 		uint32_t hauteur;
 };

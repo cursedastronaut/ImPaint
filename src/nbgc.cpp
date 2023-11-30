@@ -91,7 +91,7 @@ vector<int> Image::histogrammeGris() {
 vector<vector<vector<int>>> Image::histogrammeCouleur() {
 	vector<vector<vector<int>>> output(longueur, vector<vector<int>>(hauteur, vector<int>(hauteur, 0)));
 	for (uint32_t y = 0; y < hauteur; ++y) {
-		for (uint8_t x = 0; x < longueur; ++x) {
+		for (uint32_t x = 0; x < longueur; ++x) {
 			output[y * hauteur + x][0][0] = img.red[x][y];
 			output[0][y * hauteur + x][0] = img.green[x][y];
 			output[y * hauteur + x][0][0] = img.blue[x][y];
@@ -115,26 +115,28 @@ Image Image::noirEtBlanc() {
 
 }
 
-Image Image::changeLuminosity(const float luminosityFactor) {
+Image Image::changeLuminosity(float luminosityFactor) {
+	if (luminosityFactor < 0)
+		luminosityFactor = 0;
 	vector<vector<int>> output_red(longueur, vector<int>(hauteur, 0));
 	vector<vector<int>> output_green(longueur, vector<int>(hauteur, 0));
 	vector<vector<int>> output_blue(longueur, vector<int>(hauteur, 0));
-	for (uint8_t x = 0; x < longueur; ++x) {
+	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output_red[x][y] = img.red[x][y] * (1 + luminosityFactor);
-			output_green[x][y] = img.green[x][y] * (1 + luminosityFactor);
-			output_blue[x][y] = img.blue[x][y] * (1 + luminosityFactor);
+			output_red[x][y] = (img.red[x][y] * (luminosityFactor) > 255 ? 255 : img.red[x][y] * (luminosityFactor));
+			output_green[x][y] = (img.green[x][y] * (luminosityFactor) > 255 ? 255 : img.green[x][y] * (luminosityFactor));
+			output_blue[x][y] = (img.blue[x][y] * (luminosityFactor) > 255 ? 255 : img.blue[x][y] * (luminosityFactor));
 		}
 	}
 
 	return Image(output_red, output_green, output_blue);
 }
 
-Image Image::luminosityUp(const float luminosity) {
+Image Image::luminosityUp(float luminosity) {
 	return changeLuminosity(1.f + luminosity);
 }
 
-Image Image::luminosityDown(const float luminosity) {
+Image Image::luminosityDown(float luminosity) {
 	return changeLuminosity(1.f - luminosity);
 }
 
@@ -211,7 +213,7 @@ void Image::ecrire(const string& nomFichier) {
 	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
 			<< longueur << " " << hauteur << " " << 255 << endl;
 	
-	for (uint8_t x = 0; x < longueur; ++x) {
+	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
 			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
 		}
@@ -219,9 +221,11 @@ void Image::ecrire(const string& nomFichier) {
 	fichier.close();
 }
 
-Image Image::changeContraste(const float contrastFactor) {
+Image Image::changeContraste(float contrastFactor) {
+	if (contrastFactor < 0)
+		contrastFactor = 0;
 	Image output(img.red, img.green, img.blue);
-	for (uint8_t x = 0; x < longueur; ++x) {
+	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
 			output.img.red[x][y] = (output.img.red[x][y] * contrastFactor > 255 ? 255 : output.img.red[x][y] * contrastFactor);
 			output.img.green[x][y] = (output.img.green[x][y] * contrastFactor > 255 ? 255 : output.img.green[x][y] * contrastFactor);
@@ -232,18 +236,18 @@ Image Image::changeContraste(const float contrastFactor) {
 	return output;
 }
 
-Image Image::contrasteUp(const float contrastFactor) {
+Image Image::contrasteUp(float contrastFactor) {
 	return changeContraste(1.f + contrastFactor);
 }
 
-Image Image::contrasteDown(const float contrastFactor) {
+Image Image::contrasteDown(float contrastFactor) {
 	return changeContraste(1.f - contrastFactor);
 }
 Image Image::rotationD() {
 	//On inverse les dimensions (x*y -> y*x)
 	Image output(hauteur, longueur);
 	/*
-	for (uint8_t x = 0; x < longueur; ++x) {
+	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
 			output.img.red[y][longueur - 1 - x] = img.red[x][y];
 			output.img.green[y][longueur - 1 - x] = img.green[x][y];
