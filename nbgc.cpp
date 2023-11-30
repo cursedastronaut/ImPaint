@@ -93,3 +93,18 @@ vector<vector<vector<int>>> Image::histogrammeCouleur() {
     }
     return output;
 }
+
+Image Image::noirEtBlanc() {
+    vector<vector<int>> output(longueur, vector<int>(largeur, 0));
+    for (size_t x = 0; x < longueur; ++x)
+        for (size_t y = 0; y < largeur; ++y)
+            if((img.red[x][y] + img.green[x][y] + img.blue[x][y])/3 < 127){
+                output[x][y] = 0;
+            }
+            else {
+                output[x][y] = 255;
+            }
+
+    return Image(output, output, output);
+
+}
