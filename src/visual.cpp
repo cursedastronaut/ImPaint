@@ -4,8 +4,16 @@ VisualIDK::VisualIDK() {
 }
 
 void VisualIDK::Update() {
-	if (!dontRefresh)
+	if (!dontRefresh) {
 		post = original;
+	} else {
+		noirBlanc = false;
+		composantRouge = false;
+		niveauxGris = false;
+		luminosity = false;
+		contraste = false;
+		rotationD = false;
+	}
 	if (noirBlanc)
 		post = post.noirEtBlanc();
 	if (composantRouge)
@@ -45,7 +53,9 @@ void VisualIDK::UI() {
 	if (ImGui::Button("Charger", {64, 32}))
 		original = Image(fileTempBuffer);
 	ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
-	if (ImGui::Button("Écrire", {64, 32}))
+	if (ImGui::Button("Écrire", {64, 32})) {
 		post.ecrire();
+		std::cout << "Ecriture terminee" << std::endl;
+	}
 	ImGui::End();
 }
