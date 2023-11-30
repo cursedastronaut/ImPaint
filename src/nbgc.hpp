@@ -68,13 +68,18 @@ class Image {
 	Image retournementH();
 	//Retourne l'image verticalement
 	Image retournementV();
-
+	//Retire nb colonnes à partir de la droite
 	Image rognerD(uint32_t nb = 1);
+	//Retire nb colonnes à partir de la gauche
 	Image rognerG(uint32_t nb = 1);
+	//Retire nb lignes à partir du haut
 	Image rognerH(uint32_t nb = 1);
+	//Retire nb lignes à partir du bas
 	Image rognerB(uint32_t nb = 1);
 	
+	//Permets d'obtenir la longueur (x)
 	uint32_t getLongueur();
+	//Permets d'obtenir la largeur (y)
 	uint32_t getHauteur();
 
 	rgbVec img;
