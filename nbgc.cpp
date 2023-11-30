@@ -109,34 +109,27 @@ Image Image::noirEtBlanc() {
 
 }
 
-Image Image::luminosityUp() {
+Image Image::changeLuminosity(const float luminosityFactor) {
 	vector<vector<int>> output_red(longueur, vector<int>(largeur, 0));
 	vector<vector<int>> output_green(longueur, vector<int>(largeur, 0));
 	vector<vector<int>> output_blue(longueur, vector<int>(largeur, 0));
 	for (size_t x = 0; x < longueur; ++x) {
 		for (size_t y = 0; y < largeur; ++y) {
-			output_red[x][y] = img.red[x][y] * (1 + LUMINOSITY_CHANGE);
-			output_green[x][y] = img.green[x][y] * (1 + LUMINOSITY_CHANGE);
-			output_blue[x][y] = img.blue[x][y] * (1 + LUMINOSITY_CHANGE);
+			output_red[x][y] = img.red[x][y] * (1 + luminosityFactor);
+			output_green[x][y] = img.green[x][y] * (1 + luminosityFactor);
+			output_blue[x][y] = img.blue[x][y] * (1 + luminosityFactor);
 		}
 	}
 
 	return Image(output_red, output_green, output_blue);
 }
 
-Image Image::luminosityDown() {
-	vector<vector<int>> output_red(longueur, vector<int>(largeur, 0));
-	vector<vector<int>> output_green(longueur, vector<int>(largeur, 0));
-	vector<vector<int>> output_blue(longueur, vector<int>(largeur, 0));
-	for (size_t x = 0; x < longueur; ++x) {
-		for (size_t y = 0; y < largeur; ++y) {
-			output_red[x][y] = img.red[x][y] * (1 - LUMINOSITY_CHANGE);
-			output_green[x][y] = img.green[x][y] * (1 - LUMINOSITY_CHANGE);
-			output_blue[x][y] = img.blue[x][y] * (1 - LUMINOSITY_CHANGE);
-		}
-	}
+Image Image::luminosityUp(const float luminosity) {
+	return changeLuminosity(luminosity);
+}
 
-	return Image(output_red, output_green, output_blue);
+Image Image::luminosityDown(const float luminosity) {
+	return changeLuminosity(luminosity);
 }
 
 Image::Image(const string& nomFichier) {

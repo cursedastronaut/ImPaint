@@ -30,9 +30,11 @@ class Image {
 	
 	Image noirEtBlanc();
 
-	Image luminosityUp();
+	Image changeLuminosity(const float luminosityFactor = LUMINOSITY_CHANGE);
 
-	Image luminosityDown();
+	Image luminosityUp(const float luminosity = 1 + LUMINOSITY_CHANGE);
+
+	Image luminosityDown(const float luminosity = 1 - LUMINOSITY_CHANGE);
 
 	void ecrire(const string& nomFichier);
 	
