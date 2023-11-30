@@ -217,6 +217,5 @@ void Image::ecrire(const string& nomFichier) {
 			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
 		}
 	}
-	cout << "Height: " << largeur << "Width:" << longueur; 
 	fichier.close();
 }
