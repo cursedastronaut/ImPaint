@@ -47,3 +47,8 @@ void Image::afficher() {
     cout << endl;
 
 }
+
+Image Image::composanteRouge() {
+    vector<vector<int>> emptyVec(longueur, vector<int>(largeur, 0));
+    return Image(img.red, emptyVec, emptyVec);
+}
