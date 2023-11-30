@@ -58,8 +58,9 @@ class VisualIDK {
 
 	float luminosityF = 1.0f;
 	float contrasteF = 1.0f;
+	int pixelSize = 1.0f;
 
-	char fileTempBuffer[50];
+	char fileTempBuffer[50] = "";
 };
 
 

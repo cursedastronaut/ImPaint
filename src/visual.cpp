@@ -23,7 +23,7 @@ void VisualIDK::Update() {
 void VisualIDK::Draw() {
 	for (uint32_t x = 0; x < post.img.blue.size(); ++x) {
 		for (uint32_t y = 0; y < post.img.blue[0].size(); ++y) {
-			dl->AddRectFilled({x,y}, {x+1, y+1},
+			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
 			IM_COL32(post.img.red[y][x], post.img.green[y][x], post.img.blue[y][x], 255));
 		}
 	}
@@ -44,5 +44,6 @@ void VisualIDK::UI() {
 	ImGui::InputText("File", fileTempBuffer, 50);
 	if (ImGui::Button("Charger", {64, 15}))
 		original = Image(fileTempBuffer);
+	ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
 	ImGui::End();
 }
