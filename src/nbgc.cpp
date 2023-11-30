@@ -246,14 +246,14 @@ Image Image::contrasteDown(float contrastFactor) {
 Image Image::rotationD() {
 	//On inverse les dimensions (x*y -> y*x)
 	Image output(hauteur, longueur);
-	/*
+	
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[y][longueur - 1 - x] = img.red[x][y];
-			output.img.green[y][longueur - 1 - x] = img.green[x][y];
-			output.img.blue[y][longueur - 1 - x] = img.blue[x][y];
+			output.img.red[y][hauteur - 1 - x] = img.red[x][y];
+			output.img.green[y][hauteur - 1 - x] = img.green[x][y];
+			output.img.blue[y][hauteur - 1 - x] = img.blue[x][y];
 		}
-	}*/
+	}
 
 	return output;
 }
