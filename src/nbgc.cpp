@@ -278,9 +278,9 @@ Image Image::retournementH() {
 
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[x][y] = img.red[x][hauteur - 1 - y];
-			output.img.green[x][y] = img.green[x][hauteur - 1 - y];
-			output.img.blue[x][y] = img.blue[x][hauteur - 1 - y];
+			output.img.red[x][y] = img.red[longueur - 1 - x][y];
+			output.img.green[x][y] = img.green[longueur - 1 - x][y];
+			output.img.blue[x][y] = img.blue[longueur - 1 - x][y];
 		}
 	}
 
@@ -292,9 +292,9 @@ Image Image::retournementV() {
 
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[x][y] = img.red[longueur - 1 - x][y];
-			output.img.green[x][y] = img.green[longueur - 1 - x][y];
-			output.img.blue[x][y] = img.blue[longueur - 1 - x][y];
+			output.img.red[x][y] = img.red[x][hauteur - 1 - y];
+			output.img.green[x][y] = img.green[x][hauteur - 1 - y];
+			output.img.blue[x][y] = img.blue[x][hauteur - 1 - y];
 		}
 	}
 
@@ -374,4 +374,25 @@ uint32_t Image::getLongueur() {
 }
 uint32_t Image::getHauteur() {
 	return hauteur;
+}
+
+Image Image::agrandissement(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0)
+		return Image(0, 0);
+	
+	Image output = Image(longueur * nb, hauteur * nb);
+	for (uint32_t x = 0; x < longueur * nb; ++x) {
+		for (uint32_t y = 0; y < hauteur * nb; ++y) {
+			// Trouver la position correspondante dans l'image d'origine
+			uint32_t origX = x / nb;
+			uint32_t origY = y / nb;
+
+			// Copier la valeur du pixel le plus proche
+			output.img.red[x][y] = img.red[origX][origY];
+			output.img.green[x][y] = img.green[origX][origY];
+			output.img.blue[x][y] = img.blue[origX][origY];
+		}
+	}
+	return output;
+
 }

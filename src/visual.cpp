@@ -13,6 +13,14 @@ void VisualIDK::Update() {
 		luminosity = false;
 		contraste = false;
 		rotationD = false;
+		rotationG = false;
+		retournementH = false;
+		retournementV = false;
+		rognerD = false;
+		rognerB = false;
+		rognerG = false;
+		rognerH = false;
+		agrandissement = false;
 	}
 	if (noirBlanc)
 		post = post.noirEtBlanc();
@@ -40,6 +48,8 @@ void VisualIDK::Update() {
 		post = post.rognerH(1);
 	if (rognerB)
 		post = post.rognerB(1);
+	if (agrandissement)
+		post = post.agrandissement(2);
 }
 
 void VisualIDK::Draw() {
@@ -68,6 +78,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Rognement Gauche", &rognerG);
 	ImGui::Checkbox("Rognement Haut", &rognerH);
 	ImGui::Checkbox("Rognement Bas", &rognerB);
+	ImGui::Checkbox("Agrandissement", &agrandissement);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);
