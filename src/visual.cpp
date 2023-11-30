@@ -32,13 +32,15 @@ void VisualIDK::Update() {
 		post = post.retournementH();
 	if (retournementV)
 		post = post.retournementV();
+	if (rognerD)
+		post = post.rognerD();
 }
 
 void VisualIDK::Draw() {
-	for (uint32_t x = 0; x < post.img.blue.size(); ++x) {
-		for (uint32_t y = 0; y < post.img.blue[0].size(); ++y) {
+	for (uint32_t y = 0; y < post.getHauteur(); ++y) {
+		for (uint32_t x = 0; x < post.getLongueur(); ++x) {
 			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
-			IM_COL32(post.img.red[y][x], post.img.green[y][x], post.img.blue[y][x], 255));
+			IM_COL32(post.img.red[x][y], post.img.green[x][y], post.img.blue[x][y], 255));
 		}
 	}
 }
@@ -56,6 +58,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Rotation Gauche", &rotationG);
 	ImGui::Checkbox("Retournement Horizontal", &retournementH);
 	ImGui::Checkbox("Retournement Vertical", &retournementV);
+	ImGui::Checkbox("Rognement Droite", &rognerD);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);

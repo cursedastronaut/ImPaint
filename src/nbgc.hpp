@@ -68,8 +68,12 @@ class Image {
 	Image retournementH();
 	//Retourne l'image verticalement
 	Image retournementV();
+
+	Image rognerD();
 	
-	
+	uint32_t getLongueur();
+	uint32_t getHauteur();
+
 	rgbVec img;
 	private:
 		uint32_t longueur;

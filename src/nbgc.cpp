@@ -17,8 +17,8 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	img.red = red;
 	img.green = green;
 	img.blue = blue;
-	longueur = red.size();
-	hauteur = red[0].size();
+	longueur = red[0].size();
+	hauteur = red.size();
 }
 
 Image::Image(size_t longueurUser, size_t hauteurUser) {
@@ -188,9 +188,9 @@ Image::Image(const string& nomFichier) {
 	{
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				fichier >> img.red[i][j];
-				fichier >> img.green[i][j];
-				fichier >> img.blue[i][j];
+				fichier >> img.red[j][i];
+				fichier >> img.green[j][i];
+				fichier >> img.blue[j][i];
 			}
 		}
 	}
@@ -215,8 +215,8 @@ void Image::ecrire(const string& nomFichier) {
 	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
 			<< longueur << " " << hauteur << " " << 255 << endl;
 	
-	for (uint32_t x = 0; x < longueur; ++x) {
-		for (uint32_t y = 0; y < hauteur; ++y) {
+	for (uint32_t y = 0; y < hauteur; ++y) {
+		for (uint32_t x = 0; x < longueur; ++x) {
 			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
 		}
 	}
@@ -299,4 +299,29 @@ Image Image::retournementV() {
 	}
 
 	return output;
+}
+
+Image Image::rognerD() {
+	if (longueur == 0 || hauteur == 0)
+		return Image(0, 0);
+
+	// Create a new image with one less column
+	Image output(longueur - 1, hauteur);
+
+	for (uint32_t x = 0; x < output.longueur; ++x) {
+		for (uint32_t y = 0; y < output.hauteur; ++y) {
+			output.img.red[x][y] = img.red[x][y];
+			output.img.green[x][y] = img.green[x][y];
+			output.img.blue[x][y] = img.blue[x][y];
+		}
+	}
+	cout << "test" << endl;
+	return output;
+}
+
+uint32_t Image::getLongueur() {
+	return longueur;
+}
+uint32_t Image::getHauteur() {
+	return hauteur;
 }
