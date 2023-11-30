@@ -15,7 +15,7 @@ class Image {
     public:
     //Constructor of Image class
     Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue);
-
+    void afficher();
     private:
         rgbVec img;
         uint32_t longueur;
