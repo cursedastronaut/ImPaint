@@ -8,5 +8,6 @@ int main(int argc, char* argv[]) {
 	//Image image = Image(test.red, test.blue, test.green);
 	Image image = Image("Couleur.ppm");
 	image.afficher();
+	image.ecrire("Couleur_GENERATED.ppm");
 	return 0;
 }

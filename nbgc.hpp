@@ -17,7 +17,7 @@ class Image {
 	public:
 	//Constructor of Image class
 	Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue);
-	Image(const std::string& filename);
+	Image(const string& nomFichier);
 	void afficher();
 	bool detection(int r, int v , int b);
 	Image composanteRouge();
@@ -33,6 +33,8 @@ class Image {
 	Image luminosityUp();
 
 	Image luminosityDown();
+
+	void ecrire(const string& nomFichier);
 	
 	private:
 		rgbVec img;

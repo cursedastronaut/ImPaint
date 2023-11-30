@@ -139,62 +139,84 @@ Image Image::luminosityDown() {
 	return Image(output_red, output_green, output_blue);
 }
 
-Image::Image(const string& filename) {
-	ifstream infile(filename, ifstream::binary);
-    // Examine if the file could be opened successfully
-    if (!infile.is_open()) 
-    {
-        cout << "Failed to open " << filename << endl;
-        return;
-    }
+Image::Image(const string& nomFichier) {
+	ifstream fichier(nomFichier, ifstream::binary);
+	if (!fichier.is_open()) 
+	{
+		cout << "Failed to open " << nomFichier << endl;
+		return;
+	}
 	string mMagic;
 	int width, height, maxColor;
 
-    infile >> mMagic;
-    infile.seekg(1, infile.cur);
-    char c;
-    infile.get(c);
-    if (c == '#')
-    {
-        // We got comments in the PPM image and skip the comments
-        while (c != '\n')
-        {
-            infile.get(c);
-        }
-    }
-    else
-    {
-        infile.seekg(-1, infile.cur);
-    }
-    
-    infile >> width >> height >> maxColor;
-    if (maxColor != 255)
-    {
-        cout << "Failed to read " << filename << endl;
-        cout << "Got PPM maximum value: " << maxColor << endl;
-        cout << "Maximum pixel has to be 255" << endl;
-        return;
-    }
+	fichier >> mMagic;
+	fichier.seekg(1, fichier.cur);
+	char c;
+	fichier.get(c);
+	// Ignore les caractères de chaque ligne de commentaire
+	if (c == '#')
+	{
+		while (c != '\n')
+		{
+			fichier.get(c);
+		}
+	}
+	else
+	{
+		fichier.seekg(-1, fichier.cur);
+	}
+	
+	fichier >> width >> height >> maxColor;
+	if (maxColor != 255)
+	{
+		cout << "Failed to read " << nomFichier << endl;
+		cout << "Got PPM maximum value: " << maxColor << endl;
+		cout << "Maximum pixel has to be 255" << endl;
+		return;
+	}
 
 	// Resize the vectors to match the image dimensions
-    img.red.resize(height, vector<int>(width, 0));
-    img.green.resize(height, vector<int>(width, 0));
-    img.blue.resize(height, vector<int>(width, 0));
+	img.red.resize(height, vector<int>(width, 0));
+	img.green.resize(height, vector<int>(width, 0));
+	img.blue.resize(height, vector<int>(width, 0));
 
-    // ASCII
-    if (mMagic == "P3")
-    {
-        for (int i = 0; i < height; ++i) {
+	// ASCII
+	if (mMagic == "P3")
+	{
+		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				infile >> img.red[i][j];
-				infile >> img.green[i][j];
-				infile >> img.blue[i][j];
+				fichier >> img.red[i][j];
+				fichier >> img.green[i][j];
+				fichier >> img.blue[i][j];
 			}
 		}
-    }
-    else
-    {
-        cerr << "Format non reconnu." << endl;
-        return;
-    }
+	}
+	else
+	{
+		cerr << "Format non reconnu." << endl;
+		return;
+	}
+	longueur = width;
+	largeur = height;
+
+}
+
+void Image::ecrire(const string& nomFichier) {
+	ofstream fichier(nomFichier, ifstream::binary);
+	if (!fichier.is_open()) 
+	{
+		cout << "Failed to open " << nomFichier << endl;
+		return;
+	}
+
+	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
+			<< longueur << " " << largeur << " " << 255 << endl;
+	
+	for (size_t x = 0; x < longueur; ++x) {
+		for (size_t y = 0; y < largeur; ++y) {
+			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
+		}
+	}
+	cout << "Height: " << largeur << "Width:" << longueur; 
+	fichier.close();
 }
