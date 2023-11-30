@@ -53,7 +53,7 @@ Image Image::composanteRouge() {
     return Image(img.red, emptyVec, emptyVec);
 }
 
-void Image::detection(int r, int v, int b) {
+bool Image::detection(int r, int v, int b) {
     bool status = false;
     for (size_t x = 0; x < img.red.size() && !status; ++x) {
         for (size_t y = 0; y < img.red[0].size() && !status; ++y)
@@ -62,4 +62,34 @@ void Image::detection(int r, int v, int b) {
             }
     }
     return status;
+}
+
+Image Image::niveauxGris() {
+    vector<vector<int>> output(longueur, vector<int>(largeur, 0));
+    for (size_t x = 0; x < longueur; ++x)
+        for (size_t y = 0; y < largeur; ++y)
+            output[x][y] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
+
+    return Image(output, output, output);
+}
+
+vector<int> Image::histogrammeGris() {
+    vector<int> output(longueur * largeur, 0);
+    for (size_t y = 0; y < largeur; ++y)
+        for (size_t x = 0; x < longueur; ++x)
+            output[y * largeur + x] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
+
+    return output;
+}
+
+vector<vector<vector<int>>> Image::histogrammeCouleur() {
+    vector<vector<vector<int>>> output(longueur, vector<vector<int>>(largeur, vector<int>(largeur, 0)));
+    for (size_t y = 0; y < largeur; ++y) {
+        for (size_t x = 0; x < longueur; ++x) {
+            output[y * largeur + x][0][0] = img.red[x][y];
+            output[0][y * largeur + x][0] = img.green[x][y];
+            output[y * largeur + x][0][0] = img.blue[x][y];
+        }
+    }
+    return output;
 }
