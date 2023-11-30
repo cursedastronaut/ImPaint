@@ -300,13 +300,13 @@ Image Image::retournementV() {
 
 	return output;
 }
-
-Image Image::rognerD() {
-	if (longueur == 0 || hauteur == 0)
+//
+Image Image::rognerD(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || (int)longueur - (int)nb <= 0)
 		return Image(0, 0);
 
-	// Create a new image with one less column
-	Image output(longueur - 1, hauteur);
+	// Create a new image with nb less column
+	Image output(longueur - nb, hauteur);
 
 	for (uint32_t x = 0; x < output.longueur; ++x) {
 		for (uint32_t y = 0; y < output.hauteur; ++y) {
@@ -315,7 +315,57 @@ Image Image::rognerD() {
 			output.img.blue[x][y] = img.blue[x][y];
 		}
 	}
-	cout << "test" << endl;
+	return output;
+}
+
+Image Image::rognerG(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || (int)longueur - (int)nb <= 0)
+		return Image(0, 0);
+
+	// Create a new image with nb less column
+	Image output(longueur - nb, hauteur);
+
+	for (uint32_t x = 0; x < output.longueur; ++x) {
+		for (uint32_t y = 0; y < output.hauteur; ++y) {
+			output.img.red[x][y] = img.red[ x + nb ][y];
+			output.img.green[x][y] = img.green[ x + nb ][y];
+			output.img.blue[x][y] = img.blue[ x + nb ][y];
+		}
+	}
+	return output;
+}
+
+Image Image::rognerH(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0)
+		return Image(0, 0);
+
+	// Create a new image with nb less column
+	Image output(longueur, hauteur - nb);
+
+	for (uint32_t x = 0; x < output.longueur; ++x) {
+		for (uint32_t y = 0; y < output.hauteur; ++y) {
+			output.img.red[x][y] = img.red[x][ y + nb ];
+			output.img.green[x][y] = img.green[x][ y + nb ];
+			output.img.blue[x][y] = img.blue[x][ y + nb ];
+		}
+	}
+	return output;
+}
+
+Image Image::rognerB(uint32_t nb) {
+	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0)
+		return Image(0, 0);
+
+	// Create a new image with nb less column
+	Image output(longueur, hauteur - nb);
+
+	for (uint32_t x = 0; x < output.longueur; ++x) {
+		for (uint32_t y = 0; y < output.hauteur; ++y) {
+			output.img.red[x][y] = img.red[x][y];
+			output.img.green[x][y] = img.green[x][y];
+			output.img.blue[x][y] = img.blue[x][y];
+		}
+	}
 	return output;
 }
 

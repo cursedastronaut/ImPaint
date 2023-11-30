@@ -69,7 +69,10 @@ class Image {
 	//Retourne l'image verticalement
 	Image retournementV();
 
-	Image rognerD();
+	Image rognerD(uint32_t nb = 1);
+	Image rognerG(uint32_t nb = 1);
+	Image rognerH(uint32_t nb = 1);
+	Image rognerB(uint32_t nb = 1);
 	
 	uint32_t getLongueur();
 	uint32_t getHauteur();

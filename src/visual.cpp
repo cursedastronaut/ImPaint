@@ -33,7 +33,13 @@ void VisualIDK::Update() {
 	if (retournementV)
 		post = post.retournementV();
 	if (rognerD)
-		post = post.rognerD();
+		post = post.rognerD(1);
+	if (rognerG)
+		post = post.rognerG(1);
+	if (rognerH)
+		post = post.rognerH(1);
+	if (rognerB)
+		post = post.rognerB(1);
 }
 
 void VisualIDK::Draw() {
@@ -59,6 +65,9 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Retournement Horizontal", &retournementH);
 	ImGui::Checkbox("Retournement Vertical", &retournementV);
 	ImGui::Checkbox("Rognement Droite", &rognerD);
+	ImGui::Checkbox("Rognement Gauche", &rognerG);
+	ImGui::Checkbox("Rognement Haut", &rognerH);
+	ImGui::Checkbox("Rognement Bas", &rognerB);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);
