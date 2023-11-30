@@ -62,7 +62,7 @@ class Image {
 	void ecrire(const string& nomFichier = "output.ppm");
 	//Tourne l'image cible à droite
 	Image rotationD();
-	//Tourne l'image cible à droite
+	//Tourne l'image cible à gauche
 	Image rotationG();
 	//Retourne l'image horizontalement
 	Image retournementH();
