@@ -52,3 +52,14 @@ Image Image::composanteRouge() {
     vector<vector<int>> emptyVec(longueur, vector<int>(largeur, 0));
     return Image(img.red, emptyVec, emptyVec);
 }
+
+void Image::detection(int r, int v, int b) {
+    bool status = false;
+    for (size_t x = 0; x < img.red.size() && !status; ++x) {
+        for (size_t y = 0; y < img.red[0].size() && !status; ++y)
+            if ((r == img.red[x][y]) && (v == img.green[x][y]) && (b == img.blue[x][y])){
+                status = true;
+            }
+    }
+    return status;
+}

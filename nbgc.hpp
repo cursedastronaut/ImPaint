@@ -16,6 +16,7 @@ class Image {
     //Constructor of Image class
     Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue);
     void afficher();
+    void detection(int r, int v , int b);
     Image composanteRouge();
     private:
         rgbVec img;
