@@ -42,8 +42,10 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
 	ImGui::InputText("File", fileTempBuffer, 50);
-	if (ImGui::Button("Charger", {64, 15}))
+	if (ImGui::Button("Charger", {64, 32}))
 		original = Image(fileTempBuffer);
 	ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
+	if (ImGui::Button("Écrire", {64, 32}))
+		post.ecrire();
 	ImGui::End();
 }
