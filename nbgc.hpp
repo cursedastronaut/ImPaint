@@ -51,7 +51,7 @@ class Image {
 	private:
 		rgbVec img;
 		uint32_t longueur;
-		uint32_t largeur;
+		uint32_t hauteur;
 };
 
 #endif //_NBGC_

@@ -18,7 +18,7 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	img.green = green;
 	img.blue = blue;
 	longueur = red.size();
-	largeur = red[0].size();
+	hauteur = red[0].size();
 }
 
 void Image::afficher() {
@@ -49,7 +49,7 @@ void Image::afficher() {
 }
 
 Image Image::composanteRouge() {
-	vector<vector<int>> emptyVec(longueur, vector<int>(largeur, 0));
+	vector<vector<int>> emptyVec(longueur, vector<int>(hauteur, 0));
 	return Image(img.red, emptyVec, emptyVec);
 }
 
@@ -65,39 +65,39 @@ bool Image::detection(int r, int v, int b) {
 }
 
 Image Image::niveauxGris() {
-	vector<vector<int>> output(longueur, vector<int>(largeur, 0));
+	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
 	for (size_t x = 0; x < longueur; ++x)
-		for (size_t y = 0; y < largeur; ++y)
+		for (size_t y = 0; y < hauteur; ++y)
 			output[x][y] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
 
 	return Image(output, output, output);
 }
 
 vector<int> Image::histogrammeGris() {
-	vector<int> output(longueur * largeur, 0);
-	for (size_t y = 0; y < largeur; ++y)
+	vector<int> output(longueur * hauteur, 0);
+	for (size_t y = 0; y < hauteur; ++y)
 		for (size_t x = 0; x < longueur; ++x)
-			output[y * largeur + x] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
+			output[y * hauteur + x] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
 
 	return output;
 }
 
 vector<vector<vector<int>>> Image::histogrammeCouleur() {
-	vector<vector<vector<int>>> output(longueur, vector<vector<int>>(largeur, vector<int>(largeur, 0)));
-	for (size_t y = 0; y < largeur; ++y) {
+	vector<vector<vector<int>>> output(longueur, vector<vector<int>>(hauteur, vector<int>(hauteur, 0)));
+	for (size_t y = 0; y < hauteur; ++y) {
 		for (size_t x = 0; x < longueur; ++x) {
-			output[y * largeur + x][0][0] = img.red[x][y];
-			output[0][y * largeur + x][0] = img.green[x][y];
-			output[y * largeur + x][0][0] = img.blue[x][y];
+			output[y * hauteur + x][0][0] = img.red[x][y];
+			output[0][y * hauteur + x][0] = img.green[x][y];
+			output[y * hauteur + x][0][0] = img.blue[x][y];
 		}
 	}
 	return output;
 }
 
 Image Image::noirEtBlanc() {
-	vector<vector<int>> output(longueur, vector<int>(largeur, 0));
+	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
 	for (size_t x = 0; x < longueur; ++x)
-		for (size_t y = 0; y < largeur; ++y)
+		for (size_t y = 0; y < hauteur; ++y)
 			if((img.red[x][y] + img.green[x][y] + img.blue[x][y])/3 < 127){
 				output[x][y] = 0;
 			}
@@ -110,11 +110,11 @@ Image Image::noirEtBlanc() {
 }
 
 Image Image::changeLuminosity(const float luminosityFactor) {
-	vector<vector<int>> output_red(longueur, vector<int>(largeur, 0));
-	vector<vector<int>> output_green(longueur, vector<int>(largeur, 0));
-	vector<vector<int>> output_blue(longueur, vector<int>(largeur, 0));
+	vector<vector<int>> output_red(longueur, vector<int>(hauteur, 0));
+	vector<vector<int>> output_green(longueur, vector<int>(hauteur, 0));
+	vector<vector<int>> output_blue(longueur, vector<int>(hauteur, 0));
 	for (size_t x = 0; x < longueur; ++x) {
-		for (size_t y = 0; y < largeur; ++y) {
+		for (size_t y = 0; y < hauteur; ++y) {
 			output_red[x][y] = img.red[x][y] * (1 + luminosityFactor);
 			output_green[x][y] = img.green[x][y] * (1 + luminosityFactor);
 			output_blue[x][y] = img.blue[x][y] * (1 + luminosityFactor);
@@ -190,7 +190,7 @@ Image::Image(const string& nomFichier) {
 		return;
 	}
 	longueur = width;
-	largeur = height;
+	hauteur = height;
 
 }
 
@@ -203,10 +203,10 @@ void Image::ecrire(const string& nomFichier) {
 	}
 
 	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
-			<< longueur << " " << largeur << " " << 255 << endl;
+			<< longueur << " " << hauteur << " " << 255 << endl;
 	
 	for (size_t x = 0; x < longueur; ++x) {
-		for (size_t y = 0; y < largeur; ++y) {
+		for (size_t y = 0; y < hauteur; ++y) {
 			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
 		}
 	}
