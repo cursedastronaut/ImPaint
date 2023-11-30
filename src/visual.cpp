@@ -59,7 +59,7 @@ void VisualIDK::Draw() {
 	for (uint32_t y = 0; y < post.getHauteur(); ++y) {
 		for (uint32_t x = 0; x < post.getLongueur(); ++x) {
 			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
-			IM_COL32(post.img.red[x][y], post.img.green[x][y], post.img.blue[x][y], 255));
+			IM_COL32(post.img.r[x][y], post.img.v[x][y], post.img.b[x][y], 255));
 		}
 	}
 }

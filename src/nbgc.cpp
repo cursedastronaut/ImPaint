@@ -14,41 +14,41 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	)
 		throw invalid_argument("ERROR: RGB vectors does not have same size.");
 	
-	img.red = red;
-	img.green = green;
-	img.blue = blue;
+	img.r = red;
+	img.v = green;
+	img.b = blue;
 	longueur = red[0].size();
 	hauteur = red.size();
 }
 
 Image::Image(size_t longueurUser, size_t hauteurUser) {
-	img.blue.resize(longueurUser, vector<int>(hauteurUser, 0));
-	img.green.resize(longueurUser, vector<int>(hauteurUser, 0));
-	img.red.resize(longueurUser, vector<int>(hauteurUser, 0));
+	img.b.resize(longueurUser, vector<int>(hauteurUser, 0));
+	img.v.resize(longueurUser, vector<int>(hauteurUser, 0));
+	img.r.resize(longueurUser, vector<int>(hauteurUser, 0));
 	longueur = longueurUser;
 	hauteur = hauteurUser;
 }
 
 void Image::afficher() {
-	for (uint32_t x = 0; x < img.red.size(); ++x) {
-		for (uint32_t y = 0; y < img.red[0].size(); ++y)
-			cout << img.red[x][y] << ",";
+	for (uint32_t x = 0; x < img.r.size(); ++x) {
+		for (uint32_t y = 0; y < img.r[0].size(); ++y)
+			cout << img.r[x][y] << ",";
 		cout << endl;
 	}
 	
 	cout << endl;
 
-	for (uint32_t x = 0; x < img.green.size(); ++x) {
-		for (uint32_t y = 0; y < img.green[0].size(); ++y)
-			cout << img.green[x][y] << ",";
+	for (uint32_t x = 0; x < img.v.size(); ++x) {
+		for (uint32_t y = 0; y < img.v[0].size(); ++y)
+			cout << img.v[x][y] << ",";
 		cout << endl;
 	}
 
 	cout << endl;
 	
-	for (uint32_t x = 0; x < img.blue.size(); ++x) {
-		for (uint32_t y = 0; y < img.blue[0].size(); ++y)
-			cout << img.blue[x][y] << ",";
+	for (uint32_t x = 0; x < img.b.size(); ++x) {
+		for (uint32_t y = 0; y < img.b[0].size(); ++y)
+			cout << img.b[x][y] << ",";
 		cout << endl;
 	}
 
@@ -58,14 +58,14 @@ void Image::afficher() {
 
 Image Image::composanteRouge() {
 	vector<vector<int>> emptyVec(longueur, vector<int>(hauteur, 0));
-	return Image(img.red, emptyVec, emptyVec);
+	return Image(img.r, emptyVec, emptyVec);
 }
 
 bool Image::detection(int r, int v, int b) {
 	bool status = false;
-	for (uint32_t x = 0; x < img.red.size() && !status; ++x) {
-		for (uint32_t y = 0; y < img.red[0].size() && !status; ++y)
-			if ((r == img.red[x][y]) && (v == img.green[x][y]) && (b == img.blue[x][y])){
+	for (uint32_t x = 0; x < img.r.size() && !status; ++x) {
+		for (uint32_t y = 0; y < img.r[0].size() && !status; ++y)
+			if ((r == img.r[x][y]) && (v == img.v[x][y]) && (b == img.b[x][y])){
 				status = true;
 			}
 	}
@@ -76,7 +76,7 @@ Image Image::niveauxGris() {
 	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
 	for (uint32_t x = 0; x < longueur; ++x)
 		for (uint32_t y = 0; y < hauteur; ++y)
-			output[x][y] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
+			output[x][y] = (img.r[x][y] + img.v[x][y] + img.b[x][y])/3;
 
 	return Image(output, output, output);
 }
@@ -85,7 +85,7 @@ vector<int> Image::histogrammeGris() {
 	vector<int> output(longueur * hauteur, 0);
 	for (uint32_t y = 0; y < hauteur; ++y)
 		for (uint32_t x = 0; x < longueur; ++x)
-			output[y * hauteur + x] = (img.red[x][y] + img.green[x][y] + img.blue[x][y])/3;
+			output[y * hauteur + x] = (img.r[x][y] + img.v[x][y] + img.b[x][y])/3;
 
 	return output;
 }
@@ -94,9 +94,9 @@ vector<vector<vector<int>>> Image::histogrammeCouleur() {
 	vector<vector<vector<int>>> output(longueur, vector<vector<int>>(hauteur, vector<int>(hauteur, 0)));
 	for (uint32_t y = 0; y < hauteur; ++y) {
 		for (uint32_t x = 0; x < longueur; ++x) {
-			output[y * hauteur + x][0][0] = img.red[x][y];
-			output[0][y * hauteur + x][0] = img.green[x][y];
-			output[y * hauteur + x][0][0] = img.blue[x][y];
+			output[y * hauteur + x][0][0] = img.r[x][y];
+			output[0][y * hauteur + x][0] = img.v[x][y];
+			output[y * hauteur + x][0][0] = img.b[x][y];
 		}
 	}
 	return output;
@@ -106,7 +106,7 @@ Image Image::noirEtBlanc() {
 	vector<vector<int>> output(longueur, vector<int>(hauteur, 0));
 	for (uint32_t x = 0; x < longueur; ++x)
 		for (uint32_t y = 0; y < hauteur; ++y)
-			if((img.red[x][y] + img.green[x][y] + img.blue[x][y])/3 < 127){
+			if((img.r[x][y] + img.v[x][y] + img.b[x][y])/3 < 127){
 				output[x][y] = 0;
 			}
 			else {
@@ -125,9 +125,9 @@ Image Image::changeLuminosity(float luminosityFactor) {
 	vector<vector<int>> output_blue(longueur, vector<int>(hauteur, 0));
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output_red[x][y] = (img.red[x][y] * (luminosityFactor) > 255 ? 255 : img.red[x][y] * (luminosityFactor));
-			output_green[x][y] = (img.green[x][y] * (luminosityFactor) > 255 ? 255 : img.green[x][y] * (luminosityFactor));
-			output_blue[x][y] = (img.blue[x][y] * (luminosityFactor) > 255 ? 255 : img.blue[x][y] * (luminosityFactor));
+			output_red[x][y] = (img.r[x][y] * (luminosityFactor) > 255 ? 255 : img.r[x][y] * (luminosityFactor));
+			output_green[x][y] = (img.v[x][y] * (luminosityFactor) > 255 ? 255 : img.v[x][y] * (luminosityFactor));
+			output_blue[x][y] = (img.b[x][y] * (luminosityFactor) > 255 ? 255 : img.b[x][y] * (luminosityFactor));
 		}
 	}
 
@@ -179,18 +179,18 @@ Image::Image(const string& nomFichier) {
 	}
 
 	// Resize the vectors to match the image dimensions
-	img.red.resize(height, vector<int>(width, 0));
-	img.green.resize(height, vector<int>(width, 0));
-	img.blue.resize(height, vector<int>(width, 0));
+	img.r.resize(height, vector<int>(width, 0));
+	img.v.resize(height, vector<int>(width, 0));
+	img.b.resize(height, vector<int>(width, 0));
 
 	// ASCII
 	if (mMagic == "P3")
 	{
 		for (int i = 0; i < height; ++i) {
 			for (int j = 0; j < width; ++j) {
-				fichier >> img.red[j][i];
-				fichier >> img.green[j][i];
-				fichier >> img.blue[j][i];
+				fichier >> img.r[j][i];
+				fichier >> img.v[j][i];
+				fichier >> img.b[j][i];
 			}
 		}
 	}
@@ -217,7 +217,7 @@ void Image::ecrire(const string& nomFichier) {
 	
 	for (uint32_t y = 0; y < hauteur; ++y) {
 		for (uint32_t x = 0; x < longueur; ++x) {
-			fichier << img.red[x][y] << " " << img.green[x][y] << " " << img.blue[x][y] << endl;
+			fichier << img.r[x][y] << " " << img.v[x][y] << " " << img.b[x][y] << endl;
 		}
 	}
 	fichier.close();
@@ -226,12 +226,12 @@ void Image::ecrire(const string& nomFichier) {
 Image Image::changeContraste(float contrastFactor) {
 	if (contrastFactor < 0)
 		contrastFactor = 0;
-	Image output(img.red, img.green, img.blue);
+	Image output(img.r, img.v, img.b);
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[x][y] = (output.img.red[x][y] * contrastFactor > 255 ? 255 : output.img.red[x][y] * contrastFactor);
-			output.img.green[x][y] = (output.img.green[x][y] * contrastFactor > 255 ? 255 : output.img.green[x][y] * contrastFactor);
-			output.img.blue[x][y] = (output.img.blue[x][y] * contrastFactor > 255 ? 255 : output.img.blue[x][y] * contrastFactor);
+			output.img.r[x][y] = (output.img.r[x][y] * contrastFactor > 255 ? 255 : output.img.r[x][y] * contrastFactor);
+			output.img.v[x][y] = (output.img.v[x][y] * contrastFactor > 255 ? 255 : output.img.v[x][y] * contrastFactor);
+			output.img.b[x][y] = (output.img.b[x][y] * contrastFactor > 255 ? 255 : output.img.b[x][y] * contrastFactor);
 		}
 	}
 
@@ -251,9 +251,9 @@ Image Image::rotationD() {
 	
 	for (uint32_t x = 0; x < hauteur; ++x) {
 		for (uint32_t y = 0; y < longueur; ++y) {
-			output.img.red[y][hauteur - 1 - x] = img.red[x][y];
-			output.img.green[y][hauteur - 1 - x] = img.green[x][y];
-			output.img.blue[y][hauteur - 1 - x] = img.blue[x][y];
+			output.img.r[y][hauteur - 1 - x] = img.r[x][y];
+			output.img.v[y][hauteur - 1 - x] = img.v[x][y];
+			output.img.b[y][hauteur - 1 - x] = img.b[x][y];
 		}
 	}
 	return output;
@@ -265,9 +265,9 @@ Image Image::rotationG() {
 	
 	for (uint32_t x = 0; x < hauteur; ++x) {
 		for (uint32_t y = 0; y < longueur; ++y) {
-			output.img.red[longueur - 1 - y][x] = img.red[x][y];
-			output.img.green[longueur - 1 - y][x] = img.green[x][y];
-			output.img.blue[longueur - 1 - y][x] = img.blue[x][y];
+			output.img.r[longueur - 1 - y][x] = img.r[x][y];
+			output.img.v[longueur - 1 - y][x] = img.v[x][y];
+			output.img.b[longueur - 1 - y][x] = img.b[x][y];
 		}
 	}
 	return output;
@@ -278,9 +278,9 @@ Image Image::retournementH() {
 
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[x][y] = img.red[longueur - 1 - x][y];
-			output.img.green[x][y] = img.green[longueur - 1 - x][y];
-			output.img.blue[x][y] = img.blue[longueur - 1 - x][y];
+			output.img.r[x][y] = img.r[longueur - 1 - x][y];
+			output.img.v[x][y] = img.v[longueur - 1 - x][y];
+			output.img.b[x][y] = img.b[longueur - 1 - x][y];
 		}
 	}
 
@@ -292,9 +292,9 @@ Image Image::retournementV() {
 
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
-			output.img.red[x][y] = img.red[x][hauteur - 1 - y];
-			output.img.green[x][y] = img.green[x][hauteur - 1 - y];
-			output.img.blue[x][y] = img.blue[x][hauteur - 1 - y];
+			output.img.r[x][y] = img.r[x][hauteur - 1 - y];
+			output.img.v[x][y] = img.v[x][hauteur - 1 - y];
+			output.img.b[x][y] = img.b[x][hauteur - 1 - y];
 		}
 	}
 
@@ -310,9 +310,9 @@ Image Image::rognerD(uint32_t nb) {
 
 	for (uint32_t x = 0; x < output.longueur; ++x) {
 		for (uint32_t y = 0; y < output.hauteur; ++y) {
-			output.img.red[x][y] = img.red[x][y];
-			output.img.green[x][y] = img.green[x][y];
-			output.img.blue[x][y] = img.blue[x][y];
+			output.img.r[x][y] = img.r[x][y];
+			output.img.v[x][y] = img.v[x][y];
+			output.img.b[x][y] = img.b[x][y];
 		}
 	}
 	return output;
@@ -327,9 +327,9 @@ Image Image::rognerG(uint32_t nb) {
 
 	for (uint32_t x = 0; x < output.longueur; ++x) {
 		for (uint32_t y = 0; y < output.hauteur; ++y) {
-			output.img.red[x][y] = img.red[ x + nb ][y];
-			output.img.green[x][y] = img.green[ x + nb ][y];
-			output.img.blue[x][y] = img.blue[ x + nb ][y];
+			output.img.r[x][y] = img.r[ x + nb ][y];
+			output.img.v[x][y] = img.v[ x + nb ][y];
+			output.img.b[x][y] = img.b[ x + nb ][y];
 		}
 	}
 	return output;
@@ -344,9 +344,9 @@ Image Image::rognerH(uint32_t nb) {
 
 	for (uint32_t x = 0; x < output.longueur; ++x) {
 		for (uint32_t y = 0; y < output.hauteur; ++y) {
-			output.img.red[x][y] = img.red[x][ y + nb ];
-			output.img.green[x][y] = img.green[x][ y + nb ];
-			output.img.blue[x][y] = img.blue[x][ y + nb ];
+			output.img.r[x][y] = img.r[x][ y + nb ];
+			output.img.v[x][y] = img.v[x][ y + nb ];
+			output.img.b[x][y] = img.b[x][ y + nb ];
 		}
 	}
 	return output;
@@ -361,9 +361,9 @@ Image Image::rognerB(uint32_t nb) {
 
 	for (uint32_t x = 0; x < output.longueur; ++x) {
 		for (uint32_t y = 0; y < output.hauteur; ++y) {
-			output.img.red[x][y] = img.red[x][y];
-			output.img.green[x][y] = img.green[x][y];
-			output.img.blue[x][y] = img.blue[x][y];
+			output.img.r[x][y] = img.r[x][y];
+			output.img.v[x][y] = img.v[x][y];
+			output.img.b[x][y] = img.b[x][y];
 		}
 	}
 	return output;
@@ -388,9 +388,9 @@ Image Image::agrandissement(uint32_t nb) {
 			uint32_t origY = y / nb;
 
 			// Copier la valeur du pixel le plus proche
-			output.img.red[x][y] = img.red[origX][origY];
-			output.img.green[x][y] = img.green[origX][origY];
-			output.img.blue[x][y] = img.blue[origX][origY];
+			output.img.r[x][y] = img.r[origX][origY];
+			output.img.v[x][y] = img.v[origX][origY];
+			output.img.b[x][y] = img.b[origX][origY];
 		}
 	}
 	return output;
@@ -421,16 +421,16 @@ Image Image::retrecissement(uint32_t nb) {
 
             for (uint32_t origX = origXStart; origX < origXEnd; ++origX) {
                 for (uint32_t origY = origYStart; origY < origYEnd; ++origY) {
-                    redSum += img.red[origX][origY];
-                    greenSum += img.green[origX][origY];
-                    blueSum += img.blue[origX][origY];
+                    redSum += img.r[origX][origY];
+                    greenSum += img.v[origX][origY];
+                    blueSum += img.b[origX][origY];
                 }
             }
 
             // Remplir la nouvelle image avec la moyenne des valeurs du bloc
-            output.img.red[x][y] = redSum / (nb * nb);
-            output.img.green[x][y] = greenSum / (nb * nb);
-            output.img.blue[x][y] = blueSum / (nb * nb);
+            output.img.r[x][y] = redSum / (nb * nb);
+            output.img.v[x][y] = greenSum / (nb * nb);
+            output.img.b[x][y] = blueSum / (nb * nb);
         }
     }
 

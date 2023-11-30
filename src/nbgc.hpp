@@ -9,9 +9,9 @@
 using namespace std;
 
 struct rgbVec {
-	vector<vector<int>> red;
-	vector<vector<int>> green;
-	vector<vector<int>> blue;
+	vector<vector<int>> r;
+	vector<vector<int>> v;
+	vector<vector<int>> b;
 };
 
 class Image {
