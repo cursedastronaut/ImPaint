@@ -21,10 +21,12 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	hauteur = red[0].size();
 }
 
-Image::Image(uint32_t longueur, uint32_t hauteur) {
-	img.blue.resize(hauteur, vector<int>(longueur, 0));
-	img.green.resize(hauteur, vector<int>(longueur, 0));
-	img.red.resize(hauteur, vector<int>(longueur, 0));
+Image::Image(size_t longueurUser, size_t hauteurUser) {
+	img.blue.resize(longueurUser, vector<int>(hauteurUser, 0));
+	img.green.resize(longueurUser, vector<int>(hauteurUser, 0));
+	img.red.resize(longueurUser, vector<int>(hauteurUser, 0));
+	longueur = longueurUser;
+	hauteur = hauteurUser;
 }
 
 void Image::afficher() {
@@ -245,15 +247,16 @@ Image Image::contrasteDown(float contrastFactor) {
 }
 Image Image::rotationD() {
 	//On inverse les dimensions (x*y -> y*x)
-	Image output(hauteur, longueur);
+	Image output = Image(395, 395);
 	
-	for (uint32_t x = 0; x < longueur; ++x) {
-		for (uint32_t y = 0; y < hauteur; ++y) {
+	for (uint32_t x = 0; x < hauteur; ++x) {
+		for (uint32_t y = 0; y < longueur; ++y) {
 			output.img.red[y][hauteur - 1 - x] = img.red[x][y];
 			output.img.green[y][hauteur - 1 - x] = img.green[x][y];
 			output.img.blue[y][hauteur - 1 - x] = img.blue[x][y];
 		}
 	}
-
+	cout << hauteur << ", " << longueur << endl;
+	cout << output.longueur << ", " << output.hauteur << endl;
 	return output;
 }

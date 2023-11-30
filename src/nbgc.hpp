@@ -24,7 +24,7 @@ class Image {
 	Image(const string& nomFichier);
 	//Constructeur de la classe Image
 	//Prend deux dimensions, et créé une image noire.
-	Image(uint32_t longueur, uint32_t hauteur);
+	Image(size_t longueur, size_t hauteur);
 
 	//Affiche le contenu de chaque vecteur de couleur, séparément.
 	void afficher();
