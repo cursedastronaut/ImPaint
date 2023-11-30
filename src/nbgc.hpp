@@ -69,6 +69,7 @@ class Image {
 	//Retourne l'image verticalement
 	Image retournementV();
 	
+	
 	rgbVec img;
 	private:
 		uint32_t longueur;
