@@ -2,6 +2,7 @@
 .vscode
 #Assets
 *.ppm
+!ppm_tests/*.ppm
 #Executables
 *.exe
 main
