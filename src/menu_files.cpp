@@ -16,6 +16,5 @@ void Menu::displayMenu() {
 			<< "6- Histogramme Couleur"
 			<< "7- Luminosite +"
 			<< "8- Luminosite -"
-
 			<< endl;
 }

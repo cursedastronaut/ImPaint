@@ -2,7 +2,7 @@
 #define _MENU_FILES_
 #include <string>
 //#include <filesystem>
-#include "nbgc.hpp"
+#include "filtre.hpp"
 
 using namespace std;
 
@@ -14,7 +14,6 @@ class Menu {
 
 	private:
 		string filePath;
-
 };
 
 #endif

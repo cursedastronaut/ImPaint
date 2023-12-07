@@ -43,6 +43,14 @@ void VisualIDK::Update() {
 			post = post.visionProtanopie();
 		if (visionTritanopie)
 			post = post.visionTritanopie();
+		if (filtreFlouG3) {
+			Filtre flouG3(FLOUG3);
+			post = flouG3.application(post);
+		}
+		if (filtreFlouG5) {
+			Filtre flouG5(FLOUG5);
+			post = flouG5.application(post);
+		}
 	}
 }
 
@@ -152,6 +160,10 @@ void VisualIDK::UI() {
 	ImGui::InputInt("rV", &retrecissementV, 1, 2);
 	ImGui::PopItemWidth();
 	ImGui::Checkbox("No Refresh", &dontRefresh);
+	ImGui::NewLine();
+	ImGui::Text("Partie 4 - Filtres");
+	ImGui::Checkbox("FlouG3", &filtreFlouG3);
+	ImGui::Checkbox("FlouG5", &filtreFlouG5);
 	ImGui::NewLine();
 	ImGui::Text("Partie 2 - Fichiers");
 	ImGui::InputText("File", fileTempBuffer, 50);

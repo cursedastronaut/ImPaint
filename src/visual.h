@@ -16,7 +16,8 @@
 #include "../externals/include/GLFW/glfw3.h" // Will drag system OpenGL headers
 #include <vector>
 //#include <bits/stdc++.h> 
-#include "menu_files.hpp"/*
+#include "menu_files.hpp"
+/*
 #ifndef __has_include
   static_assert(false, "__has_include not supported");
 #else
@@ -67,6 +68,8 @@ class VisualIDK {
 	bool visionDeuteranopie = false;
 	bool visionProtanopie = false;
 	bool visionTritanopie = false;
+	bool filtreFlouG3 = false;
+	bool filtreFlouG5 = false;
 	float luminosityF = 1.0f;
 	float contrasteF = 1.0f;
 	int agrandissementV = 1;

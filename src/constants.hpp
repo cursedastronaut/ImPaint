@@ -4,6 +4,18 @@
 #include <vector>
 using namespace std;
 
+const vector<vector<float>> FILTRE_FLOUG3 = {{1.f/16.f, 1.f/8.f, 1.f/16.f}, {1.f/8.f, 1.f/4.f, 1.f/8.f}, {1.f/16.f, 1.f/8.f, 1.f/16.f}};
+
+const vector<vector<float>> FILTRE_FLOUG5 = {
+	{01.f, 04.f, 06.f, 04.f, 01.f},
+	{04.f, 16.f, 24.f, 16.f, 04.f},
+	{06.f, 24.f, 36.f, 24.f, 06.f},
+	{04.f, 16.f, 24.f, 16.f, 04.f},
+	{01.f, 04.f, 06.f, 04.f, 01.f}
+};
+
+const float FILTRE_FLOUG5_MODIF = 1.f/256.f;
+
 const float LUMINOSITY_CHANGE = 0.1f;
 const float CONTRAST_CHANGE = 1.0f;
 
@@ -25,6 +37,11 @@ enum {
 	TRITAN,
 	PROTAN,
 	DEUTAN
+};
+
+enum {
+	FLOUG3,
+	FLOUG5,
 };
 
 #endif //_CONSTANTS_
