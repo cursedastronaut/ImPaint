@@ -470,7 +470,7 @@ uint32_t Image::getHauteur() {
 }
 
 Image Image::agrandissement(uint32_t nb) {
-	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0) {
+	if (longueur == 0 || hauteur == 0 || nb <= 0) {
 
 		return Image(0, 0);
 	}
