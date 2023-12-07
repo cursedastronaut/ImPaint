@@ -237,11 +237,11 @@ void Image::ecrire(const string& nomFichier) {
 	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
 			<< longueur << " " << hauteur << " " << 255 << endl;
 	
-	int quarter = hauteur / 4 - 1; 
+	int dizPourcent = hauteur / 10 - 1; 
 	cout << nomFichier << " ecriture (en %): ";
 	for (uint32_t y = 0, j = 1; y < hauteur; ++y) {
-		if (y == quarter * j) {
-			cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
+		if (y == dizPourcent * j) {
+			cout << 100/10 * j << (100/10*j == 100 ? "" : ", ");
 			++j;
 		}
 		
@@ -591,8 +591,8 @@ Image Image::visionTritanopie() {
 Image Image::contourSobel() {
 	Image output = this;
 	vector<vector<float>> gradient = FILTRE_GRADIENTX;
-	Filtre gradientX(2);
-	Filtre gradientY(3);
+	Filtre gradientX(GRADIENTX);
+	Filtre gradientY(GRADIENTY);
 	if (!(gradientX.action.size() == gradientY.action.size() && gradientX.action[0].size() == gradientY.action[0].size()))
 		return Image(0,0);
 	for (uint32_t x = 0; x < gradientX.action.size(); ++x)
