@@ -436,3 +436,15 @@ Image Image::retrecissement(uint32_t nb) {
 
     return output;
 }
+
+Image Image::visionDeuteranopie() {
+
+}
+
+Image Image::visionProtanopie() {
+
+}
+
+Image Image::visionTritanopie() {
+
+}

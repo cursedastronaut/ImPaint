@@ -2,7 +2,7 @@
 #define _NBGC_
 #include <iostream>
 #include <vector>
-//#include <fstream>
+#include <fstream>
 #include <sstream>
 #define LUMINOSITY_CHANGE 0.1f
 #define CONTRAST_CHANGE 1.0f
@@ -84,6 +84,9 @@ class Image {
 	uint32_t getLongueur();
 	//Permets d'obtenir la largeur (y)
 	uint32_t getHauteur();
+	Image visionDeuteranopie();
+	Image visionProtanopie();
+	Image visionTritanopie();
 
 	rgbVec img;
 	private:
