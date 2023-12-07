@@ -80,9 +80,9 @@ Image::Image(const string& nomFichier) {
 	if (mMagic == "P3")
 	{
 		cout << nomFichier << " chargement (en %): ";
-		int quarter = height / 4 - 1;
+		int quarter = height / 4;
 		for (int i = 0, j = 1; i < height && !fichier.eof(); ++i) {
-			if (i == quarter * j) {
+			if (i == quarter * j-1) {
 				cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
 				j++;
 			}
