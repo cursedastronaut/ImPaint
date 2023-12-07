@@ -3,6 +3,7 @@
 #include <iostream>
 #include "constants.hpp"
 #include <fstream>
+#include <cmath>
 #include <cstdint>
 #include <sstream>
 using namespace std;
@@ -88,6 +89,8 @@ class Image {
 		Image visionTritanopie();
 		//Renvoie l'image cible, modifiée pour simuler la vision d'un daltonien.
 		Image visionDaltonisme(uint8_t type);
+
+		Image contourSobel();
 
 		rgbVec img;
 	private:

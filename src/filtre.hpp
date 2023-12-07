@@ -5,6 +5,7 @@
 class Filtre {
 	public:
 		Filtre(uint8_t type);
+		Filtre(vector<vector<float>> actionUser, int rayonUser);
 		vector<vector<float>> action;
 		int rayon;
 

@@ -70,6 +70,7 @@ class VisualIDK {
 	bool visionTritanopie = false;
 	bool filtreFlouG3 = false;
 	bool filtreFlouG5 = false;
+	bool filtreContourSobel = false;
 	float luminosityF = 1.0f;
 	float contrasteF = 1.0f;
 	int agrandissementV = 1;

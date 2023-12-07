@@ -51,6 +51,9 @@ void VisualIDK::Update() {
 			Filtre flouG5(FLOUG5);
 			post = flouG5.application(post);
 		}
+		if (filtreContourSobel) {
+			post = post.contourSobel();
+		}
 	}
 }
 
@@ -164,6 +167,7 @@ void VisualIDK::UI() {
 	ImGui::Text("Partie 4 - Filtres");
 	ImGui::Checkbox("FlouG3", &filtreFlouG3);
 	ImGui::Checkbox("FlouG5", &filtreFlouG5);
+	ImGui::Checkbox("Contour Sobel", &filtreContourSobel);
 	ImGui::NewLine();
 	ImGui::Text("Partie 2 - Fichiers");
 	ImGui::InputText("File", fileTempBuffer, 50);

@@ -1,4 +1,6 @@
 #include "filtre.hpp"
+using namespace std;
+
 Filtre::Filtre(uint8_t type) {
 	switch (type)
 	{
@@ -17,9 +19,18 @@ Filtre::Filtre(uint8_t type) {
 		}
 		break;
 
+	case 2: action = FILTRE_GRADIENTX; break;
+	case 3:	action = FILTRE_GRADIENTY; break;
+
+
 	default:
 		break;
 	}
+}
+
+Filtre::Filtre(vector<vector<float>> actionUser, int rayonUser) {
+	action = actionUser;
+	rayon = rayonUser;
 }
 
 Image Filtre::application(Image &original) {

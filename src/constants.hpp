@@ -14,6 +14,18 @@ const vector<vector<float>> FILTRE_FLOUG5 = {
 	{01.f, 04.f, 06.f, 04.f, 01.f}
 };
 
+const vector<vector<float>> FILTRE_GRADIENTX = {
+	{-1.f, 0.f, 1.f},
+	{-2.f, 0.f, 2.f},
+	{-1.f, 0.f, 1.f}
+};
+
+const vector<vector<float>> FILTRE_GRADIENTY = {
+	{-1.f, -2.f, -1.f},
+	{00.f, 00.f, 00.f},
+	{01.f, 02.f, 01.f}
+};
+
 const float FILTRE_FLOUG5_MODIF = 1.f/256.f;
 
 const float LUMINOSITY_CHANGE = 0.1f;

@@ -1,4 +1,6 @@
 #include "nbgc.hpp"
+#include "filtre.hpp"
+using namespace std;
 
 Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue) {
 	if (
@@ -586,3 +588,17 @@ Image Image::visionTritanopie() {
 	return visionDaltonisme(TRITAN);
 }
 
+Image Image::contourSobel() {
+	Image output = this;
+	vector<vector<float>> gradient = FILTRE_GRADIENTX;
+	Filtre gradientX(2);
+	Filtre gradientY(3);
+	if (!(gradientX.action.size() == gradientY.action.size() && gradientX.action[0].size() == gradientY.action[0].size()))
+		return Image(0,0);
+	for (uint32_t x = 0; x < gradientX.action.size(); ++x)
+			for (uint32_t y = 0; y < gradientX.action[0].size(); ++y)
+				gradient[x][y] = sqrtf(powf(gradientX.action[x][y], 2) + powf(gradientY.action[x][y], 2));
+	Filtre gradientFiltre(gradient, 1);
+	
+	return gradientFiltre.application(output);
+}
