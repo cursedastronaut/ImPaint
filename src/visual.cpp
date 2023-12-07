@@ -107,12 +107,12 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Niveaux Gris", &niveauxGris);
 	ImGui::Checkbox("Luminosité", &luminosity);
 	ImGui::SameLine();
-	ImGui::PushItemWidth(64);
+	ImGui::PushItemWidth(96);
 	ImGui::InputFloat("l", &luminosityF, 0.1f, 0.2f);
 	ImGui::PopItemWidth();
 	ImGui::Checkbox("Contraste", &contraste);
 	ImGui::SameLine();
-	ImGui::PushItemWidth(64);
+	ImGui::PushItemWidth(96);
 	ImGui::InputFloat("c", &contrasteF, 0.1f, 0.2f);
 	ImGui::PopItemWidth();
 	ImGui::Text("Daltonisme:");
