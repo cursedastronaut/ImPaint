@@ -1,6 +1,7 @@
 #include "visual.h"
 
 VisualIDK::VisualIDK() {
+	post = original;
 }
 
 void VisualIDK::Update() {

@@ -9,7 +9,7 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 		) || !(
 			red[0].size() == green[0].size() &&
 			red[0].size() == blue[0].size() &&
-			green.size() == blue[0].size()
+			green[0].size() == blue[0].size()
 		)
 	)
 		throw invalid_argument("ERROR: RGB vectors does not have same size.");
@@ -17,8 +17,8 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	img.r = red;
 	img.v = green;
 	img.b = blue;
-	longueur = red[0].size();
-	hauteur = red.size();
+	longueur = red.size();
+	hauteur = red[0].size();
 }
 
 Image::Image(size_t longueurUser, size_t hauteurUser) {
@@ -33,6 +33,74 @@ Image::Image(size_t longueurUser, size_t hauteurUser) {
 	}
 	longueur = longueurUser;
 	hauteur = hauteurUser;
+}
+
+Image::Image(const string& nomFichier) {
+	ifstream fichier(nomFichier, ifstream::binary);
+	if (!fichier.is_open()) 
+	{
+		cout << "Failed to open " << nomFichier << endl;
+		return;
+	}
+	string mMagic;
+	int width, height, maxColor;
+
+	fichier >> mMagic;
+	fichier.seekg(1, fichier.cur);
+	char c;
+	fichier.get(c);
+	// Ignore les caractères de chaque ligne de commentaire
+	if (c == '#')
+	{
+		while (c != '\n')
+		{
+			fichier.get(c);
+		}
+	}
+	else
+	{
+		fichier.seekg(-1, fichier.cur);
+	}
+	
+	fichier >> width >> height >> maxColor;
+	if (maxColor != 255)
+	{
+		cout << "Failed to read " << nomFichier << endl;
+		cout << "Got PPM maximum value: " << maxColor << endl;
+		cout << "Maximum pixel has to be 255" << endl;
+		return;
+	}
+
+	// Resize the vectors to match the image dimensions
+	img.r.resize(width, vector<int>(height, 0));
+	img.v.resize(width, vector<int>(height, 0));
+	img.b.resize(width, vector<int>(height, 0));
+
+	// ASCII
+	if (mMagic == "P3")
+	{
+		cout << nomFichier << " chargement (en %): ";
+		int quarter = height / 4 - 1;
+		for (int i = 0, j = 1; i < height && !fichier.eof(); ++i) {
+			if (i == quarter * j) {
+				cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
+				j++;
+			}
+			for (int j = 0; j < width && !fichier.eof(); ++j) {
+				fichier >> img.r[j][i];
+				fichier >> img.v[j][i];
+				fichier >> img.b[j][i];
+			}
+		}
+	}
+	else
+	{
+		cerr << "Format non reconnu." << endl;
+		return;
+	}
+	cout << endl;
+	longueur = width;
+	hauteur = height;
 }
 
 Image::Image(Image *image) {
@@ -156,68 +224,6 @@ Image Image::luminosityDown(float luminosity) {
 	return changeLuminosity(1.f - luminosity);
 }
 
-Image::Image(const string& nomFichier) {
-	ifstream fichier(nomFichier, ifstream::binary);
-	if (!fichier.is_open()) 
-	{
-		cout << "Failed to open " << nomFichier << endl;
-		return;
-	}
-	string mMagic;
-	int width, height, maxColor;
-
-	fichier >> mMagic;
-	fichier.seekg(1, fichier.cur);
-	char c;
-	fichier.get(c);
-	// Ignore les caractères de chaque ligne de commentaire
-	if (c == '#')
-	{
-		while (c != '\n')
-		{
-			fichier.get(c);
-		}
-	}
-	else
-	{
-		fichier.seekg(-1, fichier.cur);
-	}
-	
-	fichier >> width >> height >> maxColor;
-	if (maxColor != 255)
-	{
-		cout << "Failed to read " << nomFichier << endl;
-		cout << "Got PPM maximum value: " << maxColor << endl;
-		cout << "Maximum pixel has to be 255" << endl;
-		return;
-	}
-
-	// Resize the vectors to match the image dimensions
-	img.r.resize(height, vector<int>(width, 0));
-	img.v.resize(height, vector<int>(width, 0));
-	img.b.resize(height, vector<int>(width, 0));
-
-	// ASCII
-	if (mMagic == "P3")
-	{
-		for (int i = 0; i < height; ++i) {
-			for (int j = 0; j < width; ++j) {
-				fichier >> img.r[j][i];
-				fichier >> img.v[j][i];
-				fichier >> img.b[j][i];
-			}
-		}
-	}
-	else
-	{
-		cerr << "Format non reconnu." << endl;
-		return;
-	}
-	longueur = width;
-	hauteur = height;
-
-}
-
 void Image::ecrire(const string& nomFichier) {
 	ofstream fichier(nomFichier, ifstream::binary);
 	if (!fichier.is_open()) 
@@ -229,12 +235,20 @@ void Image::ecrire(const string& nomFichier) {
 	fichier << "P3" << endl << "# Produit par le code de Galaad et Salim pour la S102" << endl
 			<< longueur << " " << hauteur << " " << 255 << endl;
 	
-	for (uint32_t y = 0; y < hauteur; ++y) {
+	int quarter = hauteur / 4 - 1; 
+	cout << nomFichier << " ecriture (en %): ";
+	for (uint32_t y = 0, j = 1; y < hauteur; ++y) {
+		if (y == quarter * j) {
+			cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
+			++j;
+		}
+		
 		for (uint32_t x = 0; x < longueur; ++x) {
 			fichier << img.r[x][y] << " " << img.v[x][y] << " " << img.b[x][y] << endl;
 		}
 	}
 	fichier.close();
+	cout << endl;
 }
 
 Image Image::changeContraste(float contrastFactor) {
@@ -541,8 +555,8 @@ Image Image::visionDaltonisme(uint8_t type) {
 		case DEUTAN:	colorMatrix = COLORBLIND_DEUTAN;	break;
 		default:		break;
 	}
-	Image output(img.r, img.v, img.b);
-	
+
+	Image output(this);
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
 			// Calculate tritanopia simulation

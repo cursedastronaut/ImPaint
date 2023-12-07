@@ -44,7 +44,7 @@ class VisualIDK {
 	void UI();
 
 	Image original = Image("ppm_tests/Ara_ararauna.ppm");
-	Image post = Image("ppm_tests/Ara_ararauna.ppm");
+	Image post = Image(0,0);
 	int sizePerPixel = 0;
 
 	private:
