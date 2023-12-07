@@ -11,6 +11,8 @@
 *.ini
 #Objects
 objects/*.o
+#Compressed files
+*.zip
 #Useless imguiStuff
 externals/imgui/
 #Executables
