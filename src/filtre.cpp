@@ -24,49 +24,22 @@ Filtre::Filtre(uint8_t type) {
 
 Image Filtre::application(Image &original) {
 	Image output(original);
-	for (uint32_t x = 0; x < original.getLongueur(); ++x) {
-		for (uint32_t y = 0; y < original.getHauteur(); ++y) {
-			output.img.r[x][y] = (
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][0] * original.img.r[x-1][y-1]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][1] * original.img.r[x  ][y-1]) ) +
-				( x == original.getLongueur() - 1 || y == 0 ? 0 : static_cast<int>(action[0][2] * original.img.r[x+1][y-1]) ) +
 
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][0] * original.img.r[x-1][y  ]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][1] * original.img.r[x  ][y  ]) ) +
-				( x == original.getLongueur() - 1 ? 0 : static_cast<int>(action[1][2] * original.img.r[x+1][y  ]) ) +
+	for (size_t x = 0; x < original.getLongueur(); ++x) {
+		for (size_t y = 0; y < original.getHauteur(); ++y) {
+			for (size_t channel = 0; channel < 3; ++channel) {
+				output.img[channel][x][y] = 0;
 
-				( x == 0 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][0] * original.img.r[x-1][y+1]) ) +
-				( x == 0 ? 0 : static_cast<int>(action[2][1] * original.img.r[x  ][y+1]) ) +
-				( x == original.getLongueur() - 1 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][2] * original.img.r[x+1][y+1]) )
-			);
-
-			output.img.v[x][y] = (
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][0] * original.img.v[x-1][y-1]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][1] * original.img.v[x  ][y-1]) ) +
-				( x == original.getLongueur() - 1 || y == 0 ? 0 : static_cast<int>(action[0][2] * original.img.v[x+1][y-1]) ) +
-
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][0] * original.img.v[x-1][y  ]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][1] * original.img.v[x  ][y  ]) ) +
-				( x == original.getLongueur() - 1 ? 0 : static_cast<int>(action[1][2] * original.img.v[x+1][y  ]) ) +
-
-				( x == 0 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][0] * original.img.v[x-1][y+1]) ) +
-				( x == 0 ? 0 : static_cast<int>(action[2][1] * original.img.v[x  ][y+1]) ) +
-				( x == original.getLongueur() - 1 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][2] * original.img.v[x+1][y+1]) )
-			);
-
-			output.img.b[x][y] = (
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][0] * original.img.b[x-1][y-1]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[0][1] * original.img.b[x  ][y-1]) ) +
-				( x == original.getLongueur() - 1 || y == 0 ? 0 : static_cast<int>(action[0][2] * original.img.b[x+1][y-1]) ) +
-
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][0] * original.img.b[x-1][y  ]) ) +
-				( x == 0 || y == 0 ? 0 : static_cast<int>(action[1][1] * original.img.b[x  ][y  ]) ) +
-				( x == original.getLongueur() - 1 ? 0 : static_cast<int>(action[1][2] * original.img.b[x+1][y  ]) ) +
-
-				( x == 0 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][0] * original.img.b[x-1][y+1]) ) +
-				( x == 0 ? 0 : static_cast<int>(action[2][1] * original.img.b[x  ][y+1]) ) +
-				( x == original.getLongueur() - 1 || y == original.getHauteur() - 1 ? 0 : static_cast<int>(action[2][2] * original.img.b[x+1][y+1]) )
-			);
+				for (int i = -rayon; i <= rayon; ++i) {
+					for (int j = -rayon; j <= rayon; ++j) {
+						if (x + static_cast<size_t>(i) < original.getLongueur() &&
+							y + static_cast<size_t>(j) < original.getHauteur()) {
+							output.img[channel][x][y] +=
+								static_cast<int>(action[i + rayon][j + rayon] * original.img[channel][x + static_cast<size_t>(i)][y + static_cast<size_t>(j)]);
+						}
+					}
+				}
+			}
 		}
 	}
 
