@@ -126,6 +126,8 @@ Image Image::noirEtBlanc() {
 Image Image::changeLuminosity(float luminosityFactor) {
 	if (luminosityFactor < 0)
 		luminosityFactor = 0;
+	if (luminosityFactor == 1)
+		return this;
 	vector<vector<int>> output_red(longueur, vector<int>(hauteur, 0));
 	vector<vector<int>> output_green(longueur, vector<int>(hauteur, 0));
 	vector<vector<int>> output_blue(longueur, vector<int>(hauteur, 0));
@@ -232,7 +234,10 @@ void Image::ecrire(const string& nomFichier) {
 Image Image::changeContraste(float contrastFactor) {
 	if (contrastFactor < 0)
 		contrastFactor = 0;
-	Image output(img.r, img.v, img.b);
+	if (contrastFactor == 1)
+		return this;
+
+	Image output(this);
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
 			output.img.r[x][y] = (output.img.r[x][y] * contrastFactor > 255 ? 255 : output.img.r[x][y] * contrastFactor);
