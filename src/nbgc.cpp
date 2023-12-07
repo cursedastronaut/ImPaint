@@ -249,9 +249,7 @@ Image Image::changeContraste(float contrastFactor) {
 	return output;
 }
 
-
-
-Image Image::contrasteUp(float contrastFactor) {     //contrasteUp fonction correcte (Salim)
+Image Image::contrasteUp(float contrastFactor) {	 //contrasteUp fonction correcte (Salim)
 	if (contrastFactor < 0)
 		contrastFactor = 0;
 	if (contrastFactor == 1)
@@ -293,44 +291,44 @@ Image Image::contrasteUp(float contrastFactor) {     //contrasteUp fonction corr
 }
 
 Image Image::contrasteDown(float contrastFactor) {   //contrasteDown fonction incorrecte il faut regler la division par 0 de contrastFactor (Salim)
-    if (contrastFactor < 0)
-        contrastFactor = 0;
-    if (contrastFactor == 1)
-        return this;
+	if (contrastFactor < 0)
+		contrastFactor = 0;
+	if (contrastFactor == 1)
+		return this;
 
-    Image output(this);
-    for (uint32_t x = 0; x < longueur; ++x) {
-        for (uint32_t y = 0; y < hauteur; ++y) {
-            output.img.r[x][y] = ((output.img.r[x][y] - 128) / contrastFactor) + 128;  // ROUGE
+	Image output(this);
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			output.img.r[x][y] = ((output.img.r[x][y] - 128) / contrastFactor) + 128;  // ROUGE
 
-            if (output.img.r[x][y] > 255) {
-                output.img.r[x][y] = 255;
-            }
-            else if (output.img.r[x][y] < 0) {
-                output.img.r[x][y] = 0;
-            }
+			if (output.img.r[x][y] > 255) {
+				output.img.r[x][y] = 255;
+			}
+			else if (output.img.r[x][y] < 0) {
+				output.img.r[x][y] = 0;
+			}
 
-            output.img.v[x][y] = ((output.img.v[x][y] - 128) / contrastFactor) + 128;  // VERT
+			output.img.v[x][y] = ((output.img.v[x][y] - 128) / contrastFactor) + 128;  // VERT
 
-            if (output.img.v[x][y] > 255) {
-                output.img.v[x][y] = 255;
-            }
-            else if (output.img.v[x][y] < 0) {
-                output.img.v[x][y] = 0;
-            }
+			if (output.img.v[x][y] > 255) {
+				output.img.v[x][y] = 255;
+			}
+			else if (output.img.v[x][y] < 0) {
+				output.img.v[x][y] = 0;
+			}
 
-            output.img.b[x][y] = ((output.img.b[x][y] - 128) / contrastFactor) + 128;  // BLEU
+			output.img.b[x][y] = ((output.img.b[x][y] - 128) / contrastFactor) + 128;  // BLEU
 
-            if (output.img.b[x][y] > 255) {
-                output.img.b[x][y] = 255;
-            }
-            else if (output.img.b[x][y] < 0) {
-                output.img.b[x][y] = 0;
-            }
-        }
-    }
+			if (output.img.b[x][y] > 255) {
+				output.img.b[x][y] = 255;
+			}
+			else if (output.img.b[x][y] < 0) {
+				output.img.b[x][y] = 0;
+			}
+		}
+	}
 
-    return output;
+	return output;
 }
 
 Image Image::rotationG() {
@@ -388,7 +386,7 @@ Image Image::retournementV() {
 
 	return output;
 }
-//
+
 Image Image::rognerD(uint32_t nb) {
 	if (longueur == 0 || hauteur == 0 || (int)longueur - (int)nb <= 0)
 		return Image(0, 0);
@@ -460,6 +458,7 @@ Image Image::rognerB(uint32_t nb) {
 uint32_t Image::getLongueur() {
 	return longueur;
 }
+
 uint32_t Image::getHauteur() {
 	return hauteur;
 }
@@ -529,21 +528,12 @@ Image Image::visionDaltonisme(uint8_t type) {
 	vector<vector<float>> colorMatrix;
 	switch (type)
 	{
-	case 0:
-		colorMatrix = TRITAN;
-		break;
-	case 1:
-		colorMatrix = PROTAN;
-		break;
-
-	case 2:
-		colorMatrix = DEUTAN;
-		break;
-	
-	default:
-		break;
+		case TRITAN:	colorMatrix = COLORBLIND_TRITAN;	break;
+		case PROTAN:	colorMatrix = COLORBLIND_PROTAN;	break;
+		case DEUTAN:	colorMatrix = COLORBLIND_DEUTAN;	break;
+		default:		break;
 	}
-	Image output(img.r, img.v, img.b);  // Assuming img.r, img.v, and img.b are the original RGB channels
+	Image output(img.r, img.v, img.b);
 	
 	for (uint32_t x = 0; x < longueur; ++x) {
 		for (uint32_t y = 0; y < hauteur; ++y) {
@@ -563,14 +553,14 @@ Image Image::visionDaltonisme(uint8_t type) {
 }
 
 Image Image::visionDeuteranopie() {
-	return visionDaltonisme(2);
+	return visionDaltonisme(DEUTAN);
 }
 
 Image Image::visionProtanopie() {
-	return visionDaltonisme(1);;
+	return visionDaltonisme(PROTAN);
 }
 
 Image Image::visionTritanopie() {
-	return visionDaltonisme(0);
+	return visionDaltonisme(TRITAN);
 }
 
