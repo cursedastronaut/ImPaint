@@ -52,6 +52,12 @@ void VisualIDK::Update() {
 		post = post.agrandissement(2);
 	if (retrecissement)
 		post = post.retrecissement(2);
+	if (visionTritanopie)
+		post = post.visionTritanopie();
+	if (visionProtanopie)
+		post = post.visionProtanopie();
+	if (visionTritanopie)
+		post = post.visionTritanopie();
 
 }
 
@@ -66,6 +72,7 @@ void VisualIDK::Draw() {
 
 void VisualIDK::UI() {
 	ImGui::Begin("Debug");
+	ImGui::Text("Partie 1 - NBGC");
 	ImGui::Checkbox("Noir & Blanc", &noirBlanc);
 	ImGui::Checkbox("Composante Rouge", &composantRouge);
 	ImGui::Checkbox("Niveaux Gris", &niveauxGris);
@@ -73,6 +80,11 @@ void VisualIDK::UI() {
 	ImGui::InputFloat("l", &luminosityF, 0.1f, 0.2f);
 	ImGui::Checkbox("Contraste", &contraste);
 	ImGui::InputFloat("c", &contrasteF, 0.1f, 0.2f);
+	ImGui::Checkbox("Tritanope", &visionTritanopie);
+	ImGui::Checkbox("Protanope", &visionProtanopie);
+	ImGui::Checkbox("Deutéranope", &visionDeuteranopie);
+	ImGui::NewLine();
+	ImGui::Text("Partie 3 - Géométrie");
 	ImGui::Checkbox("Rotation Droite", &rotationD);
 	ImGui::Checkbox("Rotation Gauche", &rotationG);
 	ImGui::Checkbox("Retournement Horizontal", &retournementH);
@@ -85,6 +97,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("Retrécisssement", &retrecissement);
 	ImGui::Checkbox("No Refresh", &dontRefresh);
 	ImGui::NewLine();
+	ImGui::Text("Partie 2 - Fichiers");
 	ImGui::InputText("File", fileTempBuffer, 50);
 	if (ImGui::Button("Charger", {64, 32}))
 		original = Image(fileTempBuffer);

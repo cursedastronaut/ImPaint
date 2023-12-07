@@ -25,6 +25,7 @@ class Image {
 	//Constructeur de la classe Image
 	//Prend deux dimensions, et créé une image noire.
 	Image(size_t longueur, size_t hauteur);
+	Image(Image *img);
 
 	//Affiche le contenu de chaque vecteur de couleur, séparément.
 	void afficher();

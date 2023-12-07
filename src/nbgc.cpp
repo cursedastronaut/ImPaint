@@ -29,6 +29,12 @@ Image::Image(size_t longueurUser, size_t hauteurUser) {
 	hauteur = hauteurUser;
 }
 
+Image::Image(Image *image) {
+	img = image->img;
+	hauteur = image->hauteur;
+	longueur = image->longueur;
+}
+
 void Image::afficher() {
 	for (uint32_t x = 0; x < img.r.size(); ++x) {
 		for (uint32_t y = 0; y < img.r[0].size(); ++y)
@@ -245,7 +251,7 @@ Image Image::contrasteUp(float contrastFactor) {
 Image Image::contrasteDown(float contrastFactor) {
 	return changeContraste(1.f - contrastFactor);
 }
-Image Image::rotationD() {
+Image Image::rotationG() {
 	//On inverse les dimensions (x*y -> y*x)
 	Image output = Image(hauteur, longueur);
 	
@@ -259,7 +265,7 @@ Image Image::rotationD() {
 	return output;
 }
 
-Image Image::rotationG() {
+Image Image::rotationD() {
 	//On inverse les dimensions (x*y -> y*x)
 	Image output = Image(hauteur, longueur);
 	
@@ -438,13 +444,16 @@ Image Image::retrecissement(uint32_t nb) {
 }
 
 Image Image::visionDeuteranopie() {
-
+	Image output = this;
+	return output;
 }
 
 Image Image::visionProtanopie() {
-
+	Image output = this;
+	return output;
 }
 
 Image Image::visionTritanopie() {
-
+	Image output = this;
+	return output;
 }
