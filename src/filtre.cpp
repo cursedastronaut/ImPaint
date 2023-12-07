@@ -21,10 +21,9 @@ Filtre::Filtre(uint8_t type) {
 
 	case GRADIENTX: action = FILTRE_GRADIENTX;	rayon = 1; break;
 	case GRADIENTY:	action = FILTRE_GRADIENTY;	rayon = 1; break;
-	case CONTRASTER:action = FILTRE_CONTRASTER;	rayon = 1;break;
+	case CONTRASTER:action = FILTRE_CONTRASTER;	rayon = 1; break;
 
-	default:
-		break;
+	default: break;
 	}
 }
 
