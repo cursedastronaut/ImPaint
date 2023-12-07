@@ -89,6 +89,8 @@ void VisualIDK::Draw() {
 	
 	if (width != 0 && height != 0)
 		dl->AddImage((void*)(intptr_t)textureID, ImVec2(0, 0), ImVec2(height, width));
+	else
+		cout << "Empty image" << endl;
 	
 	
 	#endif //USE_DUMB_DRAW
