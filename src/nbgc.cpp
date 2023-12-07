@@ -249,13 +249,90 @@ Image Image::changeContraste(float contrastFactor) {
 	return output;
 }
 
-Image Image::contrasteUp(float contrastFactor) {
-	return changeContraste(1.f + contrastFactor);
+
+
+Image Image::contrasteUp(float contrastFactor) {     //contrasteUp fonction correcte (Salim)
+	if (contrastFactor < 0)
+		contrastFactor = 0;
+	if (contrastFactor == 1)
+		return this;
+
+	Image output(this);
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+
+			output.img.r[x][y] = ((output.img.r[x][y] - 128)*contrastFactor + 128);  //ROUGE
+
+			if (output.img.r[x][y] > 255){
+				output.img.r[x][y] = 255;
+			}
+			else if (output.img.r[x][y] < 0){
+				output.img.r[x][y] = 0;
+			}
+			output.img.v[x][y] = ((output.img.v[x][y] - 128)*contrastFactor + 128);  //VERT
+
+			if (output.img.v[x][y] > 255){
+				output.img.v[x][y] = 255;
+			}
+			else if (output.img.v[x][y] < 0){
+				output.img.v[x][y] = 0;
+
+			}
+			output.img.b[x][y] = ((output.img.b[x][y] - 128)*contrastFactor + 128);  //BLEU
+			if (output.img.b[x][y] > 255){
+				output.img.b[x][y] = 255;
+			}
+			else if (output.img.b[x][y] < 0){
+				output.img.b[x][y] = 0;
+
+			}
+		}
+	}
+
+	return output;
 }
 
-Image Image::contrasteDown(float contrastFactor) {
-	return changeContraste(1.f - contrastFactor);
+Image Image::contrasteDown(float contrastFactor) {   //contrasteDown fonction incorrecte il faut regler la division par 0 de contrastFactor (Salim)
+    if (contrastFactor < 0)
+        contrastFactor = 0;
+    if (contrastFactor == 1)
+        return this;
+
+    Image output(this);
+    for (uint32_t x = 0; x < longueur; ++x) {
+        for (uint32_t y = 0; y < hauteur; ++y) {
+            output.img.r[x][y] = ((output.img.r[x][y] - 128) / contrastFactor) + 128;  // ROUGE
+
+            if (output.img.r[x][y] > 255) {
+                output.img.r[x][y] = 255;
+            }
+            else if (output.img.r[x][y] < 0) {
+                output.img.r[x][y] = 0;
+            }
+
+            output.img.v[x][y] = ((output.img.v[x][y] - 128) / contrastFactor) + 128;  // VERT
+
+            if (output.img.v[x][y] > 255) {
+                output.img.v[x][y] = 255;
+            }
+            else if (output.img.v[x][y] < 0) {
+                output.img.v[x][y] = 0;
+            }
+
+            output.img.b[x][y] = ((output.img.b[x][y] - 128) / contrastFactor) + 128;  // BLEU
+
+            if (output.img.b[x][y] > 255) {
+                output.img.b[x][y] = 255;
+            }
+            else if (output.img.b[x][y] < 0) {
+                output.img.b[x][y] = 0;
+            }
+        }
+    }
+
+    return output;
 }
+
 Image Image::rotationG() {
 	//On inverse les dimensions (x*y -> y*x)
 	Image output = Image(hauteur, longueur);
@@ -410,63 +487,90 @@ Image Image::agrandissement(uint32_t nb) {
 
 Image Image::retrecissement(uint32_t nb) {
 	if (longueur == 0 || hauteur == 0 || nb <= 0)
-        return Image(0, 0);
+		return Image(0, 0);
 
-    // Calculer les nouvelles dimensions
-    uint32_t nouvelleLongueur = longueur / nb;
-    uint32_t nouvelleHauteur = hauteur / nb;
+	// Calculer les nouvelles dimensions
+	uint32_t nouvelleLongueur = longueur / nb;
+	uint32_t nouvelleHauteur = hauteur / nb;
 
-    // Créer une nouvelle image rétrécie
-    Image output(nouvelleLongueur, nouvelleHauteur);
+	// Créer une nouvelle image rétrécie
+	Image output(nouvelleLongueur, nouvelleHauteur);
 
-    for (uint32_t x = 0; x < nouvelleLongueur; ++x) {
-        for (uint32_t y = 0; y < nouvelleHauteur; ++y) {
-            // Calculer les indices de début et de fin du bloc dans l'image d'origine
-            uint32_t origXStart = x * nb;
-            uint32_t origXEnd = origXStart + nb;
-            uint32_t origYStart = y * nb;
-            uint32_t origYEnd = origYStart + nb;
+	for (uint32_t x = 0; x < nouvelleLongueur; ++x) {
+		for (uint32_t y = 0; y < nouvelleHauteur; ++y) {
+			// Calculer les indices de début et de fin du bloc dans l'image d'origine
+			uint32_t origXStart = x * nb;
+			uint32_t origXEnd = origXStart + nb;
+			uint32_t origYStart = y * nb;
+			uint32_t origYEnd = origYStart + nb;
 
-            // Calculer la moyenne des valeurs dans le bloc
-            int redSum = 0, greenSum = 0, blueSum = 0;
+			// Calculer la moyenne des valeurs dans le bloc
+			int redSum = 0, greenSum = 0, blueSum = 0;
 
-            for (uint32_t origX = origXStart; origX < origXEnd; ++origX) {
-                for (uint32_t origY = origYStart; origY < origYEnd; ++origY) {
-                    redSum += img.r[origX][origY];
-                    greenSum += img.v[origX][origY];
-                    blueSum += img.b[origX][origY];
-                }
-            }
+			for (uint32_t origX = origXStart; origX < origXEnd; ++origX) {
+				for (uint32_t origY = origYStart; origY < origYEnd; ++origY) {
+					redSum += img.r[origX][origY];
+					greenSum += img.v[origX][origY];
+					blueSum += img.b[origX][origY];
+				}
+			}
 
-            // Remplir la nouvelle image avec la moyenne des valeurs du bloc
-            output.img.r[x][y] = redSum / (nb * nb);
-            output.img.v[x][y] = greenSum / (nb * nb);
-            output.img.b[x][y] = blueSum / (nb * nb);
-        }
-    }
+			// Remplir la nouvelle image avec la moyenne des valeurs du bloc
+			output.img.r[x][y] = redSum / (nb * nb);
+			output.img.v[x][y] = greenSum / (nb * nb);
+			output.img.b[x][y] = blueSum / (nb * nb);
+		}
+	}
 
-    return output;
+	return output;
+}
+
+Image Image::visionDaltonisme(uint8_t type) {
+	vector<vector<float>> colorMatrix;
+	switch (type)
+	{
+	case 0:
+		colorMatrix = TRITAN;
+		break;
+	case 1:
+		colorMatrix = PROTAN;
+		break;
+
+	case 2:
+		colorMatrix = DEUTAN;
+		break;
+	
+	default:
+		break;
+	}
+	Image output(img.r, img.v, img.b);  // Assuming img.r, img.v, and img.b are the original RGB channels
+	
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			// Calculate tritanopia simulation
+			int newR = static_cast<int>((float)img.r[x][y] * colorMatrix[0][0] / 100.f + (float)img.v[x][y] * colorMatrix[0][1] / 100.f + (float)img.b[x][y] * colorMatrix[0][2] / 100.f);
+			int newV = static_cast<int>((float)img.r[x][y] * colorMatrix[1][0] / 100.f + (float)img.v[x][y] * colorMatrix[1][1] / 100.f + (float)img.b[x][y] * colorMatrix[1][2] / 100.f);
+			int newB = static_cast<int>((float)img.r[x][y] * colorMatrix[2][0] / 100.f + (float)img.v[x][y] * colorMatrix[2][1] / 100.f + (float)img.b[x][y] * colorMatrix[2][2] / 100.f);
+
+			// Set the new values to the output image
+			output.img.r[x][y] = std::min(255, std::max(0, newR));
+			output.img.v[x][y] = std::min(255, std::max(0, newV));
+			output.img.b[x][y] = std::min(255, std::max(0, newB));
+		}
+	}
+
+	return output;
 }
 
 Image Image::visionDeuteranopie() {
-	Image output(img.r, img.v, img.b);
-	for (uint32_t x = 0; x < longueur; ++x) {
-		for (uint32_t y = 0; y < hauteur; ++y) {
-			//output.img.v[x][y] = (output.img.r[x][y] + output.img.b[x][y])/2;
-			output.img.r[x][y] = output.img.r[x][y] * 62.5 / 100 + output.img.v[x][y] * 37.5 / 100 + output.img.b[x][y] * 0 / 100;
-			output.img.v[x][y] = output.img.r[x][y] * 70 / 100 + output.img.v[x][y] * 30 / 100 + output.img.b[x][y] * 0 / 100;
-			output.img.b[x][y] = output.img.r[x][y] * 0 / 100 + output.img.v[x][y] * 30 / 100 + output.img.b[x][y] * 70 / 100;
-		}
-	}
-	return output;
+	return visionDaltonisme(2);
 }
 
 Image Image::visionProtanopie() {
-	Image output = this;
-	return output;
+	return visionDaltonisme(1);;
 }
 
 Image Image::visionTritanopie() {
-	Image output = this;
-	return output;
+	return visionDaltonisme(0);
 }
+

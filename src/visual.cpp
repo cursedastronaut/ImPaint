@@ -31,7 +31,7 @@ void VisualIDK::Update() {
 	if (luminosity)
 		post = post.changeLuminosity(luminosityF);
 	if (contraste)
-		post = post.changeContraste(contrasteF);
+		post = post.contrasteUp(contrasteF);
 	if (rotationD)
 		post = post.rotationD();
 	if (rotationG)

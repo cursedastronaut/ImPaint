@@ -3,10 +3,14 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <cstdint>
 #include <sstream>
 #define LUMINOSITY_CHANGE 0.1f
 #define CONTRAST_CHANGE 1.0f
 using namespace std;
+#define TRITAN {{95.f, 5.f, 0.f}, {0.f, 43.333f, 56.667f}, {0.f, 47.5, 52.5}}
+#define PROTAN {{56.667f, 43.333f, 0.f}, {55.833f, 44.167f, 0.f}, {0.f, 24.167f, 75.833f}}
+#define DEUTAN {{62.5f, 37.5f, 0.f}, {70.f, 30.f, 0.f}, {0.f, 30.f, 70.f}}
 
 struct rgbVec {
 	vector<vector<int>> r;
@@ -88,6 +92,7 @@ class Image {
 	Image visionDeuteranopie();
 	Image visionProtanopie();
 	Image visionTritanopie();
+	Image visionDaltonisme(uint8_t type);
 
 	rgbVec img;
 	private:
