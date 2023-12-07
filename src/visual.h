@@ -69,9 +69,18 @@ class VisualIDK {
 	bool visionTritanopie = false;
 	float luminosityF = 1.0f;
 	float contrasteF = 1.0f;
-	int pixelSize = 1.0f;
+	int agrandissementV = 1;
+	int retrecissementV = 1;
 
 	char fileTempBuffer[50] = "";
+	bool noModif = false;
+	#ifndef USE_DUMB_DRAW
+	std::vector<unsigned char> imageData;
+	GLuint textureID;
+	int width;
+	int height;
+	#endif //USE_DUMB_DRAW
+
 };
 
 

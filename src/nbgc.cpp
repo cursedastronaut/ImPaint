@@ -22,9 +22,15 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 }
 
 Image::Image(size_t longueurUser, size_t hauteurUser) {
-	img.b.resize(longueurUser, vector<int>(hauteurUser, 0));
-	img.v.resize(longueurUser, vector<int>(hauteurUser, 0));
-	img.r.resize(longueurUser, vector<int>(hauteurUser, 0));
+	if (longueurUser != 0 && hauteurUser != 0) {
+		img.b.resize(longueurUser, vector<int>(hauteurUser, 0));
+		img.v.resize(longueurUser, vector<int>(hauteurUser, 0));
+		img.r.resize(longueurUser, vector<int>(hauteurUser, 0));
+	} else {
+		img.r.clear();
+		img.v.clear();
+		img.b.clear();
+	}
 	longueur = longueurUser;
 	hauteur = hauteurUser;
 }
@@ -464,8 +470,10 @@ uint32_t Image::getHauteur() {
 }
 
 Image Image::agrandissement(uint32_t nb) {
-	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0)
+	if (longueur == 0 || hauteur == 0 || (int)hauteur - (int)nb <= 0) {
+
 		return Image(0, 0);
+	}
 	
 	Image output = Image(longueur * nb, hauteur * nb);
 	for (uint32_t x = 0; x < longueur * nb; ++x) {
