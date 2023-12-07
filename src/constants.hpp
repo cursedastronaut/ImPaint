@@ -26,6 +26,12 @@ const vector<vector<float>> FILTRE_GRADIENTY = {
 	{01.f, 02.f, 01.f}
 };
 
+const vector<vector<float>> FILTRE_CONTRASTER = {
+	{00.f, -1.f, 00.f},
+	{-1.f, 05.f, -1.f},
+	{00.f, -1.f, 00.f}
+};
+
 const float FILTRE_FLOUG5_MODIF = 1.f/256.f;
 
 const float LUMINOSITY_CHANGE = 0.1f;
@@ -67,6 +73,9 @@ enum {
 enum {
 	FLOUG3,
 	FLOUG5,
+	GRADIENTX,
+	GRADIENTY,
+	CONTRASTER
 };
 
 #endif //_CONSTANTS_

@@ -43,17 +43,15 @@ void VisualIDK::Update() {
 			post = post.visionProtanopie();
 		if (visionTritanopie)
 			post = post.visionTritanopie();
-		if (filtreFlouG3) {
-			Filtre flouG3(FLOUG3);
-			post = flouG3.application(post);
-		}
-		if (filtreFlouG5) {
-			Filtre flouG5(FLOUG5);
-			post = flouG5.application(post);
-		}
-		if (filtreContourSobel) {
+		if (filtreFlouG3)
+			post = Filtre(FLOUG3).application(post);
+		if (filtreFlouG5)
+			post = Filtre(FLOUG5).application(post);
+		if (filtreContourSobel)
 			post = post.contourSobel();
-		}
+		if (filtreContraster)
+			post = Filtre(CONTRASTER).application(post);
+			
 	}
 }
 
@@ -168,6 +166,7 @@ void VisualIDK::UI() {
 	ImGui::Checkbox("FlouG3", &filtreFlouG3);
 	ImGui::Checkbox("FlouG5", &filtreFlouG5);
 	ImGui::Checkbox("Contour Sobel", &filtreContourSobel);
+	ImGui::Checkbox("Contraster", &filtreContraster);
 	ImGui::NewLine();
 	ImGui::Text("Partie 2 - Fichiers");
 	ImGui::InputText("File", fileTempBuffer, 50);
