@@ -449,7 +449,15 @@ Image Image::retrecissement(uint32_t nb) {
 }
 
 Image Image::visionDeuteranopie() {
-	Image output = this;
+	Image output(img.r, img.v, img.b);
+	for (uint32_t x = 0; x < longueur; ++x) {
+		for (uint32_t y = 0; y < hauteur; ++y) {
+			//output.img.v[x][y] = (output.img.r[x][y] + output.img.b[x][y])/2;
+			output.img.r[x][y] = output.img.r[x][y] * 62.5 / 100 + output.img.v[x][y] * 37.5 / 100 + output.img.b[x][y] * 0 / 100;
+			output.img.v[x][y] = output.img.r[x][y] * 70 / 100 + output.img.v[x][y] * 30 / 100 + output.img.b[x][y] * 0 / 100;
+			output.img.b[x][y] = output.img.r[x][y] * 0 / 100 + output.img.v[x][y] * 30 / 100 + output.img.b[x][y] * 70 / 100;
+		}
+	}
 	return output;
 }
 

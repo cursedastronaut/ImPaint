@@ -52,8 +52,8 @@ void VisualIDK::Update() {
 		post = post.agrandissement(2);
 	if (retrecissement)
 		post = post.retrecissement(2);
-	if (visionTritanopie)
-		post = post.visionTritanopie();
+	if (visionDeuteranopie)
+		post = post.visionDeuteranopie();
 	if (visionProtanopie)
 		post = post.visionProtanopie();
 	if (visionTritanopie)
