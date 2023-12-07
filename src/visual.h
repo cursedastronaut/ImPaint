@@ -15,8 +15,8 @@
 #endif
 #include "../externals/include/GLFW/glfw3.h" // Will drag system OpenGL headers
 #include <vector>
-#include <bits/stdc++.h> 
-#include "menu_files.hpp"
+//#include <bits/stdc++.h> 
+#include "menu_files.hpp"/*
 #ifndef __has_include
   static_assert(false, "__has_include not supported");
 #else
@@ -30,7 +30,7 @@
 #    include <boost/filesystem.hpp>
      namespace fs = boost::filesystem;
 #  endif
-#endif
+#endif*/
 using namespace std;
 
 class VisualIDK {

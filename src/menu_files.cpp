@@ -1,9 +1,9 @@
 #include "menu_files.hpp"
 
-void Menu::getFilePath() {
+void Menu::getFilePath() {/*
 	while (!(cin >> filePath) || !filesystem::is_regular_file(filePath)) {
 		cout << "Le fichier n'existe pas. Veuillez retenter." << endl;
-	}
+	}*/
 }
 
 void Menu::displayMenu() {

@@ -2,7 +2,7 @@
 #define _NBGC_
 #include <iostream>
 #include <vector>
-#include <fstream>
+//#include <fstream>
 #include <sstream>
 #define LUMINOSITY_CHANGE 0.1f
 #define CONTRAST_CHANGE 1.0f
