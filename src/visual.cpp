@@ -4,13 +4,19 @@ VisualIDK::VisualIDK() {
 	post = original;
 	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
 	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
-	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}}});
+	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
 
 	fileDialog.SetTitle("title");
 	fileDialog.SetTypeFilters({".ppm"});
 	mainMenu[2].buttons[0].active = true;
 	mainMenu[2].buttons[1].active = true;
 	mainMenu[2].buttons[2].active = true;
+
+	MenuBarSize = {0, 0, -1, 18};
+	ImageSize = {64, 18, 1280-240-64, 720-18};
+	EditingSize = {1280 - 240, 18, 240, 720 - 18};
+	ToolbarSize = {0, 18, 64, 720 - 18};
+
 	effects = {
 		{false, 0, &Image::noirEtBlanc},
 		{false, 0, &Image::composanteRouge},
@@ -69,18 +75,7 @@ void VisualIDK::Update() {
 			}
 		}
 	}
-	/*
-	if (!noModif) {
-		if (filtreFlouG3)
-			post = Filtre(FLOUG3).application(post);
-		if (filtreFlouG5)
-			post = Filtre(FLOUG5).application(post);
-		if (filtreContourSobel)
-			post = post.contourSobel();
-		if (filtreContraster)
-			post = Filtre(CONTRASTER).application(post);
-			
-	}*/
+
 	#ifndef IDE_ANTI_ERROR
 	if (mainMenu[0].active && mainMenu[0].buttons[1].active) {
 		#ifdef _WIN32
@@ -130,8 +125,18 @@ void VisualIDK::Update() {
 		mainMenu[0].buttons[2].active = false;
 	}
 	#endif
+	if (mainMenu[2].buttons[3].active) {
+		ImGui::StyleColorsDark();
+		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
 
+	} else {
+		ImGui::StyleColorsLight();
+		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	}
 	
+	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
+		zoom += io->MouseWheel/10.f;
+
 }
 
 void VisualIDK::Draw() {
@@ -175,19 +180,62 @@ void VisualIDK::Draw() {
 	}
 	//ImGui::SetCursorPos(ImVec2(10.0f, 10.0f));  // Set the position where you want to render the image
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
-	
+	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
+	if (!hasSetDefaultSizes) {
+		ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
+		ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
+	}
+	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y));
+	ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
+	ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 	if (width != 0 && height != 0)
-		dl->AddImage((void*)(intptr_t)textureID, ImVec2(0, 0), ImVec2(height, width));
+		ImGui::Image(
+			(void*)(intptr_t)textureID,
+			ImVec2(width * zoom, height * zoom)
+		);
 	else
 		cout << "Empty image" << endl;
 	#endif //USE_DUMB_DRAW
+	ImGui::End();
 	fileDialog.Display();
 	fileDialogSave.Display();
 }
 
 void VisualIDK::UI() {
+	
+	UIToolbar();
+	UIEditing();
+	UIMenuBar();
+
+	hasSetDefaultSizes = true;
+}
+
+void VisualIDK::UIMenuBar() {
+	// Start the menu bar
+	if (ImGui::BeginMainMenuBar()) {
+		
+		for (size_t i = 0; i < mainMenu.size(); ++i) {
+			mainMenu[i].active = ImGui::BeginMenu(mainMenu[i].title.c_str());
+			if (mainMenu[i].active) {
+				for (size_t j = 0; j < mainMenu[i].buttons.size(); ++j)
+					if (ImGui::MenuItem(mainMenu[i].buttons[j].title.c_str()))
+						mainMenu[i].buttons[j].active = !mainMenu[i].buttons[j].active;
+				ImGui::EndMenu(); 
+			}
+		}
+		
+		ImGui::EndMainMenuBar();
+	}
+}
+
+void VisualIDK::UIEditing() {
 	if (mainMenu[2].buttons[0].active || mainMenu[2].buttons[1].active) {
-		ImGui::Begin("Debug");
+		ImGui::Begin("Editing");
+		if (!hasSetDefaultSizes) {
+			ImGui::SetWindowPos({EditingSize.x, EditingSize.y});
+			ImGui::SetWindowSize({EditingSize.z, EditingSize.w});
+		}
+		EditingSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 		if (ImGui::Button("Refresh")) noModif = false;
 		ImGui::SameLine();
 		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
@@ -254,37 +302,20 @@ void VisualIDK::UI() {
 			ImGui::Checkbox("Contraster", &effects[EFFECTS_filtreContraster].active);
 			ImGui::NewLine();
 		}
-		/*
-		ImGui::Text("Partie 2 - Fichiers");
-		ImGui::InputText("File", fileTempBuffer, 50);
-		if (ImGui::Button("Charger", {64, 32}))
-			original = Image(fileTempBuffer);
-		#ifdef USE_DUMB_DRAW
-		ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
-		#endif //USE_DUMB_DRAW
-		ImGui::SameLine();
-		if (ImGui::Button("Écrire", {64, 32})) {
-			post.ecrire();
-			std::cout << "Ecriture terminee" << std::endl;
-			noModif = false;
-		}*/
+		
 		ImGui::End();
 		
 	}
+}
 
-	// Start the menu bar
-	if (ImGui::BeginMainMenuBar()) {
-		
-		for (size_t i = 0; i < mainMenu.size(); ++i) {
-			mainMenu[i].active = ImGui::BeginMenu(mainMenu[i].title.c_str());
-			if (mainMenu[i].active) {
-				for (size_t j = 0; j < mainMenu[i].buttons.size(); ++j)
-					if (ImGui::MenuItem(mainMenu[i].buttons[j].title.c_str()))
-						mainMenu[i].buttons[j].active = !mainMenu[i].buttons[j].active;
-				ImGui::EndMenu(); 
-			}
-		}
-		
-		ImGui::EndMainMenuBar();
+void VisualIDK::UIToolbar() {
+	ImGui::Begin("Toolbar");
+	if (!hasSetDefaultSizes) {
+		ImGui::SetWindowPos(ImVec2(ToolbarSize.x,ToolbarSize.y));
+		ImGui::SetWindowSize(ImVec2(ToolbarSize.z, ToolbarSize.w));
 	}
+	ToolbarSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+	ImGui::Text("txt");
+	ImGui::End();
+	
 }

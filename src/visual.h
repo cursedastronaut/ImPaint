@@ -73,7 +73,7 @@ class VisualIDK {
 
 	Image original = Image("ppm_tests/Ara_ararauna.ppm");
 	Image post = Image(0,0);
-	int sizePerPixel = 0;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	private:
 	
@@ -92,12 +92,23 @@ class VisualIDK {
 	GLuint textureID;
 	int width;
 	int height;
+	float zoom = 1.f;
 	#endif //USE_DUMB_DRAW
 
 	#ifdef __linux__
 	ImGui::FileBrowser fileDialog;
 	ImGui::FileBrowser fileDialogSave = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
 	#endif
+
+	void UIMenuBar();
+	void UIEditing();
+	void UIToolbar();
+
+	ImVec4 MenuBarSize;
+	ImVec4 ImageSize;
+	ImVec4 EditingSize;
+	ImVec4 ToolbarSize;
+	bool hasSetDefaultSizes = false;
 };
 
 #endif
