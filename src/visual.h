@@ -61,6 +61,18 @@ struct boolFuncPointers {
 	uint32_t argUint32 = 1;
 };
 
+struct ImageTab {
+	void initEffects();
+	Image original = Image(0,0);
+	Image post = Image(0,0);
+	vector<boolFuncPointers> effects;
+	std::vector<unsigned char> imageData;
+	GLuint textureID;
+	int width;
+	int height;
+	float zoom = 1.f;
+};
+
 class VisualIDK {
 	public:
 	VisualIDK();
@@ -71,29 +83,16 @@ class VisualIDK {
 	void Update();
 	void UI();
 
-	Image original = Image("ppm_tests/Ara_ararauna.ppm");
-	Image post = Image(0,0);
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	private:
-	
 
-	vector<boolFuncPointers> effects;
-	//float luminosityF = 1.0f;
-	//float contrasteF = 1.0f;
-	//int agrandissementV = 1;
-	//int retrecissementV = 1;
 	vector <MainMenuDropdown> mainMenu;
 
 	char fileTempBuffer[50] = "";
 	bool noModif = false;
-	#ifndef USE_DUMB_DRAW
-	std::vector<unsigned char> imageData;
-	GLuint textureID;
-	int width;
-	int height;
-	float zoom = 1.f;
-	#endif //USE_DUMB_DRAW
+	size_t current_tab = 0;
+	vector<ImageTab> tabs;
 
 	#ifdef __linux__
 	ImGui::FileBrowser fileDialog;

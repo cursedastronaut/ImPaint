@@ -1,22 +1,6 @@
 #include "visual.h"
 
-VisualIDK::VisualIDK() {
-	post = original;
-	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
-	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
-	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
-
-	fileDialog.SetTitle("title");
-	fileDialog.SetTypeFilters({".ppm"});
-	mainMenu[2].buttons[0].active = true;
-	mainMenu[2].buttons[1].active = true;
-	mainMenu[2].buttons[2].active = true;
-
-	MenuBarSize = {0, 0, -1, 18};
-	ImageSize = {64, 18, 1280-240-64, 720-18};
-	EditingSize = {1280 - 240, 18, 240, 720 - 18};
-	ToolbarSize = {0, 18, 64, 720 - 18};
-
+void ImageTab::initEffects() {
 	effects = {
 		{false, 0, &Image::noirEtBlanc},
 		{false, 0, &Image::composanteRouge},
@@ -46,27 +30,50 @@ VisualIDK::VisualIDK() {
 	};
 }
 
+VisualIDK::VisualIDK() {
+	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
+	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
+	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
+
+	fileDialog.SetTitle("Open...");
+	fileDialog.SetTypeFilters({".ppm"});
+	
+	fileDialogSave.SetTitle("Save...");
+	fileDialogSave.SetTypeFilters({".ppm"});
+	mainMenu[2].buttons[0].active = true;
+	mainMenu[2].buttons[1].active = true;
+	mainMenu[2].buttons[2].active = true;
+
+	MenuBarSize = {0, 0, -1, (18+30)};
+	ImageSize = {64, (18+30), 1280-240-64, 720-(18+30)};
+	EditingSize = {1280 - 240, (18+30), 240, 720 - (18+30)};
+	ToolbarSize = {0, (18+30), 64, 720 - (18+30)};
+
+	tabs.push_back(ImageTab());
+	tabs[0].initEffects();
+}
+
 void VisualIDK::Update() {
 	if (!noModif) {
-		post = original;
-		for (size_t i = 0; i < effects.size(); ++i) {
-			if (effects[i].active) {
-				switch (effects[i].which)
+		tabs[current_tab].post = tabs[current_tab].original;
+		for (size_t i = 0; i < tabs[current_tab].effects.size(); ++i) {
+			if (tabs[current_tab].effects[i].active) {
+				switch (tabs[current_tab].effects[i].which)
 				{
 				case 0:
-					post = (post.*(effects[i].func))();
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].func))();
 					break;
 				
 				case 1:
-					post = (post.*(effects[i].funcFloat))(effects[i].argFloat);
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcFloat))(tabs[current_tab].effects[i].argFloat);
 					break;
 
 				case 2:
-					post = (post.*(effects[i].funcUINT32T))(effects[i].argUint32);
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcUINT32T))(tabs[current_tab].effects[i].argUint32);
 					break;
 
 				case 3:
-					post = Filtre(effects[i].argFilter).application(post);
+					tabs[current_tab].post = Filtre(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
 					break;
 				
 				default:
@@ -75,9 +82,8 @@ void VisualIDK::Update() {
 			}
 		}
 	}
-
-	#ifndef IDE_ANTI_ERROR
-	if (mainMenu[0].active && mainMenu[0].buttons[1].active) {
+	
+	if (mainMenu[0].buttons[1].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
 		#ifdef _WIN32
 		OPENFILENAME ofn ;
 		char szFile[MAX_PATH] = {0};
@@ -96,31 +102,30 @@ void VisualIDK::Update() {
 		GetOpenFileName(&ofn);
 		//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
 
-		original = Image(ofn.lpstrFile);
-		post = original;
+		tabs[current_tab].original = Image(ofn.lpstrFile);
+		tabs[current_tab].post = tabs[current_tab].original;
 		#elif __linux__
 			fileDialog.Open();
 
 		#endif
 		mainMenu[0].buttons[1].active = false;
 	}
-	#endif
 	#ifdef __linux__
-	if (mainMenu[0].active && mainMenu[0].buttons[2].active) {
+	if ((mainMenu[0].active && mainMenu[0].buttons[2].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
 		fileDialogSave.Open();
 	}
 
 	if(fileDialog.HasSelected())
 	{
-		original = Image(fileDialog.GetSelected().string());
-		post = original;
+		tabs[current_tab].original = Image(fileDialog.GetSelected().string());
+		tabs[current_tab].post = tabs[current_tab].original;
 		noModif = false;
 		fileDialog.ClearSelected();
 	}
 
 	if(fileDialogSave.HasSelected())
 	{
-		post.ecrire(fileDialogSave.GetSelected().string());
+		tabs[current_tab].post.ecrire(fileDialogSave.GetSelected().string());
 		fileDialogSave.ClearSelected();
 		mainMenu[0].buttons[2].active = false;
 	}
@@ -135,7 +140,7 @@ void VisualIDK::Update() {
 	}
 	
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-		zoom += io->MouseWheel/10.f;
+		tabs[current_tab].zoom += io->MouseWheel/10.f;
 
 }
 
@@ -151,30 +156,30 @@ void VisualIDK::Draw() {
 
 	// Interleave RGB values
 	if (!noModif) {
-		width = post.getLongueur();
-		height = post.getHauteur();
+		tabs[current_tab].width = tabs[current_tab].post.getLongueur();
+		tabs[current_tab].height = tabs[current_tab].post.getHauteur();
 		noModif = true;
-		if (width != 0 && height != 0) {
-			imageData.clear();
-			for (int y = 0; y < height; ++y) {
-				for (int x = 0; x < width; ++x) {
-					imageData.push_back(static_cast<unsigned char>(post.img.r[x][y]));
-					imageData.push_back(static_cast<unsigned char>(post.img.v[x][y]));
-					imageData.push_back(static_cast<unsigned char>(post.img.b[x][y]));
-					imageData.push_back(static_cast<unsigned char>(255));
+		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
+			tabs[current_tab].imageData.clear();
+			for (int y = 0; y < tabs[current_tab].height; ++y) {
+				for (int x = 0; x < tabs[current_tab].width; ++x) {
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(255));
 				}
 			}
 
-			glGenTextures(1, &textureID);
-			glBindTexture(GL_TEXTURE_2D, textureID);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, post.img.r.size(), post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData.data());
+			glGenTextures(1, &tabs[current_tab].textureID);
+			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
 
 			// Set texture parameters (you may need to adjust these based on your requirements)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			
 			// Use the shader program, bind the texture, and draw a quad
-			glBindTexture(GL_TEXTURE_2D, textureID);
+			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
 		}
 	
 	}
@@ -188,13 +193,11 @@ void VisualIDK::Draw() {
 	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y));
 	ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
 	ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-	if (width != 0 && height != 0)
+	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0)
 		ImGui::Image(
-			(void*)(intptr_t)textureID,
-			ImVec2(width * zoom, height * zoom)
+			(void*)(intptr_t)tabs[current_tab].textureID,
+			ImVec2(tabs[current_tab].width * tabs[current_tab].zoom, tabs[current_tab].height * tabs[current_tab].zoom)
 		);
-	else
-		cout << "Empty image" << endl;
 	#endif //USE_DUMB_DRAW
 	ImGui::End();
 	fileDialog.Display();
@@ -202,10 +205,27 @@ void VisualIDK::Draw() {
 }
 
 void VisualIDK::UI() {
+	ImGui::Begin("debtabs", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::BeginTabBar("Tabsa", ImGuiTabBarFlags_NoTooltip);
+	ImGui::SetWindowPos({0, 18});
+	ImGui::SetWindowSize({io->DisplaySize.x, 30});
 	
+	for (size_t i = 0; i < tabs.size(); ++i) {
+		if (ImGui::TabItemButton(to_string(i).c_str()))
+			current_tab = i;
+	}
+	
+	if(ImGui::TabItemButton("+")) {
+		tabs.push_back(ImageTab());
+		tabs[tabs.size()-1].initEffects();
+	}
+	ImGui::EndTabBar();
+	ImGui::End();
 	UIToolbar();
 	UIEditing();
 	UIMenuBar();
+
+	
 
 	hasSetDefaultSizes = true;
 }
@@ -237,69 +257,69 @@ void VisualIDK::UIEditing() {
 		}
 		EditingSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 		if (ImGui::Button("Refresh")) noModif = false;
-		ImGui::SameLine();
+		ImGui::SameLine(0.f);
 		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
 		if (mainMenu[2].buttons[0].active) {
 			ImGui::Text("Partie 1 - NBGC");
-			ImGui::Checkbox("Noir & Blanc", &effects[EFFECTS_noirBlanc].active);
-			ImGui::Checkbox("Composante Rouge", &effects[EFFECTS_composantRouge].active);
-			ImGui::Checkbox("Niveaux Gris", &effects[EFFECTS_niveauxGris].active);
-			ImGui::Checkbox("Luminosité", &effects[EFFECTS_luminosity].active);
-			ImGui::SameLine();
+			ImGui::Checkbox("Noir & Blanc", &tabs[current_tab].effects[EFFECTS_noirBlanc].active);
+			ImGui::Checkbox("Composante Rouge", &tabs[current_tab].effects[EFFECTS_composantRouge].active);
+			ImGui::Checkbox("Niveaux Gris", &tabs[current_tab].effects[EFFECTS_niveauxGris].active);
+			ImGui::Checkbox("Luminosité", &tabs[current_tab].effects[EFFECTS_luminosity].active);
+			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(96);
-			ImGui::InputFloat("l", &effects[EFFECTS_luminosity].argFloat, 0.1f, 0.2f);
+			ImGui::InputFloat("l", &tabs[current_tab].effects[EFFECTS_luminosity].argFloat, 0.1f, 0.2f);
 			ImGui::PopItemWidth();
-			ImGui::Checkbox("Contraste", &effects[EFFECTS_contraste].active);
-			ImGui::SameLine();
+			ImGui::Checkbox("Contraste", &tabs[current_tab].effects[EFFECTS_contraste].active);
+			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(96);
-			ImGui::InputFloat("c", &effects[EFFECTS_contraste].argFloat, 0.1f, 0.2f);
+			ImGui::InputFloat("c", &tabs[current_tab].effects[EFFECTS_contraste].argFloat, 0.1f, 0.2f);
 			ImGui::PopItemWidth();
 			ImGui::Text("Daltonisme:");
-			ImGui::SameLine();
-			ImGui::Checkbox("T", &effects[EFFECTS_visionTritanopie].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("P", &effects[EFFECTS_visionProtanopie].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("De", &effects[EFFECTS_visionDeuteranopie].active);
-			ImGui::Checkbox("reglageAuto", &effects[EFFECTS_reglageAuto].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("T", &tabs[current_tab].effects[EFFECTS_visionTritanopie].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_visionProtanopie].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_visionDeuteranopie].active);
+			ImGui::Checkbox("reglageAuto", &tabs[current_tab].effects[EFFECTS_reglageAuto].active);
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[1].active) {
 			ImGui::Text("Partie 3 - Géométrie");
-			ImGui::Checkbox("Rotation Droite", &effects[EFFECTS_rotationD].active);
-			ImGui::Checkbox("Rotation Gauche", &effects[EFFECTS_rotationG].active);
+			ImGui::Checkbox("Rotation Droite", &tabs[current_tab].effects[EFFECTS_rotationD].active);
+			ImGui::Checkbox("Rotation Gauche", &tabs[current_tab].effects[EFFECTS_rotationG].active);
 			ImGui::Text("Retournement");
-			ImGui::SameLine();
-			ImGui::Checkbox("Ho", &effects[EFFECTS_retournementH].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("Ve", &effects[EFFECTS_retournementV].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("Ho", &tabs[current_tab].effects[EFFECTS_retournementH].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("Ve", &tabs[current_tab].effects[EFFECTS_retournementV].active);
 			ImGui::Text("Rognement");
-			ImGui::SameLine();
-			ImGui::Checkbox("D", &effects[EFFECTS_rognerD].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("G", &effects[EFFECTS_rognerG].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("H", &effects[EFFECTS_rognerH].active);
-			ImGui::SameLine();
-			ImGui::Checkbox("B", &effects[EFFECTS_rognerB].active);
-			ImGui::Checkbox("Agrandissement", &effects[EFFECTS_agrandissement].active);
-			ImGui::SameLine();
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("D", &tabs[current_tab].effects[EFFECTS_rognerD].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("G", &tabs[current_tab].effects[EFFECTS_rognerG].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("H", &tabs[current_tab].effects[EFFECTS_rognerH].active);
+			ImGui::SameLine(0.f);
+			ImGui::Checkbox("B", &tabs[current_tab].effects[EFFECTS_rognerB].active);
+			ImGui::Checkbox("Agrandissement", &tabs[current_tab].effects[EFFECTS_agrandissement].active);
+			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(64);
-			ImGui::InputInt("aV", (int*)&effects[EFFECTS_agrandissement].argUint32, 1, 2);
+			ImGui::InputInt("aV", (int*)&tabs[current_tab].effects[EFFECTS_agrandissement].argUint32, 1, 2);
 			ImGui::PopItemWidth();
-			ImGui::Checkbox("Retrécisssement", &effects[EFFECTS_retrecissement].active);
-			ImGui::SameLine();
+			ImGui::Checkbox("Retrécisssement", &tabs[current_tab].effects[EFFECTS_retrecissement].active);
+			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(64);
-			ImGui::InputInt("rV", (int*)&effects[EFFECTS_luminosity].argUint32, 1, 2);
+			ImGui::InputInt("rV", (int*)&tabs[current_tab].effects[EFFECTS_luminosity].argUint32, 1, 2);
 			ImGui::PopItemWidth();
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[2].active) {
 			ImGui::Text("Partie 4 - Filtres");
-			ImGui::Checkbox("FlouG3", &effects[EFFECTS_filtreFlouG3].active);
-			ImGui::Checkbox("FlouG5", &effects[EFFECTS_filtreFlouG5].active);
-			ImGui::Checkbox("Contour Sobel", &effects[EFFECTS_filtreContourSobel].active);
-			ImGui::Checkbox("Contraster", &effects[EFFECTS_filtreContraster].active);
+			ImGui::Checkbox("FlouG3", &tabs[current_tab].effects[EFFECTS_filtreFlouG3].active);
+			ImGui::Checkbox("FlouG5", &tabs[current_tab].effects[EFFECTS_filtreFlouG5].active);
+			ImGui::Checkbox("Contour Sobel", &tabs[current_tab].effects[EFFECTS_filtreContourSobel].active);
+			ImGui::Checkbox("Contraster", &tabs[current_tab].effects[EFFECTS_filtreContraster].active);
 			ImGui::NewLine();
 		}
 		
