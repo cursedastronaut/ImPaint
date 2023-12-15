@@ -1,6 +1,6 @@
 EXE = main
 IMGUI_DIR = externals/include/imgui
-SOURCES = src/main.cpp src/menu_files.cpp src/nbgc.cpp src/visual.cpp src/filtre.cpp
+SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 OBJS = $(addprefix ./objects/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))

@@ -2,28 +2,28 @@
 
 void ImageTab::initEffects() {
 	effects = {
-		{false, 0, &Image::noirEtBlanc},
-		{false, 0, &Image::composanteRouge},
-		{false, 0, &Image::niveauxGris},
+		{false, 0, &Image::blackWhite},
+		{false, 0, &Image::redCanal},
+		{false, 0, &Image::grayScale},
 		{false, 1, nullptr, &Image::changeLuminosity},
 		{false, 1, nullptr, &Image::changeContraste},
-		{false, 0, &Image::rotationD},
-		{false, 0, &Image::rotationG},
-		{false, 0, &Image::retournementH},
-		{false, 0, &Image::retournementV},
-		{false, 2, nullptr, nullptr, &Image::rognerD},
-		{false, 2, nullptr, nullptr, &Image::rognerG},
-		{false, 2, nullptr, nullptr, &Image::rognerH},
-		{false, 2, nullptr, nullptr, &Image::rognerB},
-		{false, 2, nullptr, nullptr, &Image::agrandissement},
-		{false, 2, nullptr, nullptr, &Image::retrecissement},
-		{false, 0, &Image::visionDeuteranopie},
-		{false, 0, &Image::visionProtanopie},
-		{false, 0, &Image::visionTritanopie},
-		{false, 3, nullptr, nullptr, nullptr, FLOUG3},
-		{false, 3, nullptr, nullptr, nullptr, FLOUG5},
-		{false, 0, &Image::contourSobel},
-		{false, 3, nullptr, nullptr, nullptr, CONTRASTER},
+		{false, 0, &Image::rotationR},
+		{false, 0, &Image::rotationL},
+		{false, 0, &Image::spinH},
+		{false, 0, &Image::spinV},
+		{false, 2, nullptr, nullptr, &Image::clipR},
+		{false, 2, nullptr, nullptr, &Image::clipL},
+		{false, 2, nullptr, nullptr, &Image::clipU},
+		{false, 2, nullptr, nullptr, &Image::clipD},
+		{false, 2, nullptr, nullptr, &Image::enlarge},
+		{false, 2, nullptr, nullptr, &Image::shrink},
+		{false, 0, &Image::colorblindDeuteranopia},
+		{false, 0, &Image::colorblindProtanopia},
+		{false, 0, &Image::colorblindTritanopia},
+		{false, 3, nullptr, nullptr, nullptr, BLURG3},
+		{false, 3, nullptr, nullptr, nullptr, BLURG5},
+		{false, 0, &Image::sobelOperator},
+		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR},
 		{false, 0, &Image::reglageAuto},
 		{false, 0, &Image::reglageAutoGris},
 		{false, 0, &Image::reglageAutoCouleur},
@@ -73,7 +73,7 @@ void VisualIDK::Update() {
 					break;
 
 				case 3:
-					tabs[current_tab].post = Filtre(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
+					tabs[current_tab].post = Filter(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
 					break;
 				
 				default:
@@ -125,7 +125,7 @@ void VisualIDK::Update() {
 
 	if(fileDialogSave.HasSelected())
 	{
-		tabs[current_tab].post.ecrire(fileDialogSave.GetSelected().string());
+		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
 		fileDialogSave.ClearSelected();
 		mainMenu[0].buttons[2].active = false;
 	}
@@ -146,8 +146,8 @@ void VisualIDK::Update() {
 
 void VisualIDK::Draw() {
 	#ifdef USE_DUMB_DRAW
-	for (uint32_t y = 0; y < post.getHauteur(); ++y) {
-		for (uint32_t x = 0; x < post.getLongueur(); ++x) {
+	for (uint32_t y = 0; y < post.getHeight(); ++y) {
+		for (uint32_t x = 0; x < post.getWidth(); ++x) {
 			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
 			IM_COL32(post.img.r[x][y], post.img.v[x][y], post.img.b[x][y], 255));
 		}
@@ -156,8 +156,8 @@ void VisualIDK::Draw() {
 
 	// Interleave RGB values
 	if (!noModif) {
-		tabs[current_tab].width = tabs[current_tab].post.getLongueur();
-		tabs[current_tab].height = tabs[current_tab].post.getHauteur();
+		tabs[current_tab].width = tabs[current_tab].post.getWidth();
+		tabs[current_tab].height = tabs[current_tab].post.getHeight();
 		noModif = true;
 		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
 			tabs[current_tab].imageData.clear();
@@ -260,54 +260,54 @@ void VisualIDK::UIEditing() {
 		ImGui::SameLine(0.f);
 		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
 		if (mainMenu[2].buttons[0].active) {
-			ImGui::Text("Partie 1 - NBGC");
-			ImGui::Checkbox("Noir & Blanc", &tabs[current_tab].effects[EFFECTS_noirBlanc].active);
-			ImGui::Checkbox("Composante Rouge", &tabs[current_tab].effects[EFFECTS_composantRouge].active);
-			ImGui::Checkbox("Niveaux Gris", &tabs[current_tab].effects[EFFECTS_niveauxGris].active);
-			ImGui::Checkbox("Luminosité", &tabs[current_tab].effects[EFFECTS_luminosity].active);
+			ImGui::Text("Effects");
+			ImGui::Checkbox("Black & WHite", &tabs[current_tab].effects[EFFECTS_blackWhite].active);
+			ImGui::Checkbox("Red Canal", &tabs[current_tab].effects[EFFECTS_redChannel].active);
+			ImGui::Checkbox("Gray Scale", &tabs[current_tab].effects[EFFECTS_grayScale].active);
+			ImGui::Checkbox("Luminosity", &tabs[current_tab].effects[EFFECTS_luminosity].active);
 			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(96);
 			ImGui::InputFloat("l", &tabs[current_tab].effects[EFFECTS_luminosity].argFloat, 0.1f, 0.2f);
 			ImGui::PopItemWidth();
-			ImGui::Checkbox("Contraste", &tabs[current_tab].effects[EFFECTS_contraste].active);
+			ImGui::Checkbox("Contrast", &tabs[current_tab].effects[EFFECTS_contrast].active);
 			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(96);
-			ImGui::InputFloat("c", &tabs[current_tab].effects[EFFECTS_contraste].argFloat, 0.1f, 0.2f);
+			ImGui::InputFloat("c", &tabs[current_tab].effects[EFFECTS_contrast].argFloat, 0.1f, 0.2f);
 			ImGui::PopItemWidth();
-			ImGui::Text("Daltonisme:");
+			ImGui::Text("Colorblindness:");
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("T", &tabs[current_tab].effects[EFFECTS_visionTritanopie].active);
+			ImGui::Checkbox("T", &tabs[current_tab].effects[EFFECTS_colorblindTritanopia].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_visionProtanopie].active);
+			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_colorblindProtanopia].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_visionDeuteranopie].active);
+			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_colorblindDeuteranopia].active);
 			ImGui::Checkbox("reglageAuto", &tabs[current_tab].effects[EFFECTS_reglageAuto].active);
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[1].active) {
-			ImGui::Text("Partie 3 - Géométrie");
-			ImGui::Checkbox("Rotation Droite", &tabs[current_tab].effects[EFFECTS_rotationD].active);
-			ImGui::Checkbox("Rotation Gauche", &tabs[current_tab].effects[EFFECTS_rotationG].active);
-			ImGui::Text("Retournement");
+			ImGui::Text("Geometry");
+			ImGui::Checkbox("Rotation Right", &tabs[current_tab].effects[EFFECTS_rotationR].active);
+			ImGui::Checkbox("Rotation Left", &tabs[current_tab].effects[EFFECTS_rotationL].active);
+			ImGui::Text("Return");
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("Ho", &tabs[current_tab].effects[EFFECTS_retournementH].active);
+			ImGui::Checkbox("Ho", &tabs[current_tab].effects[EFFECTS_spinH].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("Ve", &tabs[current_tab].effects[EFFECTS_retournementV].active);
-			ImGui::Text("Rognement");
+			ImGui::Checkbox("Ve", &tabs[current_tab].effects[EFFECTS_spinV].active);
+			ImGui::Text("Clip");
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("D", &tabs[current_tab].effects[EFFECTS_rognerD].active);
+			ImGui::Checkbox("R", &tabs[current_tab].effects[EFFECTS_clipR].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("G", &tabs[current_tab].effects[EFFECTS_rognerG].active);
+			ImGui::Checkbox("L", &tabs[current_tab].effects[EFFECTS_clipL].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("H", &tabs[current_tab].effects[EFFECTS_rognerH].active);
+			ImGui::Checkbox("U", &tabs[current_tab].effects[EFFECTS_clipU].active);
 			ImGui::SameLine(0.f);
-			ImGui::Checkbox("B", &tabs[current_tab].effects[EFFECTS_rognerB].active);
-			ImGui::Checkbox("Agrandissement", &tabs[current_tab].effects[EFFECTS_agrandissement].active);
+			ImGui::Checkbox("D", &tabs[current_tab].effects[EFFECTS_clipD].active);
+			ImGui::Checkbox("Enlarge", &tabs[current_tab].effects[EFFECTS_enlarge].active);
 			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(64);
-			ImGui::InputInt("aV", (int*)&tabs[current_tab].effects[EFFECTS_agrandissement].argUint32, 1, 2);
+			ImGui::InputInt("aV", (int*)&tabs[current_tab].effects[EFFECTS_enlarge].argUint32, 1, 2);
 			ImGui::PopItemWidth();
-			ImGui::Checkbox("Retrécisssement", &tabs[current_tab].effects[EFFECTS_retrecissement].active);
+			ImGui::Checkbox("Shrink", &tabs[current_tab].effects[EFFECTS_shrink].active);
 			ImGui::SameLine(0.f);
 			ImGui::PushItemWidth(64);
 			ImGui::InputInt("rV", (int*)&tabs[current_tab].effects[EFFECTS_luminosity].argUint32, 1, 2);
@@ -315,11 +315,11 @@ void VisualIDK::UIEditing() {
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[2].active) {
-			ImGui::Text("Partie 4 - Filtres");
-			ImGui::Checkbox("FlouG3", &tabs[current_tab].effects[EFFECTS_filtreFlouG3].active);
-			ImGui::Checkbox("FlouG5", &tabs[current_tab].effects[EFFECTS_filtreFlouG5].active);
-			ImGui::Checkbox("Contour Sobel", &tabs[current_tab].effects[EFFECTS_filtreContourSobel].active);
-			ImGui::Checkbox("Contraster", &tabs[current_tab].effects[EFFECTS_filtreContraster].active);
+			ImGui::Text("Filters");
+			ImGui::Checkbox("BlurG3", &tabs[current_tab].effects[EFFECTS_filterBlurG3].active);
+			ImGui::Checkbox("BlurG5", &tabs[current_tab].effects[EFFECTS_filterBlurG5].active);
+			ImGui::Checkbox("Sobel Operator", &tabs[current_tab].effects[EFFECTS_filterSoberOperator].active);
+			ImGui::Checkbox("Constrastor", &tabs[current_tab].effects[EFFECTS_filtreContrastor].active);
 			ImGui::NewLine();
 		}
 		

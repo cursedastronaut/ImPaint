@@ -4,9 +4,9 @@
 #include <vector>
 using namespace std;
 
-const vector<vector<float>> FILTRE_FLOUG3 = {{1.f/16.f, 1.f/8.f, 1.f/16.f}, {1.f/8.f, 1.f/4.f, 1.f/8.f}, {1.f/16.f, 1.f/8.f, 1.f/16.f}};
+const vector<vector<float>> FILTRE_BLURG3 = {{1.f/16.f, 1.f/8.f, 1.f/16.f}, {1.f/8.f, 1.f/4.f, 1.f/8.f}, {1.f/16.f, 1.f/8.f, 1.f/16.f}};
 
-const vector<vector<float>> FILTRE_FLOUG5 = {
+const vector<vector<float>> FILTRE_BLURG5 = {
 	{01.f, 04.f, 06.f, 04.f, 01.f},
 	{04.f, 16.f, 24.f, 16.f, 04.f},
 	{06.f, 24.f, 36.f, 24.f, 06.f},
@@ -26,19 +26,19 @@ const vector<vector<float>> FILTRE_GRADIENTY = {
 	{01.f, 02.f, 01.f}
 };
 
-const vector<vector<float>> FILTRE_CONTRASTER = {
+const vector<vector<float>> FILTRE_CONTRASTOR = {
 	{00.f, -1.f, 00.f},
 	{-1.f, 05.f, -1.f},
 	{00.f, -1.f, 00.f}
 };
 
-const float FILTRE_FLOUG5_MODIF = 1.f/256.f;
+const float FILTRE_BLURG5_MODIF = 1.f/256.f;
 
 const float LUMINOSITY_CHANGE = 0.1f;
 const float CONTRAST_CHANGE = 1.0f;
 
-//La simulation du daltonisme ne revient pas qu'à approximer un canal de couleur à zéro.
-//Pour obtenir un résultat plus réaliste, mieux vaut utiliser ces valeurs.
+//Colorblindness simulation isn't just clamping a color channel to zero.
+//To get a more realistic result, it's better to use the following values.
 //Source:  https://www.color-blindness.com/coblis-color-blindness-simulator/
 //Source2: https://www.color-blindness.com/coblis2/js/colorblind.js
 const vector<vector<float>> COLORBLIND_TRITAN = {{95.f, 5.f, 0.f}, {0.f, 43.333f, 56.667f}, {0.f, 47.5, 52.5}};
@@ -71,36 +71,36 @@ enum {
 };
 
 enum {
-	FLOUG3,
-	FLOUG5,
+	BLURG3,
+	BLURG5,
 	GRADIENTX,
 	GRADIENTY,
-	CONTRASTER
+	CONTRASTOR
 };
 
 enum {
-	EFFECTS_noirBlanc,
-	EFFECTS_composantRouge,
-	EFFECTS_niveauxGris,
+	EFFECTS_blackWhite,
+	EFFECTS_redChannel,
+	EFFECTS_grayScale,
 	EFFECTS_luminosity,
-	EFFECTS_contraste,
-	EFFECTS_rotationD,
-	EFFECTS_rotationG,
-	EFFECTS_retournementH,
-	EFFECTS_retournementV,
-	EFFECTS_rognerD,
-	EFFECTS_rognerG,
-	EFFECTS_rognerH,
-	EFFECTS_rognerB,
-	EFFECTS_agrandissement,
-	EFFECTS_retrecissement,
-	EFFECTS_visionDeuteranopie,
-	EFFECTS_visionProtanopie,
-	EFFECTS_visionTritanopie,
-	EFFECTS_filtreFlouG3,
-	EFFECTS_filtreFlouG5,
-	EFFECTS_filtreContourSobel,
-	EFFECTS_filtreContraster,
+	EFFECTS_contrast,
+	EFFECTS_rotationR,
+	EFFECTS_rotationL,
+	EFFECTS_spinH,
+	EFFECTS_spinV,
+	EFFECTS_clipR,
+	EFFECTS_clipL,
+	EFFECTS_clipU,
+	EFFECTS_clipD,
+	EFFECTS_enlarge,
+	EFFECTS_shrink,
+	EFFECTS_colorblindDeuteranopia,
+	EFFECTS_colorblindProtanopia,
+	EFFECTS_colorblindTritanopia,
+	EFFECTS_filterBlurG3,
+	EFFECTS_filterBlurG5,
+	EFFECTS_filterSoberOperator,
+	EFFECTS_filtreContrastor,
 	EFFECTS_reglageAuto,
 	EFFECTS_reglageAutoGris,
 	EFFECTS_reglageAutoCouleur

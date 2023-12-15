@@ -16,7 +16,8 @@
 #include "../externals/include/GLFW/glfw3.h" // Will drag system OpenGL headers
 #include <vector>
 //#include <bits/stdc++.h> 
-#include "menu_files.hpp"
+#include "constants.hpp"
+#include "filter.hpp"
 #ifdef _WIN32
 	#include <windows.h>
 	#include <commdlg.h>
@@ -53,9 +54,9 @@ struct MainMenuDropdown {
 struct boolFuncPointers {
 	bool active;
 	uint8_t which = 0;
-	Image (Image::*func)() = &Image::visionTritanopie;
+	Image (Image::*func)() = &Image::colorblindTritanopia;
 	Image (Image::*funcFloat)(float) = &Image::changeLuminosity;
-	Image (Image::*funcUINT32T)(uint32_t) = &Image::agrandissement;
+	Image (Image::*funcUINT32T)(uint32_t) = &Image::enlarge;
 	uint8_t argFilter = 0;
 	float argFloat = 1.f;
 	uint32_t argUint32 = 1;

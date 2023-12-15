@@ -1,11 +1,11 @@
 #ifndef _FILTER_
 #define _FILTER_
-#include "nbgc.hpp"
-
-class Filtre {
+#include "image.hpp"
+class Image;
+class Filter {
 	public:
-		Filtre(uint8_t type);
-		Filtre(vector<vector<float>> actionUser, int rayonUser);
+		Filter(uint8_t type);
+		Filter(vector<vector<float>> actionUser, int rayonUser);
 		vector<vector<float>> action;
 		int rayon;
 
