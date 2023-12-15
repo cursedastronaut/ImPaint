@@ -7,6 +7,7 @@
 *.ppm
 !ppm_tests/*.ppm
 *.png
+!screenshots/*.png
 *.jpg
 *.ini
 #Objects
