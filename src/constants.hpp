@@ -78,4 +78,33 @@ enum {
 	CONTRASTER
 };
 
+enum {
+	EFFECTS_noirBlanc,
+	EFFECTS_composantRouge,
+	EFFECTS_niveauxGris,
+	EFFECTS_luminosity,
+	EFFECTS_contraste,
+	EFFECTS_rotationD,
+	EFFECTS_rotationG,
+	EFFECTS_retournementH,
+	EFFECTS_retournementV,
+	EFFECTS_rognerD,
+	EFFECTS_rognerG,
+	EFFECTS_rognerH,
+	EFFECTS_rognerB,
+	EFFECTS_agrandissement,
+	EFFECTS_retrecissement,
+	EFFECTS_visionDeuteranopie,
+	EFFECTS_visionProtanopie,
+	EFFECTS_visionTritanopie,
+	EFFECTS_filtreFlouG3,
+	EFFECTS_filtreFlouG5,
+	EFFECTS_filtreContourSobel,
+	EFFECTS_filtreContraster,
+	EFFECTS_reglageAuto,
+	EFFECTS_reglageAutoGris,
+	EFFECTS_reglageAutoCouleur
+	
+};
+
 #endif //_CONSTANTS_

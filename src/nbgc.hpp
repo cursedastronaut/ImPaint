@@ -89,6 +89,9 @@ class Image {
 		Image visionTritanopie();
 		//Renvoie l'image cible, modifiée pour simuler la vision d'un daltonien.
 		Image visionDaltonisme(uint8_t type);
+		Image reglageAuto();
+		Image reglageAutoGris();
+		Image reglageAutoCouleur();
 
 		Image contourSobel();
 

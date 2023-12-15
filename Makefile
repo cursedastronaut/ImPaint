@@ -45,7 +45,7 @@ endif
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
 	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32
-	CXXFLAGS += -Lexternals/libs/windows-mingw64-13.2.0
+	CXXFLAGS += -Lexternals/libs/windows-mingw64-13.2.0 -lcomdlg32
 	CFLAGS = $(CXXFLAGS)
 endif
 

@@ -17,6 +17,11 @@
 #include <vector>
 //#include <bits/stdc++.h> 
 #include "menu_files.hpp"
+#ifdef _WIN32
+	#include <windows.h>
+	#include <commdlg.h>
+#endif
+#include <imfilebrowser.h>
 /*
 #ifndef __has_include
   static_assert(false, "__has_include not supported");
@@ -34,6 +39,28 @@
 #endif*/
 using namespace std;
 
+struct MainMenuDropdownButton {
+	string title;
+	bool active = false;
+};
+
+struct MainMenuDropdown {
+	string title;
+	bool active = false;
+	vector<MainMenuDropdownButton> buttons;
+};
+
+struct boolFuncPointers {
+	bool active;
+	uint8_t which = 0;
+	Image (Image::*func)() = &Image::visionTritanopie;
+	Image (Image::*funcFloat)(float) = &Image::changeLuminosity;
+	Image (Image::*funcUINT32T)(uint32_t) = &Image::agrandissement;
+	uint8_t argFilter = 0;
+	float argFloat = 1.f;
+	uint32_t argUint32 = 1;
+};
+
 class VisualIDK {
 	public:
 	VisualIDK();
@@ -49,33 +76,14 @@ class VisualIDK {
 	int sizePerPixel = 0;
 
 	private:
-	bool noirBlanc = false;
-	bool composantRouge = false;
-	bool niveauxGris = false;
-	bool luminosity = false;
-	bool contraste = false;
-	bool rotationD = false;
-	bool rotationG = false;
-	bool retournementH = false;
-	bool retournementV = false;
-	bool rognerD = false;
-	bool rognerG = false;
-	bool rognerH = false;
-	bool rognerB = false;
-	bool dontRefresh = false;
-	bool agrandissement = false;
-	bool retrecissement = false;
-	bool visionDeuteranopie = false;
-	bool visionProtanopie = false;
-	bool visionTritanopie = false;
-	bool filtreFlouG3 = false;
-	bool filtreFlouG5 = false;
-	bool filtreContourSobel = false;
-	bool filtreContraster = false;
-	float luminosityF = 1.0f;
-	float contrasteF = 1.0f;
-	int agrandissementV = 1;
-	int retrecissementV = 1;
+	
+
+	vector<boolFuncPointers> effects;
+	//float luminosityF = 1.0f;
+	//float contrasteF = 1.0f;
+	//int agrandissementV = 1;
+	//int retrecissementV = 1;
+	vector <MainMenuDropdown> mainMenu;
 
 	char fileTempBuffer[50] = "";
 	bool noModif = false;
@@ -86,7 +94,10 @@ class VisualIDK {
 	int height;
 	#endif //USE_DUMB_DRAW
 
+	#ifdef __linux__
+	ImGui::FileBrowser fileDialog;
+	ImGui::FileBrowser fileDialogSave = ImGui::FileBrowser(ImGuiFileBrowserFlags_EnterNewFilename | ImGuiFileBrowserFlags_CreateNewDir);
+	#endif
 };
-
 
 #endif

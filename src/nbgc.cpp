@@ -602,3 +602,74 @@ Image Image::contourSobel() {
 	
 	return gradientFiltre.application(output);
 }
+
+Image Image::reglageAuto() {
+	Image output = *this;
+	int avg_pixels= 0;
+	int sum = 0;
+	int cpt = 0;
+	int modif = 0;
+	
+	while(avg_pixels != 128){
+
+		for (uint32_t x = 0; x < output.longueur; ++x) {
+			for (uint32_t y = 0; y < output.hauteur; ++y) {
+				sum += output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y];
+				cpt+=3;
+				if (output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] < 0) {
+
+					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+					<< output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] << ' ' << output.img.r[x][y] << ' '
+					<< output.img.v[x][y] << ' ' << output.img.b[x][y];
+					return output;
+				}
+			}
+		}
+		avg_pixels = sum/cpt;
+
+		cpt = 0;
+		if (avg_pixels > 128){
+			modif = -1;
+		}
+		else if (avg_pixels < 128){
+			modif = +1;
+		}/*
+		for (uint32_t x = 0; x < output.longueur; ++x) {
+			for (uint32_t y = 0; y < output.hauteur; ++y) {
+				output.img.r[x][y] *= 128/avg_pixels; 
+				output.img.v[x][y] *= 128/avg_pixels;
+				output.img.b[x][y] *= 128/avg_pixels;
+			}
+		}*/
+		changeLuminosity(128/avg_pixels);
+		sum = 0;
+		for (uint32_t x = 0; x < output.longueur; ++x) {
+			for (uint32_t y = 0; y < output.hauteur; ++y) {
+				sum += output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y];
+				cpt+=3;
+				if (output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] < 0) {
+
+					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+					<< output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] << ' ' << output.img.r[x][y] << ' '
+					<< output.img.v[x][y] << ' ' << output.img.b[x][y];
+					return output;
+				}
+			}
+		}
+		avg_pixels = sum/cpt;
+		cout << avg_pixels << endl;
+
+	}
+	
+
+	return output;
+}
+	
+
+Image Image::reglageAutoGris() {
+	return Image(*this);
+}
+
+Image Image::reglageAutoCouleur() {
+	return Image(*this);
+}

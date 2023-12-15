@@ -2,47 +2,75 @@
 
 VisualIDK::VisualIDK() {
 	post = original;
+	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
+	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
+	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}}});
+
+	fileDialog.SetTitle("title");
+	fileDialog.SetTypeFilters({".ppm"});
+	mainMenu[2].buttons[0].active = true;
+	mainMenu[2].buttons[1].active = true;
+	mainMenu[2].buttons[2].active = true;
+	effects = {
+		{false, 0, &Image::noirEtBlanc},
+		{false, 0, &Image::composanteRouge},
+		{false, 0, &Image::niveauxGris},
+		{false, 1, nullptr, &Image::changeLuminosity},
+		{false, 1, nullptr, &Image::changeContraste},
+		{false, 0, &Image::rotationD},
+		{false, 0, &Image::rotationG},
+		{false, 0, &Image::retournementH},
+		{false, 0, &Image::retournementV},
+		{false, 2, nullptr, nullptr, &Image::rognerD},
+		{false, 2, nullptr, nullptr, &Image::rognerG},
+		{false, 2, nullptr, nullptr, &Image::rognerH},
+		{false, 2, nullptr, nullptr, &Image::rognerB},
+		{false, 2, nullptr, nullptr, &Image::agrandissement},
+		{false, 2, nullptr, nullptr, &Image::retrecissement},
+		{false, 0, &Image::visionDeuteranopie},
+		{false, 0, &Image::visionProtanopie},
+		{false, 0, &Image::visionTritanopie},
+		{false, 3, nullptr, nullptr, nullptr, FLOUG3},
+		{false, 3, nullptr, nullptr, nullptr, FLOUG5},
+		{false, 0, &Image::contourSobel},
+		{false, 3, nullptr, nullptr, nullptr, CONTRASTER},
+		{false, 0, &Image::reglageAuto},
+		{false, 0, &Image::reglageAutoGris},
+		{false, 0, &Image::reglageAutoCouleur},
+	};
 }
 
 void VisualIDK::Update() {
 	if (!noModif) {
 		post = original;
-		if (noirBlanc)
-			post = post.noirEtBlanc();
-		if (composantRouge)
-			post = post.composanteRouge();
-		if (niveauxGris)
-			post = post.niveauxGris();
-		if (luminosity)
-			post = post.changeLuminosity(luminosityF);
-		if (contraste)
-			post = post.contrasteUp(contrasteF);
-		if (rotationD)
-			post = post.rotationD();
-		if (rotationG)
-			post = post.rotationG();
-		if (retournementH)
-			post = post.retournementH();
-		if (retournementV)
-			post = post.retournementV();
-		if (rognerD)
-			post = post.rognerD(1);
-		if (rognerG)
-			post = post.rognerG(1);
-		if (rognerH)
-			post = post.rognerH(1);
-		if (rognerB)
-			post = post.rognerB(1);
-		if (agrandissement)
-			post = post.agrandissement(agrandissementV);
-		if (retrecissement)
-			post = post.retrecissement(retrecissementV);
-		if (visionDeuteranopie)
-			post = post.visionDeuteranopie();
-		if (visionProtanopie)
-			post = post.visionProtanopie();
-		if (visionTritanopie)
-			post = post.visionTritanopie();
+		for (size_t i = 0; i < effects.size(); ++i) {
+			if (effects[i].active) {
+				switch (effects[i].which)
+				{
+				case 0:
+					post = (post.*(effects[i].func))();
+					break;
+				
+				case 1:
+					post = (post.*(effects[i].funcFloat))(effects[i].argFloat);
+					break;
+
+				case 2:
+					post = (post.*(effects[i].funcUINT32T))(effects[i].argUint32);
+					break;
+
+				case 3:
+					post = Filtre(effects[i].argFilter).application(post);
+					break;
+				
+				default:
+					break;
+				}
+			}
+		}
+	}
+	/*
+	if (!noModif) {
 		if (filtreFlouG3)
 			post = Filtre(FLOUG3).application(post);
 		if (filtreFlouG5)
@@ -52,7 +80,58 @@ void VisualIDK::Update() {
 		if (filtreContraster)
 			post = Filtre(CONTRASTER).application(post);
 			
+	}*/
+	#ifndef IDE_ANTI_ERROR
+	if (mainMenu[0].active && mainMenu[0].buttons[1].active) {
+		#ifdef _WIN32
+		OPENFILENAME ofn ;
+		char szFile[MAX_PATH] = {0};
+		ZeroMemory( &ofn , sizeof( ofn));
+		ofn.lStructSize = sizeof ( ofn );
+		ofn.hwndOwner = NULL  ;
+		ofn.lpstrFile = szFile ;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = sizeof( szFile );
+		ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+		ofn.nFilterIndex =1;
+		ofn.lpstrFileTitle = NULL ;
+		ofn.nMaxFileTitle = 0 ;
+		ofn.lpstrInitialDir=NULL ;
+		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+		GetOpenFileName(&ofn);
+		//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
+
+		original = Image(ofn.lpstrFile);
+		post = original;
+		#elif __linux__
+			fileDialog.Open();
+
+		#endif
+		mainMenu[0].buttons[1].active = false;
 	}
+	#endif
+	#ifdef __linux__
+	if (mainMenu[0].active && mainMenu[0].buttons[2].active) {
+		fileDialogSave.Open();
+	}
+
+	if(fileDialog.HasSelected())
+	{
+		original = Image(fileDialog.GetSelected().string());
+		post = original;
+		noModif = false;
+		fileDialog.ClearSelected();
+	}
+
+	if(fileDialogSave.HasSelected())
+	{
+		post.ecrire(fileDialogSave.GetSelected().string());
+		fileDialogSave.ClearSelected();
+		mainMenu[0].buttons[2].active = false;
+	}
+	#endif
+
+	
 }
 
 void VisualIDK::Draw() {
@@ -101,85 +180,111 @@ void VisualIDK::Draw() {
 		dl->AddImage((void*)(intptr_t)textureID, ImVec2(0, 0), ImVec2(height, width));
 	else
 		cout << "Empty image" << endl;
-	
-	
 	#endif //USE_DUMB_DRAW
+	fileDialog.Display();
+	fileDialogSave.Display();
 }
 
 void VisualIDK::UI() {
-	ImGui::Begin("Debug");
-	if (ImGui::Button("Refresh")) noModif = false;
-	ImGui::SameLine();
-	ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
-	ImGui::Text("Partie 1 - NBGC");
-	ImGui::Checkbox("Noir & Blanc", &noirBlanc);
-	ImGui::Checkbox("Composante Rouge", &composantRouge);
-	ImGui::Checkbox("Niveaux Gris", &niveauxGris);
-	ImGui::Checkbox("Luminosité", &luminosity);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(96);
-	ImGui::InputFloat("l", &luminosityF, 0.1f, 0.2f);
-	ImGui::PopItemWidth();
-	ImGui::Checkbox("Contraste", &contraste);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(96);
-	ImGui::InputFloat("c", &contrasteF, 0.1f, 0.2f);
-	ImGui::PopItemWidth();
-	ImGui::Text("Daltonisme:");
-	ImGui::SameLine();
-	ImGui::Checkbox("T", &visionTritanopie);
-	ImGui::SameLine();
-	ImGui::Checkbox("P", &visionProtanopie);
-	ImGui::SameLine();
-	ImGui::Checkbox("De", &visionDeuteranopie);
-	ImGui::NewLine();
-	ImGui::Text("Partie 3 - Géométrie");
-	ImGui::Checkbox("Rotation Droite", &rotationD);
-	ImGui::Checkbox("Rotation Gauche", &rotationG);
-	ImGui::Text("Retournement");
-	ImGui::SameLine();
-	ImGui::Checkbox("Ho", &retournementH);
-	ImGui::SameLine();
-	ImGui::Checkbox("Ve", &retournementV);
-	ImGui::Text("Rognement");
-	ImGui::SameLine();
-	ImGui::Checkbox("D", &rognerD);
-	ImGui::SameLine();
-	ImGui::Checkbox("G", &rognerG);
-	ImGui::SameLine();
-	ImGui::Checkbox("H", &rognerH);
-	ImGui::SameLine();
-	ImGui::Checkbox("B", &rognerB);
-	ImGui::Checkbox("Agrandissement", &agrandissement);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(64);
-	ImGui::InputInt("aV", &agrandissementV, 1, 2);
-	ImGui::PopItemWidth();
-	ImGui::Checkbox("Retrécisssement", &retrecissement);
-	ImGui::SameLine();
-	ImGui::PushItemWidth(64);
-	ImGui::InputInt("rV", &retrecissementV, 1, 2);
-	ImGui::PopItemWidth();
-	ImGui::Checkbox("No Refresh", &dontRefresh);
-	ImGui::NewLine();
-	ImGui::Text("Partie 4 - Filtres");
-	ImGui::Checkbox("FlouG3", &filtreFlouG3);
-	ImGui::Checkbox("FlouG5", &filtreFlouG5);
-	ImGui::Checkbox("Contour Sobel", &filtreContourSobel);
-	ImGui::Checkbox("Contraster", &filtreContraster);
-	ImGui::NewLine();
-	ImGui::Text("Partie 2 - Fichiers");
-	ImGui::InputText("File", fileTempBuffer, 50);
-	if (ImGui::Button("Charger", {64, 32}))
-		original = Image(fileTempBuffer);
-	#ifdef USE_DUMB_DRAW
-	ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
-	#endif //USE_DUMB_DRAW
-	ImGui::SameLine();
-	if (ImGui::Button("Écrire", {64, 32})) {
-		post.ecrire();
-		std::cout << "Ecriture terminee" << std::endl;
-		noModif = false;
+	if (mainMenu[2].buttons[0].active || mainMenu[2].buttons[1].active) {
+		ImGui::Begin("Debug");
+		if (ImGui::Button("Refresh")) noModif = false;
+		ImGui::SameLine();
+		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
+		if (mainMenu[2].buttons[0].active) {
+			ImGui::Text("Partie 1 - NBGC");
+			ImGui::Checkbox("Noir & Blanc", &effects[EFFECTS_noirBlanc].active);
+			ImGui::Checkbox("Composante Rouge", &effects[EFFECTS_composantRouge].active);
+			ImGui::Checkbox("Niveaux Gris", &effects[EFFECTS_niveauxGris].active);
+			ImGui::Checkbox("Luminosité", &effects[EFFECTS_luminosity].active);
+			ImGui::SameLine();
+			ImGui::PushItemWidth(96);
+			ImGui::InputFloat("l", &effects[EFFECTS_luminosity].argFloat, 0.1f, 0.2f);
+			ImGui::PopItemWidth();
+			ImGui::Checkbox("Contraste", &effects[EFFECTS_contraste].active);
+			ImGui::SameLine();
+			ImGui::PushItemWidth(96);
+			ImGui::InputFloat("c", &effects[EFFECTS_contraste].argFloat, 0.1f, 0.2f);
+			ImGui::PopItemWidth();
+			ImGui::Text("Daltonisme:");
+			ImGui::SameLine();
+			ImGui::Checkbox("T", &effects[EFFECTS_visionTritanopie].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("P", &effects[EFFECTS_visionProtanopie].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("De", &effects[EFFECTS_visionDeuteranopie].active);
+			ImGui::Checkbox("reglageAuto", &effects[EFFECTS_reglageAuto].active);
+			ImGui::NewLine();
+		}
+		if (mainMenu[2].buttons[1].active) {
+			ImGui::Text("Partie 3 - Géométrie");
+			ImGui::Checkbox("Rotation Droite", &effects[EFFECTS_rotationD].active);
+			ImGui::Checkbox("Rotation Gauche", &effects[EFFECTS_rotationG].active);
+			ImGui::Text("Retournement");
+			ImGui::SameLine();
+			ImGui::Checkbox("Ho", &effects[EFFECTS_retournementH].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("Ve", &effects[EFFECTS_retournementV].active);
+			ImGui::Text("Rognement");
+			ImGui::SameLine();
+			ImGui::Checkbox("D", &effects[EFFECTS_rognerD].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("G", &effects[EFFECTS_rognerG].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("H", &effects[EFFECTS_rognerH].active);
+			ImGui::SameLine();
+			ImGui::Checkbox("B", &effects[EFFECTS_rognerB].active);
+			ImGui::Checkbox("Agrandissement", &effects[EFFECTS_agrandissement].active);
+			ImGui::SameLine();
+			ImGui::PushItemWidth(64);
+			ImGui::InputInt("aV", (int*)&effects[EFFECTS_agrandissement].argUint32, 1, 2);
+			ImGui::PopItemWidth();
+			ImGui::Checkbox("Retrécisssement", &effects[EFFECTS_retrecissement].active);
+			ImGui::SameLine();
+			ImGui::PushItemWidth(64);
+			ImGui::InputInt("rV", (int*)&effects[EFFECTS_luminosity].argUint32, 1, 2);
+			ImGui::PopItemWidth();
+			ImGui::NewLine();
+		}
+		if (mainMenu[2].buttons[2].active) {
+			ImGui::Text("Partie 4 - Filtres");
+			ImGui::Checkbox("FlouG3", &effects[EFFECTS_filtreFlouG3].active);
+			ImGui::Checkbox("FlouG5", &effects[EFFECTS_filtreFlouG5].active);
+			ImGui::Checkbox("Contour Sobel", &effects[EFFECTS_filtreContourSobel].active);
+			ImGui::Checkbox("Contraster", &effects[EFFECTS_filtreContraster].active);
+			ImGui::NewLine();
+		}
+		/*
+		ImGui::Text("Partie 2 - Fichiers");
+		ImGui::InputText("File", fileTempBuffer, 50);
+		if (ImGui::Button("Charger", {64, 32}))
+			original = Image(fileTempBuffer);
+		#ifdef USE_DUMB_DRAW
+		ImGui::InputInt("Pixel Size", &pixelSize, 1, 2);
+		#endif //USE_DUMB_DRAW
+		ImGui::SameLine();
+		if (ImGui::Button("Écrire", {64, 32})) {
+			post.ecrire();
+			std::cout << "Ecriture terminee" << std::endl;
+			noModif = false;
+		}*/
+		ImGui::End();
+		
 	}
-	ImGui::End();
+
+	// Start the menu bar
+	if (ImGui::BeginMainMenuBar()) {
+		
+		for (size_t i = 0; i < mainMenu.size(); ++i) {
+			mainMenu[i].active = ImGui::BeginMenu(mainMenu[i].title.c_str());
+			if (mainMenu[i].active) {
+				for (size_t j = 0; j < mainMenu[i].buttons.size(); ++j)
+					if (ImGui::MenuItem(mainMenu[i].buttons[j].title.c_str()))
+						mainMenu[i].buttons[j].active = !mainMenu[i].buttons[j].active;
+				ImGui::EndMenu(); 
+			}
+		}
+		
+		ImGui::EndMainMenuBar();
+	}
 }
