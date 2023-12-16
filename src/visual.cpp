@@ -54,37 +54,12 @@ VisualIDK::VisualIDK() {
 }
 
 void VisualIDK::Update() {
-	if (!noModif) {
-		tabs[current_tab].post = tabs[current_tab].original;
-		for (size_t i = 0; i < tabs[current_tab].effects.size(); ++i) {
-			if (tabs[current_tab].effects[i].active) {
-				switch (tabs[current_tab].effects[i].which)
-				{
-				case 0:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].func))();
-					break;
-				
-				case 1:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcFloat))(tabs[current_tab].effects[i].argFloat);
-					break;
-
-				case 2:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcUINT32T))(tabs[current_tab].effects[i].argUint32);
-					break;
-
-				case 3:
-					tabs[current_tab].post = Filter(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
-					break;
-				
-				default:
-					break;
-				}
-			}
-		}
-	}
+	applyEffects();
 	
 	openFile();
 	saveFile();
+	
+	//Toggle Dark Mode
 	if (mainMenu[2].buttons[3].active) {
 		ImGui::StyleColorsDark();
 		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
@@ -94,6 +69,7 @@ void VisualIDK::Update() {
 		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	}
 	
+	//Zooms in and out of the image.
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 		tabs[current_tab].zoom += io->MouseWheel/10.f;
 
@@ -418,4 +394,35 @@ void VisualIDK::saveFile() {
 		mainMenu[0].buttons[2].active = false;
 	}
 	#endif
+}
+
+void VisualIDK::applyEffects() {
+	if (!noModif) {
+		tabs[current_tab].post = tabs[current_tab].original;
+		for (size_t i = 0; i < tabs[current_tab].effects.size(); ++i) {
+			if (tabs[current_tab].effects[i].active) {
+				switch (tabs[current_tab].effects[i].which)
+				{
+				case 0:
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].func))();
+					break;
+				
+				case 1:
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcFloat))(tabs[current_tab].effects[i].argFloat);
+					break;
+
+				case 2:
+					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcUINT32T))(tabs[current_tab].effects[i].argUint32);
+					break;
+
+				case 3:
+					tabs[current_tab].post = Filter(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
+					break;
+				
+				default:
+					break;
+				}
+			}
+		}
+	}
 }

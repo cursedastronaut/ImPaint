@@ -112,6 +112,8 @@ class VisualIDK {
 	void openFile();
 	void saveFile();
 
+	void applyEffects();
+
 	ImVec4 MenuBarSize;
 	ImVec4 ImageSize;
 	ImVec4 EditingSize;
