@@ -1,8 +1,9 @@
 EXE = main
 IMGUI_DIR = externals/src/imgui
-SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp externals/src/gpt.cpp
+SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
+SOURCES += externals/src/gpt.cpp 
 OBJS = $(addprefix ./objects/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
 UNAME_S := $(shell uname -s)
 LINUX_GL_LIBS = -lGL
@@ -26,8 +27,8 @@ LIBS =
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "Linux"
 	LIBS += $(LINUX_GL_LIBS) `pkg-config --static --libs glfw3`
-
-	CXXFLAGS += `pkg-config --cflags glfw3`
+	LIBS += -L/lib/x86_64-linux-gnu -lX11 -lpng -lxcb
+	CXXFLAGS += `pkg-config --cflags glfw3` -lclip -Lexternals/libs/linux-ubuntu
 	CFLAGS = $(CXXFLAGS)
 endif
 
@@ -60,6 +61,9 @@ endif
 	$(CXX) $(CXXFLAGS) -Iexternals/include -c -o $@ $<
 
 ./objects/%.o: externals/src/%.cpp
+	$(CXX) $(CXXFLAGS) -Iexternals/include -c -o $@ $<
+
+./objects/%.o: externals/src/clip/%.cpp
 	$(CXX) $(CXXFLAGS) -Iexternals/include -c -o $@ $<
 
 ./objects/%.o: $(IMGUI_DIR)/backends/%.cpp

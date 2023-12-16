@@ -14,8 +14,9 @@
 objects/*.o
 #Compressed files
 *.zip
-#Useless imguiStuff
+#Useless stuff
 externals/imgui/
+externals/src/clip
 #Executables
 *.exe
 main

@@ -167,6 +167,7 @@ class Image {
 		Image reglageAutoCouleur();
 
 		Image sobelOperator();
+		static bool isEmpty(Image &);
 
 		rgbVec img;
 	private:

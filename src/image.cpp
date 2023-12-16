@@ -693,7 +693,6 @@ Image Image::reglageAuto() {
 	return Image(*this);
 }
 	
-
 Image Image::reglageAutoGris() {
 	return Image(*this);
 }
@@ -705,3 +704,8 @@ Image Image::reglageAutoCouleur() {
 string & Image::getError() {
 	return error;
 }
+
+bool Image::isEmpty(Image &img) {
+	return img.width == 0 || img.height == 0;
+}
+

@@ -23,6 +23,7 @@
 	#include <commdlg.h>
 #endif
 #include <imfilebrowser.h>
+#include <clip/clip.h>
 /*
 #ifndef __has_include
   static_assert(false, "__has_include not supported");
@@ -85,9 +86,9 @@ class VisualIDK {
 	void UI();
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	GLFWwindow* window;
 
 	private:
-
 	vector <MainMenuDropdown> mainMenu;
 
 	char fileTempBuffer[50] = "";

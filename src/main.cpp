@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
 	//IM_ASSERT(font != nullptr);
 
 	VisualIDK vsi;
+	vsi.window = window;
 	// Main loop
 #ifdef __EMSCRIPTEN__
 	// For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -114,7 +115,7 @@ int main(int argc, char* argv[])
 		vsi.Update();
 		vsi.Draw();
 		vsi.UI();
-
+		
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;
