@@ -16,8 +16,16 @@ make -j
 Run the compiled executable.
 
 It needs **C++17**, **OpenGL**, and **GLFW3** library.
+Specific platforms dependencies:
+* **Windows**
+  - Windows API required.
+
+* **Linux**
+  - Clip library required. (Included here, compiled on Ubuntu based distro).
 
 ## Thanks
 Thanks to [@orornut](https://github.com/ocornut) for the graphical library [imgui](https://github.com/ocornut/imgui) which is used for almost every drawing.
 
 Thanks to [@AirGuanZ](https://github.com/AirGuanZ) for the [imgui-filebrowser](https://github.com/AirGuanZ/imgui-filebrowser) which allows to select files or directories, even on systems where calling the default file explorer is annoying.
+
+Thanks to [@dacap](https://github.com/dacap/) for the [clip](https://github.com/dacap/clip) library, which allows to copy and paste images even on Linux (X11).
