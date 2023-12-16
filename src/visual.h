@@ -109,6 +109,9 @@ class VisualIDK {
 	void copyMethod();
 	void pasteMethod();
 
+	void openFile();
+	void saveFile();
+
 	ImVec4 MenuBarSize;
 	ImVec4 ImageSize;
 	ImVec4 EditingSize;

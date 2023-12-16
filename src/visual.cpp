@@ -83,53 +83,8 @@ void VisualIDK::Update() {
 		}
 	}
 	
-	if (mainMenu[0].buttons[1].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
-		#ifdef _WIN32
-		OPENFILENAME ofn ;
-		char szFile[MAX_PATH] = {0};
-		ZeroMemory( &ofn , sizeof( ofn));
-		ofn.lStructSize = sizeof ( ofn );
-		ofn.hwndOwner = NULL  ;
-		ofn.lpstrFile = szFile ;
-		ofn.lpstrFile[0] = '\0';
-		ofn.nMaxFile = sizeof( szFile );
-		ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
-		ofn.nFilterIndex =1;
-		ofn.lpstrFileTitle = NULL ;
-		ofn.nMaxFileTitle = 0 ;
-		ofn.lpstrInitialDir=NULL ;
-		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-		GetOpenFileName(&ofn);
-		//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
-
-		tabs[current_tab].original = Image(ofn.lpstrFile);
-		tabs[current_tab].post = tabs[current_tab].original;
-		#elif __linux__
-			fileDialog.Open();
-
-		#endif
-		mainMenu[0].buttons[1].active = false;
-	}
-	#ifdef __linux__
-	if ((mainMenu[0].active && mainMenu[0].buttons[2].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
-		fileDialogSave.Open();
-	}
-
-	if(fileDialog.HasSelected())
-	{
-		tabs[current_tab].original = Image(fileDialog.GetSelected().string());
-		tabs[current_tab].post = tabs[current_tab].original;
-		noModif = false;
-		fileDialog.ClearSelected();
-	}
-
-	if(fileDialogSave.HasSelected())
-	{
-		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
-		fileDialogSave.ClearSelected();
-		mainMenu[0].buttons[2].active = false;
-	}
-	#endif
+	openFile();
+	saveFile();
 	if (mainMenu[2].buttons[3].active) {
 		ImGui::StyleColorsDark();
 		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
@@ -408,4 +363,59 @@ void VisualIDK::pasteMethod() {
 			tabs[current_tab].post = tabs[current_tab].original;
 		}
 	}
+}
+
+void VisualIDK::openFile() {
+	if (mainMenu[0].buttons[1].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
+		#ifdef _WIN32
+		OPENFILENAME ofn ;
+		char szFile[MAX_PATH] = {0};
+		ZeroMemory( &ofn , sizeof( ofn));
+		ofn.lStructSize = sizeof ( ofn );
+		ofn.hwndOwner = NULL  ;
+		ofn.lpstrFile = szFile ;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = sizeof( szFile );
+		ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+		ofn.nFilterIndex =1;
+		ofn.lpstrFileTitle = NULL ;
+		ofn.nMaxFileTitle = 0 ;
+		ofn.lpstrInitialDir=NULL ;
+		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+		GetOpenFileName(&ofn);
+		//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
+
+		tabs[current_tab].original = Image(ofn.lpstrFile);
+		tabs[current_tab].post = tabs[current_tab].original;
+		#elif __linux__
+			fileDialog.Open();
+
+		#endif
+		mainMenu[0].buttons[1].active = false;
+	}
+
+	#ifdef __linux__
+	if(fileDialog.HasSelected())
+	{
+		tabs[current_tab].original = Image(fileDialog.GetSelected().string());
+		tabs[current_tab].post = tabs[current_tab].original;
+		noModif = false;
+		fileDialog.ClearSelected();
+	}
+	#endif
+}
+
+void VisualIDK::saveFile() {
+	#ifdef __linux__
+	if ((mainMenu[0].active && mainMenu[0].buttons[2].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
+		fileDialogSave.Open();
+	}
+
+	if(fileDialogSave.HasSelected())
+	{
+		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
+		fileDialogSave.ClearSelected();
+		mainMenu[0].buttons[2].active = false;
+	}
+	#endif
 }
