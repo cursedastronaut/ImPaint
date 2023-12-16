@@ -1,5 +1,4 @@
 #include "visual.h"
-
 void ImageTab::initEffects() {
 	effects = {
 		{false, 0, &Image::blackWhite},
@@ -34,12 +33,13 @@ VisualIDK::VisualIDK() {
 	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
 	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
 	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
-
+	#ifdef __linux__
 	fileDialog.SetTitle("Open...");
 	fileDialog.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg", ".jpeg"});
 	
 	fileDialogSave.SetTitle("Save...");
 	fileDialogSave.SetTypeFilters({});
+	#endif
 	mainMenu[2].buttons[0].active = true;
 	mainMenu[2].buttons[1].active = true;
 	mainMenu[2].buttons[2].active = true;
@@ -136,8 +136,10 @@ void VisualIDK::Draw() {
 		);
 	#endif //USE_DUMB_DRAW
 	ImGui::End();
+	#ifdef __linux__
 	fileDialog.Display();
 	fileDialogSave.Display();
+	#endif
 }
 
 void VisualIDK::UI() {
@@ -201,6 +203,8 @@ void VisualIDK::UIEditing() {
 			ImGui::SetWindowSize({EditingSize.z, EditingSize.w});
 		}
 		EditingSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+		ImGui::SetWindowPos({io->DisplaySize.x-EditingSize.z, EditingSize.y});
+		ImGui::SetWindowSize({ ImGui::GetWindowSize().x, io->DisplaySize.y - EditingSize.y});
 		if (ImGui::Button("Refresh")) noModif = false;
 		ImGui::SameLine(0.f);
 		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
@@ -280,6 +284,8 @@ void VisualIDK::UIToolbar() {
 		ImGui::SetWindowSize(ImVec2(ToolbarSize.z, ToolbarSize.w));
 	}
 	ToolbarSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+	ImGui::SetWindowPos(ImVec2(ToolbarSize.x,ToolbarSize.y));
+	ImGui::SetWindowSize(ImVec2(ToolbarSize.z, io->DisplaySize.y-ToolbarSize.y));
 	ImGui::Text("txt");
 	ImGui::End();
 	
@@ -297,6 +303,7 @@ void VisualIDK::UIErrorBay() {
 
 void VisualIDK::copyMethod() {
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(tabs[current_tab].post)) {
+		#ifdef __linux__
 		clip::image_spec spec;
 		spec.width = tabs[current_tab].width;
 		spec.height = tabs[current_tab].height;
@@ -312,12 +319,14 @@ void VisualIDK::copyMethod() {
 		spec.alpha_shift = 24;
 		clip::image img(tabs[current_tab].imageData.data(), spec);
 		clip::set_image(img);
+		#endif
 	}
 }
 
 void VisualIDK::pasteMethod() {
 	if (!(ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_V)))
 		return;
+	#ifdef __linux__
 	if (!clip::has(clip::image_format())) {
 		std::cout << "Clipboard doesn't contain an image\n";
 	} else {
@@ -339,11 +348,13 @@ void VisualIDK::pasteMethod() {
 			tabs[current_tab].post = tabs[current_tab].original;
 		}
 	}
+	#endif
 }
 
 void VisualIDK::openFile() {
 	if (mainMenu[0].buttons[1].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
 		#ifdef _WIN32
+		#ifndef IDE_ANTI_ERROR
 		OPENFILENAME ofn ;
 		char szFile[MAX_PATH] = {0};
 		ZeroMemory( &ofn , sizeof( ofn));
@@ -358,11 +369,13 @@ void VisualIDK::openFile() {
 		ofn.nMaxFileTitle = 0 ;
 		ofn.lpstrInitialDir=NULL ;
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-		GetOpenFileName(&ofn);
-		//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
+		if (GetOpenFileName(&ofn)) {
+			//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
 
-		tabs[current_tab].original = Image(ofn.lpstrFile);
-		tabs[current_tab].post = tabs[current_tab].original;
+			tabs[current_tab].original = Image(ofn.lpstrFile);
+			tabs[current_tab].post = tabs[current_tab].original;
+		}
+		#endif
 		#elif __linux__
 			fileDialog.Open();
 
@@ -382,8 +395,9 @@ void VisualIDK::openFile() {
 }
 
 void VisualIDK::saveFile() {
-	#ifdef __linux__
 	if ((mainMenu[0].active && mainMenu[0].buttons[2].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
+		cout << ((mainMenu[0].active && mainMenu[0].buttons[2].active) ? "true" : "false") << endl;
+	#ifdef __linux__
 		fileDialogSave.Open();
 	}
 
@@ -392,6 +406,26 @@ void VisualIDK::saveFile() {
 		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
 		fileDialogSave.ClearSelected();
 		mainMenu[0].buttons[2].active = false;
+	}
+	#elif _WIN32
+		#ifndef IDE_ANTI_ERROR
+		OPENFILENAME ofn ;
+		char szFile[MAX_PATH] = {0};
+		ZeroMemory( &ofn , sizeof( ofn));
+		ofn.lStructSize = sizeof ( ofn );
+		ofn.hwndOwner = NULL  ;
+		ofn.lpstrFile = szFile ;
+		ofn.lpstrFile[0] = '\0';
+		ofn.nMaxFile = sizeof( szFile );
+		ofn.lpstrFilter = "All\0*.*\0Text\0*.TXT\0";
+		ofn.nFilterIndex =1;
+		ofn.lpstrFileTitle = NULL ;
+		ofn.nMaxFileTitle = 0 ;
+		ofn.lpstrInitialDir=NULL ;
+		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+		if (GetSaveFileName(&ofn))
+			tabs[current_tab].post.write(ofn.lpstrFile);
+		#endif
 	}
 	#endif
 }

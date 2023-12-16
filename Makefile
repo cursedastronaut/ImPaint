@@ -1,4 +1,5 @@
 EXE = main
+CXX = C:\mingw64\bin\g++.exe
 IMGUI_DIR = externals/src/imgui
 SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp

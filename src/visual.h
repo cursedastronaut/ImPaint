@@ -21,9 +21,10 @@
 #ifdef _WIN32
 	#include <windows.h>
 	#include <commdlg.h>
+#elif __linux__
+	#include <imfilebrowser.h>
+	#include <clip/clip.h>
 #endif
-#include <imfilebrowser.h>
-#include <clip/clip.h>
 /*
 #ifndef __has_include
   static_assert(false, "__has_include not supported");

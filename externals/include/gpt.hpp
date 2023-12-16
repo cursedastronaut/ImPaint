@@ -36,7 +36,7 @@
 #include <ostream>
 #include <iomanip>
 #include <iostream>
-#include <filesystem>
+//#include <filesystem>
 
 //ASSERT
 #ifdef _IOSTREAM_
@@ -323,6 +323,7 @@ public:
 
 
 	//Log utility
+	#define GPT_DISABLE_LOG
 	#ifndef GPT_DISABLE_LOG
 	class log {
 

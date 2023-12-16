@@ -744,6 +744,7 @@ void GPT::phy::Physics::Update()
 }
 
 //LOG CLASS
+#ifndef GPT_DISABLE_LOG
 std::string GPT::log::GetFormat()
 {
 	const time_t now = time(0);
@@ -788,3 +789,4 @@ void GPT::log::Print(std::ofstream* file, std::string buffer, bool checkNewLine)
 		*file << GetFormat() << buffer;
 	file->flush();*/
 }
+#endif
