@@ -39,7 +39,7 @@ VisualIDK::VisualIDK() {
 	fileDialog.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg", ".jpeg"});
 	
 	fileDialogSave.SetTitle("Save...");
-	fileDialogSave.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg"});
+	fileDialogSave.SetTypeFilters({});
 	mainMenu[2].buttons[0].active = true;
 	mainMenu[2].buttons[1].active = true;
 	mainMenu[2].buttons[2].active = true;
@@ -211,8 +211,12 @@ void VisualIDK::UI() {
 	ImGui::SetWindowSize({io->DisplaySize.x, 30});
 	
 	for (size_t i = 0; i < tabs.size(); ++i) {
+		if (current_tab == i) 
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[2].buttons[3].active) ? 1 : 0, 1, 1));
 		if (ImGui::TabItemButton(to_string(i).c_str()))
 			current_tab = i;
+		if (current_tab == i)
+			ImGui::PopStyleColor();
 	}
 	
 	if(ImGui::TabItemButton("+")) {
