@@ -143,47 +143,9 @@ void VisualIDK::Update() {
 		tabs[current_tab].zoom += io->MouseWheel/10.f;
 
 	//If User Pressed CTRL C
-	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(tabs[current_tab].post)) {
-		clip::image_spec spec;
-		spec.width = tabs[current_tab].width;
-		spec.height = tabs[current_tab].height;
-		spec.bits_per_pixel = 32;
-		spec.bytes_per_row = spec.width*4;
-		spec.red_mask = 0xff;
-		spec.green_mask = 0xff00;
-		spec.blue_mask = 0xff0000;
-		spec.alpha_mask = 0xff000000;
-		spec.red_shift = 0;
-		spec.green_shift = 8;
-		spec.blue_shift = 16;
-		spec.alpha_shift = 24;
-		clip::image img(tabs[current_tab].imageData.data(), spec);
-		clip::set_image(img);
-	}
+	copyMethod();
 
-	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_V)) {
-		if (!clip::has(clip::image_format())) {
-			std::cout << "Clipboard doesn't contain an image\n";
-		} else {
-			clip::image img;
-			if (!clip::get_image(img)) {
-				std::cout << "Error getting image from clipboard\n";
-			} else {
-				clip::image_spec spec = img.spec();
-				tabs[current_tab].original = Image(spec.width, spec.height);
-				auto data2 = (const uint32_t*)img.data();
-				for (uint32_t iy = 0; iy < spec.height; ++iy) {
-					for (uint32_t ix = 0; ix < spec.width; ix++) {
-						// Assign values to the corresponding arrays
-						tabs[current_tab].original.img.r[ix][iy] = data2[iy * spec.width + ix];
-						tabs[current_tab].original.img.v[ix][iy] = data2[iy * spec.width + ix] >> 8;
-						tabs[current_tab].original.img.b[ix][iy] = data2[iy * spec.width + ix] >> 16;
-					}
-				}
-				tabs[current_tab].post = tabs[current_tab].original;
-			}
-		}
-	}
+	pasteMethod();
 
 }
 
@@ -256,9 +218,10 @@ void VisualIDK::UI() {
 	for (size_t i = 0; i < tabs.size(); ++i) {
 		if (current_tab == i) 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[2].buttons[3].active) ? 1 : 0, 1, 1));
-		if (ImGui::TabItemButton(to_string(i).c_str()))
+		bool hasClicked = ImGui::TabItemButton(to_string(i).c_str());
+		if (hasClicked)	
 			current_tab = i;
-		if (current_tab == i)
+		if (current_tab == i && !hasClicked)
 			ImGui::PopStyleColor();
 	}
 	
@@ -399,4 +362,50 @@ void VisualIDK::UIErrorBay() {
 	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, 32));
 	ImGui::End();
 	ImGui::PopStyleVar();
+}
+
+void VisualIDK::copyMethod() {
+	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(tabs[current_tab].post)) {
+		clip::image_spec spec;
+		spec.width = tabs[current_tab].width;
+		spec.height = tabs[current_tab].height;
+		spec.bits_per_pixel = 32;
+		spec.bytes_per_row = spec.width*4;
+		spec.red_mask = 0xff;
+		spec.green_mask = 0xff00;
+		spec.blue_mask = 0xff0000;
+		spec.alpha_mask = 0xff000000;
+		spec.red_shift = 0;
+		spec.green_shift = 8;
+		spec.blue_shift = 16;
+		spec.alpha_shift = 24;
+		clip::image img(tabs[current_tab].imageData.data(), spec);
+		clip::set_image(img);
+	}
+}
+
+void VisualIDK::pasteMethod() {
+	if (!(ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_V)))
+		return;
+	if (!clip::has(clip::image_format())) {
+		std::cout << "Clipboard doesn't contain an image\n";
+	} else {
+		clip::image img;
+		if (!clip::get_image(img)) {
+			std::cout << "Error getting image from clipboard\n";
+		} else {
+			clip::image_spec spec = img.spec();
+			tabs[current_tab].original = Image(spec.width, spec.height);
+			auto data2 = (const uint32_t*)img.data();
+			for (uint32_t iy = 0; iy < spec.height; ++iy) {
+				for (uint32_t ix = 0; ix < spec.width; ix++) {
+					// Assign values to the corresponding arrays
+					tabs[current_tab].original.img.r[ix][iy] = data2[iy * spec.width + ix];
+					tabs[current_tab].original.img.v[ix][iy] = data2[iy * spec.width + ix] >> 8;
+					tabs[current_tab].original.img.b[ix][iy] = data2[iy * spec.width + ix] >> 16;
+				}
+			}
+			tabs[current_tab].post = tabs[current_tab].original;
+		}
+	}
 }
