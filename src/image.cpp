@@ -267,18 +267,28 @@ Image Image::luminosityDown(float luminosity) {
 	return changeLuminosity(1.f - luminosity);
 }
 
+void rgbVecToUCharVec(vector<unsigned char> &data, rgbVec &img, int height, int width) {
+	for (int y = 0; y < height; ++y) {
+		for (int x = 0; x < width; ++x) {
+			data.push_back(static_cast<unsigned char>(img.r[x][y]));
+			data.push_back(static_cast<unsigned char>(img.v[x][y]));
+			data.push_back(static_cast<unsigned char>(img.b[x][y]));
+		}
+	}
+}
+
 void Image::write(const string& nomFichier) {
 	
 	if (GPT::str::endsWith(nomFichier, "png")) {
 		vector<unsigned char> imageData;
-		for (int y = 0; y < (int)height; ++y) {
-			for (int x = 0; x < (int)width; ++x) {
-				imageData.push_back(static_cast<unsigned char>(img.r[x][y]));
-				imageData.push_back(static_cast<unsigned char>(img.v[x][y]));
-				imageData.push_back(static_cast<unsigned char>(img.b[x][y]));
-			}
-		}
+		rgbVecToUCharVec(imageData, img, height, width);
 		stbi_write_png(nomFichier.c_str(), width, height, 3, imageData.data(), width * 3);
+		
+	} else if (GPT::str::endsWith(nomFichier, "bmp")) {
+		
+		vector<unsigned char> imageData;
+		rgbVecToUCharVec(imageData, img, height, width);
+		stbi_write_bmp(nomFichier.c_str(), width, height, 3, imageData.data());
 
 	} else if (GPT::str::endsWith(nomFichier, "ppm")) {
 		ofstream fichier(nomFichier, ifstream::binary);
