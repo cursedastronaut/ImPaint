@@ -45,7 +45,7 @@ VisualIDK::VisualIDK() {
 	mainMenu[2].buttons[2].active = true;
 
 	MenuBarSize = {0, 0, -1, (18+30)};
-	ImageSize = {64, (18+30), 1280-240-64, 720-(18+30)};
+	ImageSize = {64, (18+30), 1280-240-64, 720-(18+30)-16};
 	EditingSize = {1280 - 240, (18+30), 240, 720 - (18+30)};
 	ToolbarSize = {0, (18+30), 64, 720 - (18+30)};
 
@@ -190,7 +190,7 @@ void VisualIDK::Draw() {
 		ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
 		ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
 	}
-	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y));
+	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y-30-18-32));
 	ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
 	ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
 	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0)
@@ -225,9 +225,13 @@ void VisualIDK::UI() {
 	}
 	ImGui::EndTabBar();
 	ImGui::End();
+
+	
+
 	UIToolbar();
 	UIEditing();
 	UIMenuBar();
+	UIErrorBay();
 
 	
 
@@ -342,4 +346,14 @@ void VisualIDK::UIToolbar() {
 	ImGui::Text("txt");
 	ImGui::End();
 	
+}
+
+void VisualIDK::UIErrorBay() {
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.f, 0.f));
+	ImGui::Begin("ErrorTab", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	ImGui::Text("%s", tabs[current_tab].post.getError().c_str() );
+	ImGui::SetWindowPos({ToolbarSize.z, io->DisplaySize.y-32});
+	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, 32));
+	ImGui::End();
+	ImGui::PopStyleVar();
 }

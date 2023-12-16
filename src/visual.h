@@ -103,6 +103,7 @@ class VisualIDK {
 	void UIMenuBar();
 	void UIEditing();
 	void UIToolbar();
+	void UIErrorBay();
 
 	ImVec4 MenuBarSize;
 	ImVec4 ImageSize;

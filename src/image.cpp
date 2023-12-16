@@ -40,23 +40,13 @@ Image::Image(size_t widthUser, size_t heightUser) {
 	}
 	width = widthUser;
 	height = heightUser;
+	error = "No error";
 }
 
 Image::Image(const string& nomFichier) {
-	ifstream fichier(nomFichier, ifstream::binary);
-	if (!fichier.is_open()) 
-	{
-		cout << "Failed to open " << nomFichier << endl;
-		return;
-	}
-	if (
-		!(nomFichier.size() > 4 &&
-		nomFichier[nomFichier.size()-3] == 'p' &&
-		nomFichier[nomFichier.size()-2] == 'p' &&
-		nomFichier[nomFichier.size()-1] == 'm')
-	) {
+	if (!(GPT::str::endsWith(nomFichier, ".ppm"))) {
 		int x, y, comp;
-		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, 0);
+		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, 3);
 		for (int ix = 0; ix < x; ix++) {
 			std::vector<int> columnR;
 			std::vector<int> columnG;
@@ -83,7 +73,9 @@ Image::Image(const string& nomFichier) {
 		ifstream fichier(nomFichier, ifstream::binary);
 		if (!fichier.is_open()) 
 		{
-			cout << "Failed to open " << nomFichier << endl;
+			*this = Image(0,0);
+			error = "Failed to open ";
+			error += nomFichier;
 			return;
 		}
 		string mMagic;
@@ -109,9 +101,10 @@ Image::Image(const string& nomFichier) {
 		fichier >> width >> height >> maxColor;
 		if (maxColor != 255)
 		{
-			cout << "Failed to read " << nomFichier << endl;
-			cout << "Got PPM maximum value: " << maxColor << endl;
-			cout << "Maximum pixel has to be 255" << endl;
+			*this = Image(0,0);
+			error = "ERROR: PPM maximum value is ";
+			error += to_string(maxColor);
+			error += ". It must be 255.";
 			return;
 		}
 
@@ -139,7 +132,8 @@ Image::Image(const string& nomFichier) {
 		}
 		else
 		{
-			cerr << "Unrecognized format." << endl;
+			*this = Image(0,0);
+			error = "ERROR: PPM format is not P3.";
 			return;
 		}
 		cout << endl;
@@ -180,6 +174,7 @@ void Image::displayText() {
 }
 
 Image Image::redCanal() {
+	emptyError;
 	vector<vector<int>> emptyVec(width, vector<int>(height, 0));
 	return Image(img.r, emptyVec, emptyVec);
 }
@@ -196,6 +191,7 @@ bool Image::detection(int r, int v, int b) {
 }
 
 Image Image::grayScale() {
+	emptyError;
 	vector<vector<int>> output(width, vector<int>(height, 0));
 	for (uint32_t x = 0; x < width; ++x)
 		for (uint32_t y = 0; y < height; ++y)
@@ -226,6 +222,7 @@ vector<vector<vector<int>>> Image::histogramColor() {
 }
 
 Image Image::blackWhite() {
+	emptyError;
 	vector<vector<int>> output(width, vector<int>(height, 0));
 	for (uint32_t x = 0; x < width; ++x)
 		for (uint32_t y = 0; y < height; ++y)
@@ -241,6 +238,7 @@ Image Image::blackWhite() {
 }
 
 Image Image::changeLuminosity(float luminosityFactor) {
+	emptyError;
 	if (luminosityFactor < 0)
 		luminosityFactor = 0;
 	if (luminosityFactor == 1)
@@ -278,7 +276,11 @@ void rgbVecToUCharVec(vector<unsigned char> &data, rgbVec &img, int height, int 
 }
 
 void Image::write(const string& nomFichier) {
-	
+	if (height == 0 || width == 0) {
+		error = "ERROR: Cannot write an empty image. (Height or width equals zero.)";
+		return;
+	}
+
 	if (GPT::str::endsWith(nomFichier, "png")) {
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
@@ -290,7 +292,7 @@ void Image::write(const string& nomFichier) {
 		rgbVecToUCharVec(imageData, img, height, width);
 		stbi_write_bmp(nomFichier.c_str(), width, height, 3, imageData.data());
 	} else if (GPT::str::endsWith(nomFichier, "jpg") || GPT::str::endsWith(nomFichier, "jpeg")) {
-		
+
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
 		stbi_write_jpg(nomFichier.c_str(), width, height, 3, imageData.data(), 100);
@@ -325,6 +327,7 @@ void Image::write(const string& nomFichier) {
 }
 
 Image Image::changeContraste(float contrastFactor) {
+	emptyError;
 	if (contrastFactor < 0)
 		contrastFactor = 0;
 	if (contrastFactor == 1)
@@ -425,6 +428,7 @@ Image Image::contrasteDown(float contrastFactor) {   //TODO
 }
 
 Image Image::rotationL() {
+	emptyError;
 	//Reverse the width and height (x*y -> y*x)
 	Image output = Image(height, width);
 	
@@ -439,6 +443,7 @@ Image Image::rotationL() {
 }
 
 Image Image::rotationR() {
+	emptyError;
 	//Reverse the width and height (x*y -> y*x)
 	Image output = Image(height, width);
 	
@@ -453,6 +458,7 @@ Image Image::rotationR() {
 }
 
 Image Image::spinH() {
+	emptyError;
 	Image output(width, height);
 
 	for (uint32_t x = 0; x < width; ++x) {
@@ -467,6 +473,7 @@ Image Image::spinH() {
 }
 
 Image Image::spinV() {
+	emptyError;
 	Image output(width, height);
 
 	for (uint32_t x = 0; x < width; ++x) {
@@ -481,6 +488,7 @@ Image Image::spinV() {
 }
 
 Image Image::clipR(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || (int)width - (int)nb <= 0)
 		return Image(0, 0);
 
@@ -498,6 +506,7 @@ Image Image::clipR(uint32_t nb) {
 }
 
 Image Image::clipL(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || (int)width - (int)nb <= 0)
 		return Image(0, 0);
 
@@ -515,6 +524,7 @@ Image Image::clipL(uint32_t nb) {
 }
 
 Image Image::clipU(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || (int)height - (int)nb <= 0)
 		return Image(0, 0);
 
@@ -532,6 +542,7 @@ Image Image::clipU(uint32_t nb) {
 }
 
 Image Image::clipD(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || (int)height - (int)nb <= 0)
 		return Image(0, 0);
 
@@ -557,6 +568,7 @@ uint32_t Image::getHeight() {
 }
 
 Image Image::enlarge(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || nb <= 0) {
 
 		return Image(0, 0);
@@ -580,6 +592,7 @@ Image Image::enlarge(uint32_t nb) {
 }
 
 Image Image::shrink(uint32_t nb) {
+	emptyError;
 	if (width == 0 || height == 0 || nb <= 0)
 		return Image(0, 0);
 
@@ -620,6 +633,7 @@ Image Image::shrink(uint32_t nb) {
 }
 
 Image Image::colorblindVision(uint8_t type) {
+	emptyError;
 	vector<vector<float>> colorMatrix;
 	switch (type)
 	{
@@ -660,6 +674,7 @@ Image Image::colorblindTritanopia() {
 }
 
 Image Image::sobelOperator() {
+	emptyError;
 	Image output = this;
 	vector<vector<float>> gradient = FILTRE_GRADIENTX;
 	Filter gradientX(GRADIENTX);
@@ -685,4 +700,8 @@ Image Image::reglageAutoGris() {
 
 Image Image::reglageAutoCouleur() {
 	return Image(*this);
+}
+
+string & Image::getError() {
+	return error;
 }

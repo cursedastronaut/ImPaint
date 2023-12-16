@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdint>
 #include <sstream>
+#define emptyError if(height==0||width==0){error="ERROR: Cannot edit an empty image."; return *this;}
 using namespace std;
 
 class Image {
@@ -142,6 +143,10 @@ class Image {
 		*/
 		uint32_t getHeight();
 		/**
+			* @brief Returns the last error related to this Image.
+		*/
+		string & getError();
+		/**
 			* @brief Returns a copy of the target image, modified to simulate deuteranopia vision.
 		*/
 		Image colorblindDeuteranopia();
@@ -167,6 +172,7 @@ class Image {
 	private:
 		uint32_t width;
 		uint32_t height;
+		string error = "No error.";
 };
 
 #endif //_NBGC_
