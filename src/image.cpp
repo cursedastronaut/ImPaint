@@ -1,5 +1,10 @@
 #include "image.hpp"
 #include "filter.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#include <stb/stb_image_write.h>
+#include <gpt.hpp>
 using namespace std;
 
 Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<int>> blue) {
@@ -44,63 +49,101 @@ Image::Image(const string& nomFichier) {
 		cout << "Failed to open " << nomFichier << endl;
 		return;
 	}
-	string mMagic;
-	int maxColor;
+	if (
+		!(nomFichier.size() > 4 &&
+		nomFichier[nomFichier.size()-3] == 'p' &&
+		nomFichier[nomFichier.size()-2] == 'p' &&
+		nomFichier[nomFichier.size()-1] == 'm')
+	) {
+		int x, y, comp;
+		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, 0);
+		for (int ix = 0; ix < x; ix++) {
+			std::vector<int> columnR;
+			std::vector<int> columnG;
+			std::vector<int> columnB;
+			for (int iy = 0; iy < y; iy++) {
+				int index = 3 * (iy * x + ix);
+				columnR.push_back(pixels[index+0]);
+				columnG.push_back(pixels[index+1]);
+				columnB.push_back(pixels[index+2]);
+			}
+			
+			img.r.push_back(columnR);
+			img.v.push_back(columnG);
+			img.b.push_back(columnB);
+		}
 
-	fichier >> mMagic;
-	fichier.seekg(1, fichier.cur);
-	char c;
-	fichier.get(c);
-	//Ignores every line starting with a #
-	if (c == '#')
-	{
-		while (c != '\n')
+		width = x;
+		height = y;
+
+		stbi_image_free(pixels);
+
+	} else {
+		//IF FILE IS PPM
+		ifstream fichier(nomFichier, ifstream::binary);
+		if (!fichier.is_open()) 
 		{
-			fichier.get(c);
+			cout << "Failed to open " << nomFichier << endl;
+			return;
 		}
-	}
-	else
-	{
-		fichier.seekg(-1, fichier.cur);
-	}
-	
-	fichier >> width >> height >> maxColor;
-	if (maxColor != 255)
-	{
-		cout << "Failed to read " << nomFichier << endl;
-		cout << "Got PPM maximum value: " << maxColor << endl;
-		cout << "Maximum pixel has to be 255" << endl;
-		return;
-	}
+		string mMagic;
+		int maxColor;
 
-	// Resize the vectors to match the image dimensions
-	img.r.resize(width, vector<int>(height, 0));
-	img.v.resize(width, vector<int>(height, 0));
-	img.b.resize(width, vector<int>(height, 0));
-
-	// ASCII
-	if (mMagic == "P3")
-	{
-		cout << nomFichier << " loading (in %): ";
-		int quarter = height / 4;
-		for (uint32_t i = 0, j = 1; i < height && !fichier.eof(); ++i) {
-			if (i == quarter * j-1) {
-				cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
-				j++;
-			}
-			for (uint32_t j = 0; j < width && !fichier.eof(); ++j) {
-				fichier >> img.r[j][i];
-				fichier >> img.v[j][i];
-				fichier >> img.b[j][i];
+		fichier >> mMagic;
+		fichier.seekg(1, fichier.cur);
+		char c;
+		fichier.get(c);
+		//Ignores every line starting with a #
+		if (c == '#')
+		{
+			while (c != '\n')
+			{
+				fichier.get(c);
 			}
 		}
+		else
+		{
+			fichier.seekg(-1, fichier.cur);
+		}
+		
+		fichier >> width >> height >> maxColor;
+		if (maxColor != 255)
+		{
+			cout << "Failed to read " << nomFichier << endl;
+			cout << "Got PPM maximum value: " << maxColor << endl;
+			cout << "Maximum pixel has to be 255" << endl;
+			return;
+		}
+
+		// Resize the vectors to match the image dimensions
+		img.r.resize(width, vector<int>(height, 0));
+		img.v.resize(width, vector<int>(height, 0));
+		img.b.resize(width, vector<int>(height, 0));
+
+		// ASCII
+		if (mMagic == "P3")
+		{
+			cout << nomFichier << " loading (in %): ";
+			int quarter = height / 4;
+			for (uint32_t i = 0, j = 1; i < height && !fichier.eof(); ++i) {
+				if (i == quarter * j-1) {
+					cout << 100/4 * j << (100/4*j == 100 ? "" : ", ");
+					j++;
+				}
+				for (uint32_t j = 0; j < width && !fichier.eof(); ++j) {
+					fichier >> img.r[j][i];
+					fichier >> img.v[j][i];
+					fichier >> img.b[j][i];
+				}
+			}
+		}
+		else
+		{
+			cerr << "Unrecognized format." << endl;
+			return;
+		}
+		cout << endl;
 	}
-	else
-	{
-		cerr << "Unrecognized format." << endl;
-		return;
-	}
-	cout << endl;
 }
 
 Image::Image(Image *image) {
@@ -225,30 +268,45 @@ Image Image::luminosityDown(float luminosity) {
 }
 
 void Image::write(const string& nomFichier) {
-	ofstream fichier(nomFichier, ifstream::binary);
-	if (!fichier.is_open()) 
-	{
-		cout << "Failed to open " << nomFichier << endl;
-		return;
-	}
-
-	fichier << "P3" << endl << "# Made by ImPaint (https://github.com/cursedastronaut/ImPaint)" << endl
-			<< width << " " << height << " " << 255 << endl;
 	
-	int dizPourcent = height / 10 - 1; 
-	cout << nomFichier << " ecriture (en %): ";
-	for (uint32_t y = 0, j = 1; y < height; ++y) {
-		if (y == dizPourcent * j) {
-			cout << 100/10 * j << (100/10*j == 100 ? "" : ", ");
-			++j;
+	if (GPT::str::endsWith(nomFichier, "png")) {
+		vector<unsigned char> imageData;
+		for (int y = 0; y < (int)height; ++y) {
+			for (int x = 0; x < (int)width; ++x) {
+				imageData.push_back(static_cast<unsigned char>(img.r[x][y]));
+				imageData.push_back(static_cast<unsigned char>(img.v[x][y]));
+				imageData.push_back(static_cast<unsigned char>(img.b[x][y]));
+			}
 		}
+		stbi_write_png(nomFichier.c_str(), width, height, 3, imageData.data(), width * 3);
+
+	} else if (GPT::str::endsWith(nomFichier, "ppm")) {
+		ofstream fichier(nomFichier, ifstream::binary);
+		if (!fichier.is_open()) 
+		{
+			cout << "Failed to open " << nomFichier << endl;
+			return;
+		}
+		fichier << "P3" << endl << "# Made by ImPaint (https://github.com/cursedastronaut/ImPaint)" << endl
+				<< width << " " << height << " " << 255 << endl;
 		
-		for (uint32_t x = 0; x < width; ++x) {
-			fichier << img.r[x][y] << " " << img.v[x][y] << " " << img.b[x][y] << endl;
+		int dizPourcent = height / 10 - 1; 
+		cout << nomFichier << " ecriture (en %): ";
+		for (uint32_t y = 0, j = 1; y < height; ++y) {
+			if (y == dizPourcent * j) {
+				cout << 100/10 * j << (100/10*j == 100 ? "" : ", ");
+				++j;
+			}
+			
+			for (uint32_t x = 0; x < width; ++x) {
+				fichier << img.r[x][y] << " " << img.v[x][y] << " " << img.b[x][y] << endl;
+			}
 		}
+		fichier.close();
+		cout << endl;
+	} else {
+		cout << "Unknown extension, could not write." << endl;
 	}
-	fichier.close();
-	cout << endl;
 }
 
 Image Image::changeContraste(float contrastFactor) {
@@ -602,65 +660,7 @@ Image Image::sobelOperator() {
 }
 
 Image Image::reglageAuto() {
-	Image output = *this;
-	int avg_pixels= 0;
-	int sum = 0;
-	int cpt = 0;
-	int modif = 0;
-	
-	while(avg_pixels != 128){
-
-		for (uint32_t x = 0; x < output.width; ++x) {
-			for (uint32_t y = 0; y < output.height; ++y) {
-				sum += output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y];
-				cpt+=3;
-				if (output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] < 0) {
-
-					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-					<< output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] << ' ' << output.img.r[x][y] << ' '
-					<< output.img.v[x][y] << ' ' << output.img.b[x][y];
-					return output;
-				}
-			}
-		}
-		avg_pixels = sum/cpt;
-
-		cpt = 0;
-		if (avg_pixels > 128){
-			modif = -1;
-		}
-		else if (avg_pixels < 128){
-			modif = +1;
-		}/*
-		for (uint32_t x = 0; x < output.width; ++x) {
-			for (uint32_t y = 0; y < output.height; ++y) {
-				output.img.r[x][y] *= 128/avg_pixels; 
-				output.img.v[x][y] *= 128/avg_pixels;
-				output.img.b[x][y] *= 128/avg_pixels;
-			}
-		}*/
-		changeLuminosity(128/avg_pixels);
-		sum = 0;
-		for (uint32_t x = 0; x < output.width; ++x) {
-			for (uint32_t y = 0; y < output.height; ++y) {
-				sum += output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y];
-				cpt+=3;
-				if (output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] < 0) {
-
-					cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-					<< output.img.r[x][y] + output.img.v[x][y] + output.img.b[x][y] << ' ' << output.img.r[x][y] << ' '
-					<< output.img.v[x][y] << ' ' << output.img.b[x][y];
-					return output;
-				}
-			}
-		}
-		avg_pixels = sum/cpt;
-		cout << avg_pixels << endl;
-
-	}
-	
-
-	return output;
+	return Image(*this);
 }
 	
 

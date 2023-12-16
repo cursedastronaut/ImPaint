@@ -36,7 +36,7 @@ VisualIDK::VisualIDK() {
 	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
 
 	fileDialog.SetTitle("Open...");
-	fileDialog.SetTypeFilters({".ppm"});
+	fileDialog.SetTypeFilters({".ppm", ".png"});
 	
 	fileDialogSave.SetTitle("Save...");
 	fileDialogSave.SetTypeFilters({".ppm"});
