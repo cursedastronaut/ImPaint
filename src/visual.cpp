@@ -36,10 +36,10 @@ VisualIDK::VisualIDK() {
 	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
 
 	fileDialog.SetTitle("Open...");
-	fileDialog.SetTypeFilters({".ppm", ".png", ".bmp"});
+	fileDialog.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg", ".jpeg"});
 	
 	fileDialogSave.SetTitle("Save...");
-	fileDialogSave.SetTypeFilters({".ppm", ".png", ".bmp"});
+	fileDialogSave.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg"});
 	mainMenu[2].buttons[0].active = true;
 	mainMenu[2].buttons[1].active = true;
 	mainMenu[2].buttons[2].active = true;
