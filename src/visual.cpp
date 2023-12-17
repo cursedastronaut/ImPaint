@@ -58,7 +58,7 @@ void VisualIDK::Update() {
 	
 	openFile();
 	saveFile();
-	
+
 	//Toggle Dark Mode
 	if (mainMenu[2].buttons[3].active) {
 		ImGui::StyleColorsDark();
@@ -168,6 +168,13 @@ void VisualIDK::UIMenuBar() {
 		}
 		
 		ImGui::EndMainMenuBar();
+	}
+
+	//If User pressed CCTRL+N or File->New.
+	if (mainMenu[0].buttons[0].active || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))) {
+		tabs.push_back(ImageTab());
+		tabs[tabs.size()-1].initEffects();
+		mainMenu[0].buttons[0].active = false;
 	}
 }
 
