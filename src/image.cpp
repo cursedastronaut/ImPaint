@@ -336,31 +336,15 @@ Image Image::changeContraste(float contrastFactor) {
 	Image output(this);
 	for (uint32_t x = 0; x < width; ++x) {
 		for (uint32_t y = 0; y < height; ++y) {
+			for (uint8_t channel = 0; channel < 3; ++channel) {
+				output.img[channel][x][y] = ((output.img[channel][x][y] - 128)*contrastFactor + 128);
 
-			output.img.r[x][y] = ((output.img.r[x][y] - 128)*contrastFactor + 128);  //RED
-
-			if (output.img.r[x][y] > 255){
-				output.img.r[x][y] = 255;
-			}
-			else if (output.img.r[x][y] < 0){
-				output.img.r[x][y] = 0;
-			}
-			output.img.v[x][y] = ((output.img.v[x][y] - 128)*contrastFactor + 128);  //GREEN
-
-			if (output.img.v[x][y] > 255){
-				output.img.v[x][y] = 255;
-			}
-			else if (output.img.v[x][y] < 0){
-				output.img.v[x][y] = 0;
-
-			}
-			output.img.b[x][y] = ((output.img.b[x][y] - 128)*contrastFactor + 128);  //BLUE
-			if (output.img.b[x][y] > 255){
-				output.img.b[x][y] = 255;
-			}
-			else if (output.img.b[x][y] < 0){
-				output.img.b[x][y] = 0;
-
+				if (output.img[channel][x][y] > 255){
+					output.img[channel][x][y] = 255;
+				}
+				else if (output.img[channel][x][y] < 0){
+					output.img[channel][x][y] = 0;
+				}
 			}
 		}
 	}
