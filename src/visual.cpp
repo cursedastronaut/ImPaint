@@ -144,6 +144,7 @@ void VisualIDK::Draw() {
 }
 
 void VisualIDK::UI() {
+	UITabbar();
 	UIToolbar();
 	UIEditing();
 	UIMenuBar();
@@ -347,6 +348,63 @@ void VisualIDK::pasteMethod() {
 			tabs[current_tab].post = tabs[current_tab].original;
 		}
 	}
+	#elif _WIN32
+	if (IsClipboardFormatAvailable(CF_DIB)) {
+		if (OpenClipboard(NULL)) {
+			HANDLE hClipboard = GetClipboardData(CF_DIB);
+			if (hClipboard != NULL && hClipboard != INVALID_HANDLE_VALUE) {
+				void* dib = GlobalLock(hClipboard);
+
+				if (dib) {
+					BITMAPINFOHEADER* info = reinterpret_cast<BITMAPINFOHEADER*>(dib);
+					BITMAPFILEHEADER fileHeader = {0};
+					fileHeader.bfType = 0x4D42;
+					fileHeader.bfOffBits = 54;
+
+					std::cout << "Type: " << std::hex << fileHeader.bfType << std::dec << "\n";
+					std::cout << "Reserved: " << fileHeader.bfReserved1 << "\n";
+					std::cout << "Reserved2: " << fileHeader.bfReserved2 << "\n";
+					std::cout << "Offset: " << fileHeader.bfOffBits << "\n";
+					std::cout << "Width: " << info->biWidth << "\n";
+					std::cout << "Height: " << info->biHeight << "\n";
+
+					// Calculate the size of the image data
+					DWORD imageSize = info->biSizeImage;
+					if (imageSize == 0) {
+						// If the size is not specified, calculate it based on width, height, and bit depth
+						imageSize = info->biWidth * info->biHeight * (info->biBitCount / 8);
+					}
+
+					// Get a pointer to the start of the pixel data
+					uint8_t* imageData = reinterpret_cast<uint8_t*>(dib);//+ fileHeader.bfOffBits;
+
+					// Now you can access the pixel data in the 'imageData' buffer
+
+					// For example, print the first few bytes of the pixel data
+					tabs[current_tab].original = Image(info->biWidth, info->biHeight);
+					for (uint32_t iy = 0; iy < static_cast<uint32_t>(info->biHeight); ++iy) {
+						for (uint32_t ix = 0; ix < static_cast<uint32_t>(info->biWidth); ++ix) {
+							// Calculate the offset in the imageData buffer for the current pixel
+							size_t offset = (static_cast<uint32_t>(info->biHeight) - static_cast<size_t>(iy) - 1) * (static_cast<size_t>(info->biWidth) * 4) + static_cast<size_t>(ix) * 4 + fileHeader.bfOffBits+5;
+							// Extract the BGR values
+							uint8_t blue = imageData[offset + 1];
+							uint8_t green = imageData[offset + 2];
+							uint8_t red = imageData[offset + 3];
+
+							// Assign the values to the image arrays
+							tabs[current_tab].original.img.r[ix][iy] = red;
+							tabs[current_tab].original.img.v[ix][iy] = green;
+							tabs[current_tab].original.img.b[ix][iy] = blue;
+						}
+					}
+
+					GlobalUnlock(dib);
+				}
+			}
+
+			CloseClipboard();
+		}
+	}
 	#endif
 }
 
@@ -422,7 +480,6 @@ void VisualIDK::saveFile() {
 		ofn.nMaxFileTitle = 0 ;
 		ofn.lpstrInitialDir=NULL ;
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
-		#include <zzzzzzzz>
 		if (GetSaveFileName(&ofn))
 			tabs[current_tab].post.write(ofn.lpstrFile);
 		#endif
