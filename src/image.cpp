@@ -243,18 +243,16 @@ Image Image::changeLuminosity(float luminosityFactor) {
 		luminosityFactor = 0;
 	if (luminosityFactor == 1)
 		return this;
-	vector<vector<int>> output_red(width, vector<int>(height, 0));
-	vector<vector<int>> output_green(width, vector<int>(height, 0));
-	vector<vector<int>> output_blue(width, vector<int>(height, 0));
+	Image output = this;
 	for (uint32_t x = 0; x < width; ++x) {
 		for (uint32_t y = 0; y < height; ++y) {
-			output_red[x][y] = (img.r[x][y] * (luminosityFactor) > 255 ? 255 : img.r[x][y] * (luminosityFactor));
-			output_green[x][y] = (img.v[x][y] * (luminosityFactor) > 255 ? 255 : img.v[x][y] * (luminosityFactor));
-			output_blue[x][y] = (img.b[x][y] * (luminosityFactor) > 255 ? 255 : img.b[x][y] * (luminosityFactor));
+			for (uint8_t channel = 0; channel < 3; ++channel) {
+				output.img[channel][x][y] = std::max(0.f, std::min(img[channel][x][y] * (luminosityFactor), 255.f));
+			}
 		}
 	}
 
-	return Image(output_red, output_green, output_blue);
+	return output;
 }
 
 Image Image::luminosityUp(float luminosity) {
