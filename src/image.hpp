@@ -166,7 +166,7 @@ class Image {
 		Image sobelOperator();
 		static bool isEmpty(Image &);
 
-		rgbVec img;
+		rgbaVec img;
 	private:
 		uint32_t width;
 		uint32_t height;

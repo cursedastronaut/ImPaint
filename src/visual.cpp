@@ -100,7 +100,7 @@ void VisualIDK::Draw() {
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(255));
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.a[x][y]));
 				}
 			}
 

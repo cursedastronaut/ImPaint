@@ -4,6 +4,9 @@
 #include <vector>
 using namespace std;
 
+const uint8_t CHANNEL_RGBA = 4;
+const uint8_t CHANNEL_RGB = 3;
+
 const vector<vector<float>> FILTRE_BLURG3 = {{1.f/16.f, 1.f/8.f, 1.f/16.f}, {1.f/8.f, 1.f/4.f, 1.f/8.f}, {1.f/16.f, 1.f/8.f, 1.f/16.f}};
 
 const vector<vector<float>> FILTRE_BLURG5 = {
@@ -45,10 +48,11 @@ const vector<vector<float>> COLORBLIND_TRITAN = {{95.f, 5.f, 0.f}, {0.f, 43.333f
 const vector<vector<float>> COLORBLIND_PROTAN = {{56.667f, 43.333f, 0.f}, {55.833f, 44.167f, 0.f}, {0.f, 24.167f, 75.833f}};
 const vector<vector<float>> COLORBLIND_DEUTAN = {{62.5f, 37.5f, 0.f}, {70.f, 30.f, 0.f}, {0.f, 30.f, 70.f}};
 
-struct rgbVec {
+struct rgbaVec {
 	vector<vector<int>> r;
 	vector<vector<int>> v;
 	vector<vector<int>> b;
+	vector<vector<int>> a;
 	vector<vector<int>>& operator[](size_t index) {
 		if (index == 0) {
 			return r;
@@ -56,6 +60,8 @@ struct rgbVec {
 			return v;
 		} else if (index == 2) {
 			return b;
+		} else if (index == 3) {
+			return a;
 		} else {
 			// Handle invalid index (throw an exception, return a default value, etc.)
 			// For simplicity, this example throws an exception.

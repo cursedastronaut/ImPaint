@@ -26,6 +26,7 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	img.b = blue;
 	width = red.size();
 	height = red[0].size();
+	img.a = red; // temp
 }
 
 Image::Image(size_t widthUser, size_t heightUser) {
@@ -46,26 +47,23 @@ Image::Image(size_t widthUser, size_t heightUser) {
 Image::Image(const string& nomFichier) {
 	if (!(GPT::str::endsWith(nomFichier, ".ppm"))) {
 		int x, y, comp;
-		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, 3);
+		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, CHANNEL_RGBA);
 		for (int ix = 0; ix < x; ix++) {
-			std::vector<int> columnR;
-			std::vector<int> columnG;
-			std::vector<int> columnB;
+			vector<vector<int>> column (CHANNEL_RGBA, std::vector<int>(0));
 			for (int iy = 0; iy < y; iy++) {
-				int index = 3 * (iy * x + ix);
-				columnR.push_back(pixels[index+0]);
-				columnG.push_back(pixels[index+1]);
-				columnB.push_back(pixels[index+2]);
+				
+				int index = CHANNEL_RGBA * (iy * x + ix);
+				for (uint8_t channel = 0; channel < CHANNEL_RGBA; ++channel) {
+					column[channel].push_back(pixels[index+channel]);
+				}
 			}
 			
-			img.r.push_back(columnR);
-			img.v.push_back(columnG);
-			img.b.push_back(columnB);
+			for (uint8_t channel = 0; channel < CHANNEL_RGBA; ++channel)
+				img[channel].push_back(column[channel]);
 		}
 
 		width = x;
 		height = y;
-
 		stbi_image_free(pixels);
 
 	} else {
@@ -112,6 +110,7 @@ Image::Image(const string& nomFichier) {
 		img.r.resize(width, vector<int>(height, 0));
 		img.v.resize(width, vector<int>(height, 0));
 		img.b.resize(width, vector<int>(height, 0));
+		img.a.resize(width, vector<int>(height, 255));
 
 		// ASCII
 		if (mMagic == "P3")
@@ -246,7 +245,7 @@ Image Image::changeLuminosity(float luminosityFactor) {
 	Image output = this;
 	for (uint32_t x = 0; x < width; ++x) {
 		for (uint32_t y = 0; y < height; ++y) {
-			for (uint8_t channel = 0; channel < 3; ++channel) {
+			for (uint8_t channel = 0; channel < CHANNEL_RGB; ++channel) {
 				output.img[channel][x][y] = std::max(0.f, std::min(img[channel][x][y] * (luminosityFactor), 255.f));
 			}
 		}
@@ -263,12 +262,11 @@ Image Image::luminosityDown(float luminosity) {
 	return changeLuminosity(1.f - luminosity);
 }
 
-void rgbVecToUCharVec(vector<unsigned char> &data, rgbVec &img, int height, int width) {
+void rgbVecToUCharVec(vector<unsigned char> &data, rgbaVec &img, int height, int width) {
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
-			data.push_back(static_cast<unsigned char>(img.r[x][y]));
-			data.push_back(static_cast<unsigned char>(img.v[x][y]));
-			data.push_back(static_cast<unsigned char>(img.b[x][y]));
+			for (int channel = 0; channel < CHANNEL_RGBA; ++channel)
+				data.push_back(static_cast<unsigned char>(img[channel][x][y]));
 		}
 	}
 }
@@ -282,7 +280,7 @@ void Image::write(const string& nomFichier) {
 	if (GPT::str::endsWith(nomFichier, "png")) {
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_png(nomFichier.c_str(), width, height, 3, imageData.data(), width * 3);
+		stbi_write_png(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data(), width * CHANNEL_RGBA);
 
 	} else if (GPT::str::endsWith(nomFichier, "bmp")) {
 		
