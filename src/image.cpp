@@ -34,10 +34,12 @@ Image::Image(size_t widthUser, size_t heightUser) {
 		img.b.resize(widthUser, vector<int>(heightUser, 0));
 		img.v.resize(widthUser, vector<int>(heightUser, 0));
 		img.r.resize(widthUser, vector<int>(heightUser, 0));
+		img.a.resize(widthUser, vector<int>(heightUser, 255));
 	} else {
 		img.r.clear();
 		img.v.clear();
 		img.b.clear();
+		img.a.clear();
 	}
 	width = widthUser;
 	height = heightUser;
