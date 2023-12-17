@@ -694,18 +694,6 @@ Image Image::sobelOperator() {
 	return gradientFiltre.application(output);
 }
 
-Image Image::reglageAuto() {
-	return Image(*this);
-}
-	
-Image Image::reglageAutoGris() {
-	return Image(*this);
-}
-
-Image Image::reglageAutoCouleur() {
-	return Image(*this);
-}
-
 string & Image::getError() {
 	return error;
 }

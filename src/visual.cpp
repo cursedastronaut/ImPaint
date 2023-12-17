@@ -22,10 +22,7 @@ void ImageTab::initEffects() {
 		{false, 3, nullptr, nullptr, nullptr, BLURG3},
 		{false, 3, nullptr, nullptr, nullptr, BLURG5},
 		{false, 0, &Image::sobelOperator},
-		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR},
-		{false, 0, &Image::reglageAuto},
-		{false, 0, &Image::reglageAutoGris},
-		{false, 0, &Image::reglageAutoCouleur},
+		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR}
 	};
 }
 
@@ -213,7 +210,6 @@ void VisualIDK::UIEditing() {
 			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_colorblindProtanopia].active);
 			ImGui::SameLine(0.f);
 			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_colorblindDeuteranopia].active);
-			ImGui::Checkbox("reglageAuto", &tabs[current_tab].effects[EFFECTS_reglageAuto].active);
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[1].active) {

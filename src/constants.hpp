@@ -100,10 +100,7 @@ enum {
 	EFFECTS_filterBlurG3,
 	EFFECTS_filterBlurG5,
 	EFFECTS_filterSoberOperator,
-	EFFECTS_filtreContrastor,
-	EFFECTS_reglageAuto,
-	EFFECTS_reglageAutoGris,
-	EFFECTS_reglageAutoCouleur
+	EFFECTS_filtreContrastor
 	
 };
 
