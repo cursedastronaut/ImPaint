@@ -106,14 +106,16 @@ class VisualIDK {
 	void UIEditing();
 	void UIToolbar();
 	void UIErrorBay();
+	void UITabbar();
 
 	void copyMethod();
 	void pasteMethod();
 
 	void openFile();
 	void saveFile();
-
 	void applyEffects();
+
+	void selectTool();
 
 	ImVec4 MenuBarSize;
 	ImVec4 ImageSize;

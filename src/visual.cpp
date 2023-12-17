@@ -77,6 +77,7 @@ void VisualIDK::Update() {
 	copyMethod();
 
 	pasteMethod();
+	selectTool();
 
 }
 
@@ -111,8 +112,8 @@ void VisualIDK::Draw() {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
 
 			// Set texture parameters (you may need to adjust these based on your requirements)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			
 			// Use the shader program, bind the texture, and draw a quad
 			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
@@ -143,36 +144,10 @@ void VisualIDK::Draw() {
 }
 
 void VisualIDK::UI() {
-	ImGui::Begin("debtabs", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-	ImGui::BeginTabBar("Tabsa", ImGuiTabBarFlags_NoTooltip);
-	ImGui::SetWindowPos({0, 18});
-	ImGui::SetWindowSize({io->DisplaySize.x, 30});
-	
-	for (size_t i = 0; i < tabs.size(); ++i) {
-		if (current_tab == i) 
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[2].buttons[3].active) ? 1 : 0, 1, 1));
-		bool hasClicked = ImGui::TabItemButton(to_string(i).c_str());
-		if (hasClicked)	
-			current_tab = i;
-		if (current_tab == i && !hasClicked)
-			ImGui::PopStyleColor();
-	}
-	
-	if(ImGui::TabItemButton("+")) {
-		tabs.push_back(ImageTab());
-		tabs[tabs.size()-1].initEffects();
-	}
-	ImGui::EndTabBar();
-	ImGui::End();
-
-	
-
 	UIToolbar();
 	UIEditing();
 	UIMenuBar();
 	UIErrorBay();
-
-	
 
 	hasSetDefaultSizes = true;
 }
@@ -301,6 +276,30 @@ void VisualIDK::UIErrorBay() {
 	ImGui::PopStyleVar();
 }
 
+void VisualIDK::UITabbar() {
+	ImGui::Begin("debtabs", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
+	ImGui::BeginTabBar("Tabsa", ImGuiTabBarFlags_NoTooltip);
+	ImGui::SetWindowPos({0, 18});
+	ImGui::SetWindowSize({io->DisplaySize.x, 30});
+	
+	for (size_t i = 0; i < tabs.size(); ++i) {
+		if (current_tab == i) 
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[2].buttons[3].active) ? 1 : 0, 1, 1));
+		bool hasClicked = ImGui::TabItemButton(to_string(i).c_str());
+		if (hasClicked)	
+			current_tab = i;
+		if (current_tab == i && !hasClicked)
+			ImGui::PopStyleColor();
+	}
+	
+	if(ImGui::TabItemButton("+")) {
+		tabs.push_back(ImageTab());
+		tabs[tabs.size()-1].initEffects();
+	}
+	ImGui::EndTabBar();
+	ImGui::End();
+}
+
 void VisualIDK::copyMethod() {
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(tabs[current_tab].post)) {
 		#ifdef __linux__
@@ -423,6 +422,7 @@ void VisualIDK::saveFile() {
 		ofn.nMaxFileTitle = 0 ;
 		ofn.lpstrInitialDir=NULL ;
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
+		#include <zzzzzzzz>
 		if (GetSaveFileName(&ofn))
 			tabs[current_tab].post.write(ofn.lpstrFile);
 		#endif
@@ -459,4 +459,8 @@ void VisualIDK::applyEffects() {
 			}
 		}
 	}
+}
+
+void VisualIDK::selectTool() {
+	
 }
