@@ -286,12 +286,12 @@ void Image::write(const string& nomFichier) {
 		
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_bmp(nomFichier.c_str(), width, height, 3, imageData.data());
+		stbi_write_bmp(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data());
 	} else if (GPT::str::endsWith(nomFichier, "jpg") || GPT::str::endsWith(nomFichier, "jpeg")) {
 
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_jpg(nomFichier.c_str(), width, height, 3, imageData.data(), 100);
+		stbi_write_jpg(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data(), 100);
 
 	} else if (GPT::str::endsWith(nomFichier, "ppm")) {
 		ofstream fichier(nomFichier, ifstream::binary);
