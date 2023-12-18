@@ -79,22 +79,22 @@ void VisualIDK::Update() {
 }
 
 void VisualIDK::imageRefreshing() {
-		applyEffects();
-		tabs[current_tab].width = tabs[current_tab].post.getWidth();
-		tabs[current_tab].height = tabs[current_tab].post.getHeight();
-		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
-			tabs[current_tab].imageData.clear();
-			for (int y = 0; y < tabs[current_tab].height; ++y) {
-				for (int x = 0; x < tabs[current_tab].width; ++x) {
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.a[x][y]));
-				}
+	if (Image::isEmpty(tabs[current_tab].original))
+		return;
+	applyEffects();
+	tabs[current_tab].width = tabs[current_tab].post.getWidth();
+	tabs[current_tab].height = tabs[current_tab].post.getHeight();
+	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
+		tabs[current_tab].imageData.clear();
+		for (int y = 0; y < tabs[current_tab].height; ++y) {
+			for (int x = 0; x < tabs[current_tab].width; ++x) {
+				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
+				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
+				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
+				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.a[x][y]));
 			}
-
-			
 		}
+	}
 }
 
 void VisualIDK::Draw(thread &func) {
