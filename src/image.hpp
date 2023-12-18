@@ -162,14 +162,11 @@ class Image {
 			* @brief Returns a copy of the target image, modified to simulate colorblind vision.
 		*/
 		Image colorblindVision(uint8_t type);
-		Image reglageAuto();
-		Image reglageAutoGris();
-		Image reglageAutoCouleur();
 
 		Image sobelOperator();
 		static bool isEmpty(Image &);
 
-		rgbVec img;
+		rgbaVec img;
 	private:
 		uint32_t width;
 		uint32_t height;

@@ -22,10 +22,7 @@ void ImageTab::initEffects() {
 		{false, 3, nullptr, nullptr, nullptr, BLURG3},
 		{false, 3, nullptr, nullptr, nullptr, BLURG5},
 		{false, 0, &Image::sobelOperator},
-		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR},
-		{false, 0, &Image::reglageAuto},
-		{false, 0, &Image::reglageAutoGris},
-		{false, 0, &Image::reglageAutoCouleur},
+		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR}
 	};
 }
 
@@ -58,7 +55,7 @@ void VisualIDK::Update() {
 	
 	openFile();
 	saveFile();
-	
+
 	//Toggle Dark Mode
 	if (mainMenu[2].buttons[3].active) {
 		ImGui::StyleColorsDark();
@@ -92,7 +89,7 @@ void VisualIDK::imageRefreshing() {
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
 					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
-					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(255));
+					tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.a[x][y]));
 				}
 			}
 
@@ -170,6 +167,13 @@ void VisualIDK::UIMenuBar() {
 		
 		ImGui::EndMainMenuBar();
 	}
+
+	//If User pressed CCTRL+N or File->New.
+	if (mainMenu[0].buttons[0].active || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))) {
+		tabs.push_back(ImageTab());
+		tabs[tabs.size()-1].initEffects();
+		mainMenu[0].buttons[0].active = false;
+	}
 }
 
 void VisualIDK::UIEditing() {
@@ -207,7 +211,6 @@ void VisualIDK::UIEditing() {
 			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_colorblindProtanopia].active);
 			ImGui::SameLine(0.f);
 			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_colorblindDeuteranopia].active);
-			ImGui::Checkbox("reglageAuto", &tabs[current_tab].effects[EFFECTS_reglageAuto].active);
 			ImGui::NewLine();
 		}
 		if (mainMenu[2].buttons[1].active) {

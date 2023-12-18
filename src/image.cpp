@@ -26,6 +26,7 @@ Image::Image(vector<vector<int>> red, vector<vector<int>> green, vector<vector<i
 	img.b = blue;
 	width = red.size();
 	height = red[0].size();
+	img.a = red; // temp
 }
 
 Image::Image(size_t widthUser, size_t heightUser) {
@@ -33,10 +34,12 @@ Image::Image(size_t widthUser, size_t heightUser) {
 		img.b.resize(widthUser, vector<int>(heightUser, 0));
 		img.v.resize(widthUser, vector<int>(heightUser, 0));
 		img.r.resize(widthUser, vector<int>(heightUser, 0));
+		img.a.resize(widthUser, vector<int>(heightUser, 255));
 	} else {
 		img.r.clear();
 		img.v.clear();
 		img.b.clear();
+		img.a.clear();
 	}
 	width = widthUser;
 	height = heightUser;
@@ -46,26 +49,23 @@ Image::Image(size_t widthUser, size_t heightUser) {
 Image::Image(const string& nomFichier) {
 	if (!(GPT::str::endsWith(nomFichier, ".ppm"))) {
 		int x, y, comp;
-		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, 3);
+		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, CHANNEL_RGBA);
 		for (int ix = 0; ix < x; ix++) {
-			std::vector<int> columnR;
-			std::vector<int> columnG;
-			std::vector<int> columnB;
+			vector<vector<int>> column (CHANNEL_RGBA, std::vector<int>(0));
 			for (int iy = 0; iy < y; iy++) {
-				int index = 3 * (iy * x + ix);
-				columnR.push_back(pixels[index+0]);
-				columnG.push_back(pixels[index+1]);
-				columnB.push_back(pixels[index+2]);
+				
+				int index = CHANNEL_RGBA * (iy * x + ix);
+				for (uint8_t channel = 0; channel < CHANNEL_RGBA; ++channel) {
+					column[channel].push_back(pixels[index+channel]);
+				}
 			}
 			
-			img.r.push_back(columnR);
-			img.v.push_back(columnG);
-			img.b.push_back(columnB);
+			for (uint8_t channel = 0; channel < CHANNEL_RGBA; ++channel)
+				img[channel].push_back(column[channel]);
 		}
 
 		width = x;
 		height = y;
-
 		stbi_image_free(pixels);
 
 	} else {
@@ -112,6 +112,7 @@ Image::Image(const string& nomFichier) {
 		img.r.resize(width, vector<int>(height, 0));
 		img.v.resize(width, vector<int>(height, 0));
 		img.b.resize(width, vector<int>(height, 0));
+		img.a.resize(width, vector<int>(height, 255));
 
 		// ASCII
 		if (mMagic == "P3")
@@ -243,18 +244,16 @@ Image Image::changeLuminosity(float luminosityFactor) {
 		luminosityFactor = 0;
 	if (luminosityFactor == 1)
 		return this;
-	vector<vector<int>> output_red(width, vector<int>(height, 0));
-	vector<vector<int>> output_green(width, vector<int>(height, 0));
-	vector<vector<int>> output_blue(width, vector<int>(height, 0));
+	Image output = this;
 	for (uint32_t x = 0; x < width; ++x) {
 		for (uint32_t y = 0; y < height; ++y) {
-			output_red[x][y] = (img.r[x][y] * (luminosityFactor) > 255 ? 255 : img.r[x][y] * (luminosityFactor));
-			output_green[x][y] = (img.v[x][y] * (luminosityFactor) > 255 ? 255 : img.v[x][y] * (luminosityFactor));
-			output_blue[x][y] = (img.b[x][y] * (luminosityFactor) > 255 ? 255 : img.b[x][y] * (luminosityFactor));
+			for (uint8_t channel = 0; channel < CHANNEL_RGB; ++channel) {
+				output.img[channel][x][y] = std::max(0.f, std::min(img[channel][x][y] * (luminosityFactor), 255.f));
+			}
 		}
 	}
 
-	return Image(output_red, output_green, output_blue);
+	return output;
 }
 
 Image Image::luminosityUp(float luminosity) {
@@ -265,12 +264,11 @@ Image Image::luminosityDown(float luminosity) {
 	return changeLuminosity(1.f - luminosity);
 }
 
-void rgbVecToUCharVec(vector<unsigned char> &data, rgbVec &img, int height, int width) {
+void rgbVecToUCharVec(vector<unsigned char> &data, rgbaVec &img, int height, int width) {
 	for (int y = 0; y < height; ++y) {
 		for (int x = 0; x < width; ++x) {
-			data.push_back(static_cast<unsigned char>(img.r[x][y]));
-			data.push_back(static_cast<unsigned char>(img.v[x][y]));
-			data.push_back(static_cast<unsigned char>(img.b[x][y]));
+			for (int channel = 0; channel < CHANNEL_RGBA; ++channel)
+				data.push_back(static_cast<unsigned char>(img[channel][x][y]));
 		}
 	}
 }
@@ -284,18 +282,18 @@ void Image::write(const string& nomFichier) {
 	if (GPT::str::endsWith(nomFichier, "png")) {
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_png(nomFichier.c_str(), width, height, 3, imageData.data(), width * 3);
+		stbi_write_png(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data(), width * CHANNEL_RGBA);
 
 	} else if (GPT::str::endsWith(nomFichier, "bmp")) {
 		
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_bmp(nomFichier.c_str(), width, height, 3, imageData.data());
+		stbi_write_bmp(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data());
 	} else if (GPT::str::endsWith(nomFichier, "jpg") || GPT::str::endsWith(nomFichier, "jpeg")) {
 
 		vector<unsigned char> imageData;
 		rgbVecToUCharVec(imageData, img, height, width);
-		stbi_write_jpg(nomFichier.c_str(), width, height, 3, imageData.data(), 100);
+		stbi_write_jpg(nomFichier.c_str(), width, height, CHANNEL_RGBA, imageData.data(), 100);
 
 	} else if (GPT::str::endsWith(nomFichier, "ppm")) {
 		ofstream fichier(nomFichier, ifstream::binary);
@@ -336,9 +334,16 @@ Image Image::changeContraste(float contrastFactor) {
 	Image output(this);
 	for (uint32_t x = 0; x < width; ++x) {
 		for (uint32_t y = 0; y < height; ++y) {
-			output.img.r[x][y] = (output.img.r[x][y] * contrastFactor > 255 ? 255 : output.img.r[x][y] * contrastFactor);
-			output.img.v[x][y] = (output.img.v[x][y] * contrastFactor > 255 ? 255 : output.img.v[x][y] * contrastFactor);
-			output.img.b[x][y] = (output.img.b[x][y] * contrastFactor > 255 ? 255 : output.img.b[x][y] * contrastFactor);
+			for (uint8_t channel = 0; channel < 3; ++channel) {
+				output.img[channel][x][y] = ((output.img[channel][x][y] - 128)*contrastFactor + 128);
+
+				if (output.img[channel][x][y] > 255){
+					output.img[channel][x][y] = 255;
+				}
+				else if (output.img[channel][x][y] < 0){
+					output.img[channel][x][y] = 0;
+				}
+			}
 		}
 	}
 
@@ -687,18 +692,6 @@ Image Image::sobelOperator() {
 	Filter gradientFiltre(gradient, 1);
 	
 	return gradientFiltre.application(output);
-}
-
-Image Image::reglageAuto() {
-	return Image(*this);
-}
-	
-Image Image::reglageAutoGris() {
-	return Image(*this);
-}
-
-Image Image::reglageAutoCouleur() {
-	return Image(*this);
 }
 
 string & Image::getError() {
