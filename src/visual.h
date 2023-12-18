@@ -75,6 +75,7 @@ struct ImageTab {
 	int width;
 	int height;
 	float zoom = 1.f;
+	bool loading = false;
 };
 
 class VisualIDK {
@@ -124,6 +125,9 @@ class VisualIDK {
 	ImVec4 EditingSize;
 	ImVec4 ToolbarSize;
 	bool hasSetDefaultSizes = false;
+	void loadFile(const string& filePath, size_t loadingTab);
+
+	thread fileLoadingThread;
 };
 
 #endif

@@ -1,4 +1,12 @@
 #include "visual.h"
+void VisualIDK::loadFile(const string& filePath, size_t loadingTab) {
+	if (!tabs[loadingTab].loading)
+		return;
+	tabs[loadingTab].original = Image(filePath);
+	tabs[loadingTab].post = tabs[loadingTab].original;
+	tabs[loadingTab].loading = false;
+}
+
 void ImageTab::initEffects() {
 	effects = {
 		{false, 0, &Image::blackWhite},
@@ -52,9 +60,14 @@ VisualIDK::VisualIDK() {
 
 void VisualIDK::Update() {
 	//applyEffects();
+	if (!tabs[current_tab].loading) {
+		openFile();
+		saveFile();
+		//If User Pressed CTRL C
+		copyMethod();
+		pasteMethod();
+	}
 	
-	openFile();
-	saveFile();
 
 	//Toggle Dark Mode
 	if (mainMenu[2].buttons[3].active) {
@@ -70,16 +83,12 @@ void VisualIDK::Update() {
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 		tabs[current_tab].zoom += io->MouseWheel/10.f;
 
-	//If User Pressed CTRL C
-	copyMethod();
-
-	pasteMethod();
 	selectTool();
 
 }
 
 void VisualIDK::imageRefreshing() {
-	if (Image::isEmpty(tabs[current_tab].original))
+	if (tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original))
 		return;
 	applyEffects();
 	tabs[current_tab].width = tabs[current_tab].post.getWidth();
@@ -106,31 +115,38 @@ void VisualIDK::Draw(thread &func) {
 		}
 	}
 	#else
-
+	
 	//ImGui::SetCursorPos(ImVec2(10.0f, 10.0f));  // Set the position where you want to render the image
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
 	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
-	if (!hasSetDefaultSizes) {
-		ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
-		ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
-	}
-	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y-30-18-32));
-	ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
-	ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
-		glGenTextures(1, &tabs[current_tab].textureID);
-		glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
+	if (!tabs[current_tab].loading) {
+		if (!hasSetDefaultSizes) {
+			ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
+			ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
+		}
+		ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y-30-18-32));
+		ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
+		ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
+			glGenTextures(1, &tabs[current_tab].textureID);
+			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
 
-		// Set texture parameters (you may need to adjust these based on your requirements)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		
-		// Use the shader program, bind the texture, and draw a quad
-		glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
-		ImGui::Image(
-			(void*)(intptr_t)tabs[current_tab].textureID,
-			ImVec2(tabs[current_tab].width * tabs[current_tab].zoom, tabs[current_tab].height * tabs[current_tab].zoom)
+			// Set texture parameters (you may need to adjust these based on your requirements)
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			
+			// Use the shader program, bind the texture, and draw a quad
+			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
+			ImGui::Image(
+				(void*)(intptr_t)tabs[current_tab].textureID,
+				ImVec2(tabs[current_tab].width * tabs[current_tab].zoom, tabs[current_tab].height * tabs[current_tab].zoom)
+			);
+		}
+	} else {
+		ImGui::TextColored(
+			mainMenu[2].buttons[3].active ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
+			"Loading image..."
 		);
 	}
 	#endif //USE_DUMB_DRAW
@@ -432,9 +448,11 @@ void VisualIDK::openFile() {
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 		if (GetOpenFileName(&ofn)) {
 			//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
+			tabs[current_tab].loading = true;
+			if (fileLoadingThread.joinable())
+				fileLoadingThread.join();
+			fileLoadingThread = thread(&VisualIDK::loadFile, this, string(ofn.lpstrFile), current_tab);
 
-			tabs[current_tab].original = Image(ofn.lpstrFile);
-			tabs[current_tab].post = tabs[current_tab].original;
 		}
 		#endif
 		#elif __linux__
@@ -487,8 +505,8 @@ void VisualIDK::saveFile() {
 		if (GetSaveFileName(&ofn))
 			tabs[current_tab].post.write(ofn.lpstrFile);
 		#endif
-	}
 	#endif
+	}
 }
 
 void VisualIDK::applyEffects() {

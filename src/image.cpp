@@ -50,10 +50,14 @@ Image::Image(const string& nomFichier) {
 	if (!(GPT::str::endsWith(nomFichier, ".ppm"))) {
 		int x, y, comp;
 		stbi_uc *pixels = stbi_load(nomFichier.c_str(), &x, &y, &comp, CHANNEL_RGBA);
+		if (pixels == nullptr) {
+			*this = Image(0,0);
+			return;
+		}
 		for (int ix = 0; ix < x; ix++) {
 			vector<vector<int>> column (CHANNEL_RGBA, std::vector<int>(0));
+			//cout << "ixiy" << ix << ' ' << iy << endl;
 			for (int iy = 0; iy < y; iy++) {
-				
 				int index = CHANNEL_RGBA * (iy * x + ix);
 				for (uint8_t channel = 0; channel < CHANNEL_RGBA; ++channel) {
 					column[channel].push_back(pixels[index+channel]);
@@ -66,6 +70,7 @@ Image::Image(const string& nomFichier) {
 
 		width = x;
 		height = y;
+
 		stbi_image_free(pixels);
 
 	} else {
