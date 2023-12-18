@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <ctime>
+#include <thread>
 #include <cmath>
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -82,9 +83,10 @@ class VisualIDK {
 	ImGuiIO* io;
 	ImDrawList* dl;
 
-	void Draw();
+	void Draw(thread &func);
 	void Update();
 	void UI();
+	void imageRefreshing();
 
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	GLFWwindow* window;

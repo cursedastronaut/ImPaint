@@ -1,5 +1,5 @@
 #include "visual.h"
-
+#include <thread>
 // [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
 // To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
 // Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
@@ -88,6 +88,7 @@ int main(int argc, char* argv[])
 
 	VisualIDK vsi;
 	vsi.window = window;
+	
 	// Main loop
 #ifdef __EMSCRIPTEN__
 	// For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -109,11 +110,11 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
 		vsi.dl = ImGui::GetBackgroundDrawList();
 		vsi.io = &ImGui::GetIO();
+		std::thread convertThread(&VisualIDK::imageRefreshing, &vsi);
 		vsi.Update();
-		vsi.Draw();
+		vsi.Draw(convertThread);
 		vsi.UI();
 		
 		// Rendering
@@ -126,6 +127,7 @@ int main(int argc, char* argv[])
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glfwSwapBuffers(window);
+		convertThread.join();
 	}
 #ifdef __EMSCRIPTEN__
 	EMSCRIPTEN_MAINLOOP_END;

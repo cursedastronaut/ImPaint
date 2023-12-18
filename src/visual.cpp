@@ -54,7 +54,7 @@ VisualIDK::VisualIDK() {
 }
 
 void VisualIDK::Update() {
-	applyEffects();
+	//applyEffects();
 	
 	openFile();
 	saveFile();
@@ -81,21 +81,10 @@ void VisualIDK::Update() {
 
 }
 
-void VisualIDK::Draw() {
-	#ifdef USE_DUMB_DRAW
-	for (uint32_t y = 0; y < post.getHeight(); ++y) {
-		for (uint32_t x = 0; x < post.getWidth(); ++x) {
-			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
-			IM_COL32(post.img.r[x][y], post.img.v[x][y], post.img.b[x][y], 255));
-		}
-	}
-	#else
-
-	// Interleave RGB values
-	if (!noModif) {
+void VisualIDK::imageRefreshing() {
+		applyEffects();
 		tabs[current_tab].width = tabs[current_tab].post.getWidth();
 		tabs[current_tab].height = tabs[current_tab].post.getHeight();
-		noModif = true;
 		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
 			tabs[current_tab].imageData.clear();
 			for (int y = 0; y < tabs[current_tab].height; ++y) {
@@ -107,19 +96,20 @@ void VisualIDK::Draw() {
 				}
 			}
 
-			glGenTextures(1, &tabs[current_tab].textureID);
-			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
-
-			// Set texture parameters (you may need to adjust these based on your requirements)
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			
-			// Use the shader program, bind the texture, and draw a quad
-			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
 		}
-	
+}
+
+void VisualIDK::Draw(thread &func) {
+	#ifdef USE_DUMB_DRAW
+	for (uint32_t y = 0; y < post.getHeight(); ++y) {
+		for (uint32_t x = 0; x < post.getWidth(); ++x) {
+			dl->AddRectFilled({x*pixelSize,y*pixelSize}, {x*pixelSize+pixelSize, y*pixelSize+pixelSize},
+			IM_COL32(post.img.r[x][y], post.img.v[x][y], post.img.b[x][y], 255));
+		}
 	}
+	#else
+
 	//ImGui::SetCursorPos(ImVec2(10.0f, 10.0f));  // Set the position where you want to render the image
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
 	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
@@ -130,11 +120,22 @@ void VisualIDK::Draw() {
 	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y-30-18-32));
 	ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
 	ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0)
+	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
+		glGenTextures(1, &tabs[current_tab].textureID);
+		glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
+
+		// Set texture parameters (you may need to adjust these based on your requirements)
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		
+		// Use the shader program, bind the texture, and draw a quad
+		glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
 		ImGui::Image(
 			(void*)(intptr_t)tabs[current_tab].textureID,
 			ImVec2(tabs[current_tab].width * tabs[current_tab].zoom, tabs[current_tab].height * tabs[current_tab].zoom)
 		);
+	}
 	#endif //USE_DUMB_DRAW
 	ImGui::End();
 	#ifdef __linux__
@@ -488,7 +489,7 @@ void VisualIDK::saveFile() {
 }
 
 void VisualIDK::applyEffects() {
-	if (!noModif) {
+	//if (!noModif) {
 		tabs[current_tab].post = tabs[current_tab].original;
 		for (size_t i = 0; i < tabs[current_tab].effects.size(); ++i) {
 			if (tabs[current_tab].effects[i].active) {
@@ -515,7 +516,7 @@ void VisualIDK::applyEffects() {
 				}
 			}
 		}
-	}
+	//}
 }
 
 void VisualIDK::selectTool() {
