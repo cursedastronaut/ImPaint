@@ -90,9 +90,9 @@ void VisualIDK::Update() {
 }
 
 void VisualIDK::imageRefreshing() {
-	if ((tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original)) && !noModif)
+	if ((tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original)) && noModif)
 		return;
-	bool effectsChanged = noModif;
+	bool effectsChanged = !noModif;
 	for (size_t i = 0; !effectsChanged && i < tabs[current_tab].effects.size(); ++i)
 		effectsChanged = tabs[current_tab].effects[i].active != tabs[current_tab].effectsCopy[i].active;
 	if (!effectsChanged)
@@ -113,7 +113,7 @@ void VisualIDK::imageRefreshing() {
 		}
 	}
 	tabs[current_tab].effectsCopy = tabs[current_tab].effects;
-	noModif = !noModif;
+	noModif = true;
 }
 
 void VisualIDK::Draw(thread &func) {
@@ -461,8 +461,7 @@ void VisualIDK::openFile() {
 		if (GetOpenFileName(&ofn)) {
 			//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
 			tabs[current_tab].loading = true;
-			if (fileLoadingThread.joinable())
-				fileLoadingThread.join();
+			
 			fileLoadingThread = thread(&VisualIDK::loadFile, this, string(ofn.lpstrFile), current_tab);
 			//loadFile(string(ofn.lpstrFile), current_tab);
 		}
@@ -554,4 +553,8 @@ void VisualIDK::applyEffects() {
 
 void VisualIDK::selectTool() {
 	
+}
+
+VisualIDK::~VisualIDK() {
+	fileLoadingThread.join();
 }

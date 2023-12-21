@@ -82,6 +82,7 @@ struct ImageTab {
 class VisualIDK {
 	public:
 	VisualIDK();
+	~VisualIDK();
 	ImGuiIO* io;
 	ImDrawList* dl;
 
@@ -129,6 +130,7 @@ class VisualIDK {
 	void loadFile(const string& filePath, size_t loadingTab);
 
 	thread fileLoadingThread;
+
 };
 
 #endif

@@ -133,18 +133,14 @@ int main(int argc, char* argv[])
 #ifdef __EMSCRIPTEN__
 	EMSCRIPTEN_MAINLOOP_END;
 #endif
-try {
 
 	// Cleanup
-	if (convertThread.joinable())
-		convertThread.join();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
-} catch(void*) {}
 
 	return 0;
 }
