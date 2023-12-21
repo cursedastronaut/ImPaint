@@ -3,6 +3,7 @@ void VisualIDK::loadFile(const string& filePath, size_t loadingTab) {
 	if (!tabs[loadingTab].loading)
 		return;
 	tabs[loadingTab].original = Image(filePath);
+	tabs[loadingTab].title = filePath;
 	tabs[loadingTab].post = tabs[loadingTab].original;
 	tabs[loadingTab].loading = false;
 	noModif = false;
@@ -315,8 +316,8 @@ void VisualIDK::UITabbar() {
 	
 	for (size_t i = 0; i < tabs.size(); ++i) {
 		if (current_tab == i) 
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[2].buttons[3].active) ? 1 : 0, 1, 1));
-		bool hasClicked = ImGui::TabItemButton(to_string(i).c_str());
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) ? 1 : 0, 1, 1));
+		bool hasClicked = ImGui::TabItemButton((tabs[current_tab].title + to_string(i)).c_str());
 		if (hasClicked)	
 			current_tab = i;
 		if (current_tab == i && !hasClicked)
@@ -376,6 +377,7 @@ void VisualIDK::pasteMethod() {
 				}
 			}
 			tabs[current_tab].post = tabs[current_tab].original;
+			noModif = false;
 		}
 	}
 	#elif _WIN32
@@ -412,6 +414,8 @@ void VisualIDK::pasteMethod() {
 
 					// For example, print the first few bytes of the pixel data
 					tabs[current_tab].original = Image(info->biWidth, info->biHeight);
+					tabs[current_tab].width = info->biWidth;
+					tabs[current_tab].height = info->biHeight;
 					for (uint32_t iy = 0; iy < static_cast<uint32_t>(info->biHeight); ++iy) {
 						for (uint32_t ix = 0; ix < static_cast<uint32_t>(info->biWidth); ++ix) {
 							// Calculate the offset in the imageData buffer for the current pixel
@@ -436,6 +440,7 @@ void VisualIDK::pasteMethod() {
 		}
 	}
 	#endif
+	//tabs[current_tab].title = "image.impaint";
 }
 
 void VisualIDK::openFile() {

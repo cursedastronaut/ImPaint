@@ -76,6 +76,7 @@ struct ImageTab {
 	int width;
 	int height;
 	float zoom = 1.f;
+	string title = string("Empty");
 	bool loading = false;
 };
 
