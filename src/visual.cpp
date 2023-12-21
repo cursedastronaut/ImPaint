@@ -1,47 +1,18 @@
 #include "visual.h"
-
+ 
 void VisualIDK::loadFile(const string& filePath, size_t loadingTab) {
-	if (!tabs[loadingTab].loading)
+	if (!ui.tabs[loadingTab].loading)
 		return;
-	tabs[loadingTab].original = Image(filePath);
-	tabs[loadingTab].title = filePath;
-	tabs[loadingTab].post = tabs[loadingTab].original;
-	tabs[loadingTab].loading = false;
+	ui.tabs[loadingTab].original = Image(filePath);
+	ui.tabs[loadingTab].title = filePath;
+	ui.tabs[loadingTab].post = ui.tabs[loadingTab].original;
+	ui.tabs[loadingTab].loading = false;
 	noModif = false;
 }
 
-void ImageTab::initEffects() {
-	effects = {
-		{false, 0, &Image::blackWhite},
-		{false, 0, &Image::redCanal},
-		{false, 0, &Image::grayScale},
-		{false, 1, nullptr, &Image::changeLuminosity},
-		{false, 1, nullptr, &Image::changeContraste},
-		{false, 0, &Image::rotationR},
-		{false, 0, &Image::rotationL},
-		{false, 0, &Image::spinH},
-		{false, 0, &Image::spinV},
-		{false, 2, nullptr, nullptr, &Image::clipR},
-		{false, 2, nullptr, nullptr, &Image::clipL},
-		{false, 2, nullptr, nullptr, &Image::clipU},
-		{false, 2, nullptr, nullptr, &Image::clipD},
-		{false, 2, nullptr, nullptr, &Image::enlarge},
-		{false, 2, nullptr, nullptr, &Image::shrink},
-		{false, 0, &Image::colorblindDeuteranopia},
-		{false, 0, &Image::colorblindProtanopia},
-		{false, 0, &Image::colorblindTritanopia},
-		{false, 3, nullptr, nullptr, nullptr, BLURG3},
-		{false, 3, nullptr, nullptr, nullptr, BLURG5},
-		{false, 0, &Image::sobelOperator},
-		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR}
-	};
-	effectsCopy = effects;
-}
+
 
 VisualIDK::VisualIDK() {
-	mainMenu.push_back((MainMenuDropdown){"File", false, vector<MainMenuDropdownButton>{{"New", false}, {"Load", false}, {"Save", false}}});
-	mainMenu.push_back((MainMenuDropdown){"Edit", false, vector<MainMenuDropdownButton>{{"Cut", false}, {"Copy", false}, {"Paste", false}}});
-	mainMenu.push_back((MainMenuDropdown){"Display", false, vector<MainMenuDropdownButton>{{"NBGC", false}, {"Géométrie", false}, {"Filtres", false}, {"Toggle dark mode", false}}});
 	#ifdef __linux__
 	fileDialog.SetTitle("Open...");
 	fileDialog.SetTypeFilters({".ppm", ".png", ".bmp", ".jpg", ".jpeg"});
@@ -49,22 +20,15 @@ VisualIDK::VisualIDK() {
 	fileDialogSave.SetTitle("Save...");
 	fileDialogSave.SetTypeFilters({});
 	#endif
-	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC	].active = true;
-	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO		].active = true;
-	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER	].active = true;
+	
+	ui.tabs.push_back(ImageTab());
+	ui.initEffects(0);
+	ui.io = io;
 
-	MenuBarSize = {0, 0, -1, (18+30)};
-	ImageSize = {64, (18+30), 1280-240-64, 720-(18+30)-16};
-	EditingSize = {1280 - 240, (18+30), 240, 720 - (18+30)};
-	ToolbarSize = {0, (18+30), 64, 720 - (18+30)};
-
-	tabs.push_back(ImageTab());
-	tabs[0].initEffects();
 }
 
 void VisualIDK::Update() {
-	//applyEffects();
-	if (!tabs[current_tab].loading) {
+	if (!ui.tabs[ui.current_tab].loading) {
 		openFile();
 		saveFile();
 		//If User Pressed CTRL C
@@ -74,36 +38,42 @@ void VisualIDK::Update() {
 		
 	//Zooms in and out of the image.
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
-		tabs[current_tab].zoom += io->MouseWheel/10.f;
+		ui.tabs[ui.current_tab].zoom += io->MouseWheel/10.f;
 
 	selectTool();
+	ui.io = io;
+	ui.Update();
 
 }
 
 void VisualIDK::imageRefreshing() {
-	if ((tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original)) && noModif)
+	//Could be optimized.
+	if (ui.tabs[ui.current_tab].loading)
+		return;
+	if ((Image::isEmpty(ui.tabs[ui.current_tab].original)) && noModif)
 		return;
 	bool effectsChanged = !noModif;
-	for (size_t i = 0; !effectsChanged && i < tabs[current_tab].effects.size(); ++i)
-		effectsChanged = tabs[current_tab].effects[i].active != tabs[current_tab].effectsCopy[i].active;
+	for (size_t i = 0; !effectsChanged && i < ui.tabs[ui.current_tab].effects.size(); ++i)
+		effectsChanged = ui.tabs[ui.current_tab].effects[i].active != ui.tabs[ui.current_tab].effectsCopy[i].active;
 	if (!effectsChanged)
 		return;
 	
 	applyEffects();
-	tabs[current_tab].width = tabs[current_tab].post.getWidth();
-	tabs[current_tab].height = tabs[current_tab].post.getHeight();
-	if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
-		tabs[current_tab].imageData.clear();
-		for (int y = 0; y < tabs[current_tab].height; ++y) {
-			for (int x = 0; x < tabs[current_tab].width; ++x) {
-				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.r[x][y]));
-				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.v[x][y]));
-				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.b[x][y]));
-				tabs[current_tab].imageData.push_back(static_cast<unsigned char>(tabs[current_tab].post.img.a[x][y]));
+	ui.tabs[ui.current_tab].width = ui.tabs[ui.current_tab].post.getWidth();
+	ui.tabs[ui.current_tab].height = ui.tabs[ui.current_tab].post.getHeight();
+	
+	if (ui.tabs[ui.current_tab].width != 0 && ui.tabs[ui.current_tab].height != 0) {
+		ui.tabs[ui.current_tab].imageData.clear();
+		for (int y = 0; y < ui.tabs[ui.current_tab].height; ++y) {
+			for (int x = 0; x < ui.tabs[ui.current_tab].width; ++x) {
+				ui.tabs[ui.current_tab].imageData.push_back(static_cast<unsigned char>(ui.tabs[ui.current_tab].post.img.r[x][y]));
+				ui.tabs[ui.current_tab].imageData.push_back(static_cast<unsigned char>(ui.tabs[ui.current_tab].post.img.v[x][y]));
+				ui.tabs[ui.current_tab].imageData.push_back(static_cast<unsigned char>(ui.tabs[ui.current_tab].post.img.b[x][y]));
+				ui.tabs[ui.current_tab].imageData.push_back(static_cast<unsigned char>(ui.tabs[ui.current_tab].post.img.a[x][y]));
 			}
 		}
 	}
-	tabs[current_tab].effectsCopy = tabs[current_tab].effects;
+	ui.tabs[ui.current_tab].effectsCopy = ui.tabs[ui.current_tab].effects;
 	noModif = true;
 }
 
@@ -120,234 +90,53 @@ void VisualIDK::Draw() {
 	//ImGui::SetCursorPos(ImVec2(10.0f, 10.0f));  // Set the position where you want to render the image
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
 	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
-	if (!tabs[current_tab].loading) {
-		if (!hasSetDefaultSizes) {
-			ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
-			ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
+	if (!ui.tabs[ui.current_tab].loading) {
+		if (!ui.hasSetDefaultSizes) {
+			ImGui::SetWindowPos({ui.ImageSize.x, ui.ImageSize.y});
+			ImGui::SetWindowSize({ui.ImageSize.z, ui.ImageSize.w});
 		}
-		ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, io->DisplaySize.y-30-18-32));
-		ImGui::SetWindowPos({ToolbarSize.z, MenuBarSize.w});
-		ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-		if (tabs[current_tab].width != 0 && tabs[current_tab].height != 0) {
-			glGenTextures(1, &tabs[current_tab].textureID);
-			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tabs[current_tab].post.img.r.size(), tabs[current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, tabs[current_tab].imageData.data());
+		
+		ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - ui.EditingSize.z - ui.ToolbarSize.z, io->DisplaySize.y-30-18-32));
+		ImGui::SetWindowPos({ui.ToolbarSize.z, ui.MenuBarSize.w});
+		ui.ImageSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
+		if (ui.tabs[ui.current_tab].width != 0 && ui.tabs[ui.current_tab].height != 0) {
+			glGenTextures(1, &ui.tabs[ui.current_tab].textureID);
+			glBindTexture(GL_TEXTURE_2D, ui.tabs[ui.current_tab].textureID);
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ui.tabs[ui.current_tab].post.img.r.size(), ui.tabs[ui.current_tab].post.img.r[0].size(), 0, GL_RGBA, GL_UNSIGNED_BYTE, ui.tabs[ui.current_tab].imageData.data());
 
 			// Set texture parameters (you may need to adjust these based on your requirements)
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			
 			// Use the shader program, bind the texture, and draw a quad
-			glBindTexture(GL_TEXTURE_2D, tabs[current_tab].textureID);
+			glBindTexture(GL_TEXTURE_2D, ui.tabs[ui.current_tab].textureID);
 			ImGui::Image(
-				(void*)(intptr_t)tabs[current_tab].textureID,
-				ImVec2(tabs[current_tab].width * tabs[current_tab].zoom, tabs[current_tab].height * tabs[current_tab].zoom)
+				(void*)(intptr_t)ui.tabs[ui.current_tab].textureID,
+				ImVec2(ui.tabs[ui.current_tab].width * ui.tabs[ui.current_tab].zoom, ui.tabs[ui.current_tab].height * ui.tabs[ui.current_tab].zoom)
 			);
 		}
 	} else {
 		ImGui::TextColored(
-			darkMode ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
+			ui.darkMode ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
 			"Loading image..."
 		);
 	}
+	
 	#endif //USE_DUMB_DRAW
 	ImGui::End();
 	#ifdef __linux__
 	fileDialog.Display();
 	fileDialogSave.Display();
 	#endif
-}
-
-void VisualIDK::UI() {
-	UITabbar();
-	UIToolbar();
-	UIEditing();
-	UIMenuBar();
-	UIErrorBay();
-	UIDarkMode();
 	
-	hasSetDefaultSizes = true;
-}
-
-void VisualIDK::UIMenuBar() {
-	// Start the menu bar
-	if (ImGui::BeginMainMenuBar()) {
-		
-		for (size_t i = 0; i < mainMenu.size(); ++i) {
-			mainMenu[i].active = ImGui::BeginMenu(mainMenu[i].title.c_str());
-			if (mainMenu[i].active) {
-				for (size_t j = 0; j < mainMenu[i].buttons.size(); ++j)
-					if (ImGui::MenuItem(mainMenu[i].buttons[j].title.c_str()))
-						mainMenu[i].buttons[j].active = !mainMenu[i].buttons[j].active;
-				ImGui::EndMenu(); 
-			}
-		}
-		
-		ImGui::EndMainMenuBar();
-	}
-
-	//If User pressed CCTRL+N or File->New.
-	if (mainMenu[MENU_FILE].buttons[MENU_FILE_NEW].active || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))) {
-		tabs.push_back(ImageTab());
-		tabs[tabs.size()-1].initEffects();
-		mainMenu[MENU_FILE].buttons[MENU_FILE_NEW].active = false;
-	}
-}
-
-void VisualIDK::UIEditing() {
-	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC].active || mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO].active || mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER].active) {
-		ImGui::Begin("Editing");
-		if (!hasSetDefaultSizes) {
-			ImGui::SetWindowPos({EditingSize.x, EditingSize.y});
-			ImGui::SetWindowSize({EditingSize.z, EditingSize.w});
-		}
-		EditingSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-		ImGui::SetWindowPos({io->DisplaySize.x-EditingSize.z, EditingSize.y});
-		ImGui::SetWindowSize({ ImGui::GetWindowSize().x, io->DisplaySize.y - EditingSize.y});
-		if (ImGui::Button("Refresh")) noModif = false;
-		ImGui::SameLine(0.f);
-		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
-		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC].active) {
-			ImGui::Text("Effects");
-			ImGui::Checkbox("Black & WHite", &tabs[current_tab].effects[EFFECTS_blackWhite].active);
-			ImGui::Checkbox("Red Canal", &tabs[current_tab].effects[EFFECTS_redChannel].active);
-			ImGui::Checkbox("Gray Scale", &tabs[current_tab].effects[EFFECTS_grayScale].active);
-			ImGui::Checkbox("Luminosity", &tabs[current_tab].effects[EFFECTS_luminosity].active);
-			ImGui::SameLine(0.f);
-			ImGui::PushItemWidth(96);
-			ImGui::InputFloat("l", &tabs[current_tab].effects[EFFECTS_luminosity].argFloat, 0.1f, 0.2f);
-			ImGui::PopItemWidth();
-			ImGui::Checkbox("Contrast", &tabs[current_tab].effects[EFFECTS_contrast].active);
-			ImGui::SameLine(0.f);
-			ImGui::PushItemWidth(96);
-			ImGui::InputFloat("c", &tabs[current_tab].effects[EFFECTS_contrast].argFloat, 0.1f, 0.2f);
-			ImGui::PopItemWidth();
-			ImGui::Text("Colorblindness:");
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("T", &tabs[current_tab].effects[EFFECTS_colorblindTritanopia].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("P", &tabs[current_tab].effects[EFFECTS_colorblindProtanopia].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_colorblindDeuteranopia].active);
-			ImGui::NewLine();
-		}
-		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO].active) {
-			ImGui::Text("Geometry");
-			ImGui::Checkbox("Rotation Right", &tabs[current_tab].effects[EFFECTS_rotationR].active);
-			ImGui::Checkbox("Rotation Left", &tabs[current_tab].effects[EFFECTS_rotationL].active);
-			ImGui::Text("Return");
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("Ho", &tabs[current_tab].effects[EFFECTS_spinH].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("Ve", &tabs[current_tab].effects[EFFECTS_spinV].active);
-			ImGui::Text("Clip");
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("R", &tabs[current_tab].effects[EFFECTS_clipR].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("L", &tabs[current_tab].effects[EFFECTS_clipL].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("U", &tabs[current_tab].effects[EFFECTS_clipU].active);
-			ImGui::SameLine(0.f);
-			ImGui::Checkbox("D", &tabs[current_tab].effects[EFFECTS_clipD].active);
-			ImGui::Checkbox("Enlarge", &tabs[current_tab].effects[EFFECTS_enlarge].active);
-			ImGui::SameLine(0.f);
-			ImGui::PushItemWidth(64);
-			ImGui::InputInt("aV", (int*)&tabs[current_tab].effects[EFFECTS_enlarge].argUint32, 1, 2);
-			ImGui::PopItemWidth();
-			ImGui::Checkbox("Shrink", &tabs[current_tab].effects[EFFECTS_shrink].active);
-			ImGui::SameLine(0.f);
-			ImGui::PushItemWidth(64);
-			ImGui::InputInt("rV", (int*)&tabs[current_tab].effects[EFFECTS_luminosity].argUint32, 1, 2);
-			ImGui::PopItemWidth();
-			ImGui::NewLine();
-		}
-		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER].active) {
-			ImGui::Text("Filters");
-			ImGui::Checkbox("BlurG3", &tabs[current_tab].effects[EFFECTS_filterBlurG3].active);
-			ImGui::Checkbox("BlurG5", &tabs[current_tab].effects[EFFECTS_filterBlurG5].active);
-			ImGui::Checkbox("Sobel Operator", &tabs[current_tab].effects[EFFECTS_filterSoberOperator].active);
-			ImGui::Checkbox("Constrastor", &tabs[current_tab].effects[EFFECTS_filtreContrastor].active);
-			ImGui::NewLine();
-		}
-		
-		ImGui::End();
-		
-	}
-}
-
-void VisualIDK::UIToolbar() {
-	ImGui::Begin("Toolbar");
-	if (!hasSetDefaultSizes) {
-		ImGui::SetWindowPos(ImVec2(ToolbarSize.x,ToolbarSize.y));
-		ImGui::SetWindowSize(ImVec2(ToolbarSize.z, ToolbarSize.w));
-	}
-	ToolbarSize = ImVec4(ImGui::GetWindowPos().x, ImGui::GetWindowPos().y, ImGui::GetWindowSize().x, ImGui::GetWindowSize().y);
-	ImGui::SetWindowPos(ImVec2(ToolbarSize.x,ToolbarSize.y));
-	ImGui::SetWindowSize(ImVec2(ToolbarSize.z, io->DisplaySize.y-ToolbarSize.y));
-	ImGui::Text("txt");
-	ImGui::End();
-	
-}
-
-void VisualIDK::UIErrorBay() {
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.f, 0.f));
-	ImGui::Begin("ErrorTab", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-	ImGui::Text("%s", tabs[current_tab].post.getError().c_str() );
-	ImGui::SetWindowPos({ToolbarSize.z, io->DisplaySize.y-32});
-	ImGui::SetWindowSize(ImVec2(io->DisplaySize.x - EditingSize.z - ToolbarSize.z, 32));
-	ImGui::End();
-	ImGui::PopStyleVar();
-}
-
-void VisualIDK::UIDarkMode() {
-	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) {
-		disableAutoDarkMode = true;
-		darkMode = !darkMode;
-		mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active = false;
-	}
-	if (!disableAutoDarkMode) {
-		darkMode = !WindowsUtils::isLightTheme();
-	}
-	if (darkMode) {
-		ImGui::StyleColorsDark();
-		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
-
-	} else {
-		ImGui::StyleColorsLight();
-		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	}
-}
-
-void VisualIDK::UITabbar() {
-	ImGui::Begin("debtabs", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
-	ImGui::BeginTabBar("Tabsa", ImGuiTabBarFlags_NoTooltip);
-	ImGui::SetWindowPos({0, 18});
-	ImGui::SetWindowSize({io->DisplaySize.x, 30});
-	
-	for (size_t i = 0; i < tabs.size(); ++i) {
-		if (current_tab == i) 
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (darkMode) ? 1 : 0, 1, 1));
-		bool hasClicked = ImGui::TabItemButton((tabs[current_tab].title + to_string(i)).c_str());
-		if (hasClicked)	
-			current_tab = i;
-		if (current_tab == i && !hasClicked)
-			ImGui::PopStyleColor();
-	}
-	
-	if(ImGui::TabItemButton("+")) {
-		tabs.push_back(ImageTab());
-		tabs[tabs.size()-1].initEffects();
-	}
-	ImGui::EndTabBar();
-	ImGui::End();
 }
 
 void VisualIDK::copyMethod() {
-	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(tabs[current_tab].post)) {
+	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_C) && !Image::isEmpty(ui.tabs[ui.current_tab].post)) {
 		#ifdef __linux__
 		clip::image_spec spec;
-		spec.width = tabs[current_tab].width;
-		spec.height = tabs[current_tab].height;
+		spec.width = ui.tabs[ui.current_tab].width;
+		spec.height = ui.tabs[ui.current_tab].height;
 		spec.bits_per_pixel = 32;
 		spec.bytes_per_row = spec.width*4;
 		spec.red_mask = 0xff;
@@ -358,7 +147,7 @@ void VisualIDK::copyMethod() {
 		spec.green_shift = 8;
 		spec.blue_shift = 16;
 		spec.alpha_shift = 24;
-		clip::image img(tabs[current_tab].imageData.data(), spec);
+		clip::image img(ui.tabs[ui.current_tab].imageData.data(), spec);
 		clip::set_image(img);
 		#endif
 	}
@@ -376,17 +165,17 @@ void VisualIDK::pasteMethod() {
 			std::cout << "Error getting image from clipboard\n";
 		} else {
 			clip::image_spec spec = img.spec();
-			tabs[current_tab].original = Image(spec.width, spec.height);
+			ui.tabs[ui.current_tab].original = Image(spec.width, spec.height);
 			auto data2 = (const uint32_t*)img.data();
 			for (uint32_t iy = 0; iy < spec.height; ++iy) {
 				for (uint32_t ix = 0; ix < spec.width; ix++) {
 					// Assign values to the corresponding arrays
-					tabs[current_tab].original.img.r[ix][iy] = data2[iy * spec.width + ix];
-					tabs[current_tab].original.img.v[ix][iy] = data2[iy * spec.width + ix] >> 8;
-					tabs[current_tab].original.img.b[ix][iy] = data2[iy * spec.width + ix] >> 16;
+					ui.tabs[ui.current_tab].original.img.r[ix][iy] = data2[iy * spec.width + ix];
+					ui.tabs[ui.current_tab].original.img.v[ix][iy] = data2[iy * spec.width + ix] >> 8;
+					ui.tabs[ui.current_tab].original.img.b[ix][iy] = data2[iy * spec.width + ix] >> 16;
 				}
 			}
-			tabs[current_tab].post = tabs[current_tab].original;
+			ui.tabs[ui.current_tab].post = ui.tabs[ui.current_tab].original;
 			noModif = false;
 		}
 	}
@@ -423,9 +212,9 @@ void VisualIDK::pasteMethod() {
 					// Now you can access the pixel data in the 'imageData' buffer
 
 					// For example, print the first few bytes of the pixel data
-					tabs[current_tab].original = Image(info->biWidth, info->biHeight);
-					tabs[current_tab].width = info->biWidth;
-					tabs[current_tab].height = info->biHeight;
+					ui.tabs[ui.current_tab].original = Image(info->biWidth, info->biHeight);
+					ui.tabs[ui.current_tab].width = info->biWidth;
+					ui.tabs[ui.current_tab].height = info->biHeight;
 					for (uint32_t iy = 0; iy < static_cast<uint32_t>(info->biHeight); ++iy) {
 						for (uint32_t ix = 0; ix < static_cast<uint32_t>(info->biWidth); ++ix) {
 							// Calculate the offset in the imageData buffer for the current pixel
@@ -436,9 +225,9 @@ void VisualIDK::pasteMethod() {
 							uint8_t red = imageData[offset + 3];
 
 							// Assign the values to the image arrays
-							tabs[current_tab].original.img.r[ix][iy] = red;
-							tabs[current_tab].original.img.v[ix][iy] = green;
-							tabs[current_tab].original.img.b[ix][iy] = blue;
+							ui.tabs[ui.current_tab].original.img.r[ix][iy] = red;
+							ui.tabs[ui.current_tab].original.img.v[ix][iy] = green;
+							ui.tabs[ui.current_tab].original.img.b[ix][iy] = blue;
 						}
 					}
 
@@ -450,11 +239,11 @@ void VisualIDK::pasteMethod() {
 		}
 	}
 	#endif
-	//tabs[current_tab].title = "image.impaint";
+	//ui.tabs[current_tab].title = "image.impaint";
 }
 
 void VisualIDK::openFile() {
-	if (mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
+	if (ui.mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
 		#ifdef _WIN32
 		#ifndef IDE_ANTI_ERROR
 		OPENFILENAME ofn ;
@@ -473,9 +262,9 @@ void VisualIDK::openFile() {
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 		if (GetOpenFileName(&ofn)) {
 			//MessageBox ( NULL , ofn.lpstrFile , "test" , MB_OK);
-			tabs[current_tab].loading = true;
+			ui.tabs[ui.current_tab].loading = true;
 			
-			fileLoadingThread = thread(&VisualIDK::loadFile, this, string(ofn.lpstrFile), current_tab);
+			fileLoadingThread = thread(&VisualIDK::loadFile, this, string(ofn.lpstrFile), ui.current_tab);
 			//loadFile(string(ofn.lpstrFile), current_tab);
 		}
 		#endif
@@ -483,14 +272,14 @@ void VisualIDK::openFile() {
 			fileDialog.Open();
 
 		#endif
-		mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active = false;
+		ui.mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active = false;
 	}
 
 	#ifdef __linux__
 	if(fileDialog.HasSelected())
 	{
-		tabs[current_tab].original = Image(fileDialog.GetSelected().string());
-		tabs[current_tab].post = tabs[current_tab].original;
+		ui.tabs[ui.current_tab].original = Image(fileDialog.GetSelected().string());
+		ui.tabs[ui.current_tab].post = ui.tabs[ui.current_tab].original;
 		noModif = false;
 		fileDialog.ClearSelected();
 	}
@@ -498,17 +287,17 @@ void VisualIDK::openFile() {
 }
 
 void VisualIDK::saveFile() {
-	if ((mainMenu[MENU_FILE].active && mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
-		cout << ((mainMenu[MENU_FILE].active && mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) ? "true" : "false") << endl;
+	if ((ui.mainMenu[MENU_FILE].active && ui.mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
+		cout << ((ui.mainMenu[MENU_FILE].active && ui.mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) ? "true" : "false") << endl;
 	#ifdef __linux__
 		fileDialogSave.Open();
 	}
 
 	if(fileDialogSave.HasSelected())
 	{
-		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
+		ui.tabs[ui.current_tab].post.write(fileDialogSave.GetSelected().string());
 		fileDialogSave.ClearSelected();
-		mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active = false;
+		ui.mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active = false;
 	}
 	#elif _WIN32
 		#ifndef IDE_ANTI_ERROR
@@ -527,41 +316,39 @@ void VisualIDK::saveFile() {
 		ofn.lpstrInitialDir=NULL ;
 		ofn.Flags = OFN_PATHMUSTEXIST|OFN_FILEMUSTEXIST ;
 		if (GetSaveFileName(&ofn))
-			tabs[current_tab].post.write(ofn.lpstrFile);
+			ui.tabs[ui.current_tab].post.write(ofn.lpstrFile);
 		#endif
 	#endif
 	}
 }
 
 void VisualIDK::applyEffects() {
-	//if (!noModif) {
-		tabs[current_tab].post = tabs[current_tab].original;
-		for (size_t i = 0; i < tabs[current_tab].effects.size(); ++i) {
-			if (tabs[current_tab].effects[i].active) {
-				switch (tabs[current_tab].effects[i].which)
-				{
-				case 0:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].func))();
-					break;
-				
-				case 1:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcFloat))(tabs[current_tab].effects[i].argFloat);
-					break;
+	ui.tabs[ui.current_tab].post = ui.tabs[ui.current_tab].original;
+	for (size_t i = 0; i < ui.tabs[ui.current_tab].effects.size(); ++i) {
+		if (ui.tabs[ui.current_tab].effects[i].active) {
+			switch (ui.tabs[ui.current_tab].effects[i].which)
+			{
+			case 0:
+				ui.tabs[ui.current_tab].post = (ui.tabs[ui.current_tab].post.*(ui.tabs[ui.current_tab].effects[i].func))();
+				break;
+			
+			case 1:
+				ui.tabs[ui.current_tab].post = (ui.tabs[ui.current_tab].post.*(ui.tabs[ui.current_tab].effects[i].funcFloat))(ui.tabs[ui.current_tab].effects[i].argFloat);
+				break;
 
-				case 2:
-					tabs[current_tab].post = (tabs[current_tab].post.*(tabs[current_tab].effects[i].funcUINT32T))(tabs[current_tab].effects[i].argUint32);
-					break;
+			case 2:
+				ui.tabs[ui.current_tab].post = (ui.tabs[ui.current_tab].post.*(ui.tabs[ui.current_tab].effects[i].funcUINT32T))(ui.tabs[ui.current_tab].effects[i].argUint32);
+				break;
 
-				case 3:
-					tabs[current_tab].post = Filter(tabs[current_tab].effects[i].argFilter).application(tabs[current_tab].post);
-					break;
-				
-				default:
-					break;
-				}
+			case 3:
+				ui.tabs[ui.current_tab].post = Filter(ui.tabs[ui.current_tab].effects[i].argFilter).application(ui.tabs[ui.current_tab].post);
+				break;
+			
+			default:
+				break;
 			}
 		}
-	//}
+	}
 }
 
 void VisualIDK::selectTool() {
