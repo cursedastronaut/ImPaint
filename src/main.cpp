@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 		vsi.io = &ImGui::GetIO();
 		vsi.Update();
 
-		vsi.Draw(convertThread);
+		vsi.Draw();
 		vsi.UI();
 		// Rendering
 		ImGui::Render();

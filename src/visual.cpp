@@ -116,7 +116,7 @@ void VisualIDK::imageRefreshing() {
 	noModif = true;
 }
 
-void VisualIDK::Draw(thread &func) {
+void VisualIDK::Draw() {
 	#ifdef USE_DUMB_DRAW
 	for (uint32_t y = 0; y < post.getHeight(); ++y) {
 		for (uint32_t x = 0; x < post.getWidth(); ++x) {
@@ -554,5 +554,6 @@ void VisualIDK::selectTool() {
 }
 
 VisualIDK::~VisualIDK() {
-	fileLoadingThread.join();
+	if (fileLoadingThread.joinable())
+		fileLoadingThread.join();
 }
