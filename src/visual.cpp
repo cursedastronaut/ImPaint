@@ -1,4 +1,5 @@
 #include "visual.h"
+
 void VisualIDK::loadFile(const string& filePath, size_t loadingTab) {
 	if (!tabs[loadingTab].loading)
 		return;
@@ -70,18 +71,7 @@ void VisualIDK::Update() {
 		copyMethod();
 		pasteMethod();
 	}
-	
-
-	//Toggle Dark Mode
-	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) {
-		ImGui::StyleColorsDark();
-		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
-
-	} else {
-		ImGui::StyleColorsLight();
-		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	}
-	
+		
 	//Zooms in and out of the image.
 	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl))
 		tabs[current_tab].zoom += io->MouseWheel/10.f;
@@ -156,7 +146,7 @@ void VisualIDK::Draw() {
 		}
 	} else {
 		ImGui::TextColored(
-			mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
+			darkMode ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
 			"Loading image..."
 		);
 	}
@@ -174,7 +164,8 @@ void VisualIDK::UI() {
 	UIEditing();
 	UIMenuBar();
 	UIErrorBay();
-
+	UIDarkMode();
+	
 	hasSetDefaultSizes = true;
 }
 
@@ -308,6 +299,25 @@ void VisualIDK::UIErrorBay() {
 	ImGui::PopStyleVar();
 }
 
+void VisualIDK::UIDarkMode() {
+	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) {
+		disableAutoDarkMode = true;
+		darkMode = !darkMode;
+		mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active = false;
+	}
+	if (!disableAutoDarkMode) {
+		darkMode = !WindowsUtils::isLightTheme();
+	}
+	if (darkMode) {
+		ImGui::StyleColorsDark();
+		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
+
+	} else {
+		ImGui::StyleColorsLight();
+		clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+	}
+}
+
 void VisualIDK::UITabbar() {
 	ImGui::Begin("debtabs", (bool*)__null, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 	ImGui::BeginTabBar("Tabsa", ImGuiTabBarFlags_NoTooltip);
@@ -316,7 +326,7 @@ void VisualIDK::UITabbar() {
 	
 	for (size_t i = 0; i < tabs.size(); ++i) {
 		if (current_tab == i) 
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) ? 1 : 0, 1, 1));
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0, (darkMode) ? 1 : 0, 1, 1));
 		bool hasClicked = ImGui::TabItemButton((tabs[current_tab].title + to_string(i)).c_str());
 		if (hasClicked)	
 			current_tab = i;

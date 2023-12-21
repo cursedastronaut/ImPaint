@@ -20,7 +20,7 @@
 #include "constants.hpp"
 #include "filter.hpp"
 #ifdef _WIN32
-	#include <windows.h>
+	#include "utils/windows.hpp"
 	#include <commdlg.h>
 #elif __linux__
 	#include <imfilebrowser.h>
@@ -175,6 +175,8 @@ class VisualIDK {
 	*/
 	void applyEffects();
 
+	void UIDarkMode();
+
 	void selectTool();
 
 	ImVec4 MenuBarSize;
@@ -190,6 +192,9 @@ class VisualIDK {
 	void loadFile(const string& filePath, size_t loadingTab);
 
 	thread fileLoadingThread;
+
+	bool darkMode = false;
+	bool disableAutoDarkMode = false;
 
 };
 

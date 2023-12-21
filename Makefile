@@ -1,6 +1,6 @@
 EXE = main
 IMGUI_DIR = externals/src/imgui
-SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp
+SOURCES = src/main.cpp src/image.cpp src/visual.cpp src/filter.cpp src/utils/windows.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl3.cpp
 SOURCES += externals/src/gpt.cpp 
@@ -55,6 +55,9 @@ endif
 ##---------------------------------------------------------------------
 
 ./objects/%.o: src/%.cpp
+	$(CXX) $(CXXFLAGS) -Iexternals/include -c -o $@ $<
+
+./objects/%.o: src/utils/%.cpp
 	$(CXX) $(CXXFLAGS) -Iexternals/include -c -o $@ $<
 
 ./objects/%.o: $(IMGUI_DIR)/%.cpp
