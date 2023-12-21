@@ -110,4 +110,23 @@ enum {
 	
 };
 
+enum menus {
+	MENU_FILE,
+	MENU_EDIT,
+	MENU_DISPLAY
+};
+
+enum displayMenuButtons {
+	MENU_DISPLAY_NBGC,
+	MENU_DISPLAY_GEO,
+	MENU_DISPLAY_FILTER,
+	MENU_DISPLAY_DARKMODE
+};
+
+enum fileMenuButtons {
+	MENU_FILE_NEW,
+	MENU_FILE_OPEN,
+	MENU_FILE_SAVE,
+};
+
 #endif //_CONSTANTS_

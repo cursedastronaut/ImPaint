@@ -47,9 +47,9 @@ VisualIDK::VisualIDK() {
 	fileDialogSave.SetTitle("Save...");
 	fileDialogSave.SetTypeFilters({});
 	#endif
-	mainMenu[2].buttons[0].active = true;
-	mainMenu[2].buttons[1].active = true;
-	mainMenu[2].buttons[2].active = true;
+	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC	].active = true;
+	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO		].active = true;
+	mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER	].active = true;
 
 	MenuBarSize = {0, 0, -1, (18+30)};
 	ImageSize = {64, (18+30), 1280-240-64, 720-(18+30)-16};
@@ -72,7 +72,7 @@ void VisualIDK::Update() {
 	
 
 	//Toggle Dark Mode
-	if (mainMenu[2].buttons[3].active) {
+	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active) {
 		ImGui::StyleColorsDark();
 		clear_color = ImVec4(0.f, 0.f, 0.f, 1.00f);
 
@@ -130,8 +130,6 @@ void VisualIDK::Draw(thread &func) {
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
 	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
 	if (!tabs[current_tab].loading) {
-		//if (func.joinable())
-		//	func.join();
 		if (!hasSetDefaultSizes) {
 			ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
 			ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
@@ -157,7 +155,7 @@ void VisualIDK::Draw(thread &func) {
 		}
 	} else {
 		ImGui::TextColored(
-			mainMenu[2].buttons[3].active ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
+			mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_DARKMODE].active ? ImVec4(255,255,255,255) : ImVec4(0,0,0,255), 
 			"Loading image..."
 		);
 	}
@@ -197,15 +195,15 @@ void VisualIDK::UIMenuBar() {
 	}
 
 	//If User pressed CCTRL+N or File->New.
-	if (mainMenu[0].buttons[0].active || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))) {
+	if (mainMenu[MENU_FILE].buttons[MENU_FILE_NEW].active || (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_N))) {
 		tabs.push_back(ImageTab());
 		tabs[tabs.size()-1].initEffects();
-		mainMenu[0].buttons[0].active = false;
+		mainMenu[MENU_FILE].buttons[MENU_FILE_NEW].active = false;
 	}
 }
 
 void VisualIDK::UIEditing() {
-	if (mainMenu[2].buttons[0].active || mainMenu[2].buttons[1].active) {
+	if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC].active || mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO].active || mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER].active) {
 		ImGui::Begin("Editing");
 		if (!hasSetDefaultSizes) {
 			ImGui::SetWindowPos({EditingSize.x, EditingSize.y});
@@ -217,7 +215,7 @@ void VisualIDK::UIEditing() {
 		if (ImGui::Button("Refresh")) noModif = false;
 		ImGui::SameLine(0.f);
 		ImGui::Text("FPS: %1.f", 1.f/io->DeltaTime);
-		if (mainMenu[2].buttons[0].active) {
+		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_NBGC].active) {
 			ImGui::Text("Effects");
 			ImGui::Checkbox("Black & WHite", &tabs[current_tab].effects[EFFECTS_blackWhite].active);
 			ImGui::Checkbox("Red Canal", &tabs[current_tab].effects[EFFECTS_redChannel].active);
@@ -241,7 +239,7 @@ void VisualIDK::UIEditing() {
 			ImGui::Checkbox("De", &tabs[current_tab].effects[EFFECTS_colorblindDeuteranopia].active);
 			ImGui::NewLine();
 		}
-		if (mainMenu[2].buttons[1].active) {
+		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_GEO].active) {
 			ImGui::Text("Geometry");
 			ImGui::Checkbox("Rotation Right", &tabs[current_tab].effects[EFFECTS_rotationR].active);
 			ImGui::Checkbox("Rotation Left", &tabs[current_tab].effects[EFFECTS_rotationL].active);
@@ -271,7 +269,7 @@ void VisualIDK::UIEditing() {
 			ImGui::PopItemWidth();
 			ImGui::NewLine();
 		}
-		if (mainMenu[2].buttons[2].active) {
+		if (mainMenu[MENU_DISPLAY].buttons[MENU_DISPLAY_FILTER].active) {
 			ImGui::Text("Filters");
 			ImGui::Checkbox("BlurG3", &tabs[current_tab].effects[EFFECTS_filterBlurG3].active);
 			ImGui::Checkbox("BlurG5", &tabs[current_tab].effects[EFFECTS_filterBlurG5].active);
