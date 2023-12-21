@@ -439,7 +439,7 @@ void VisualIDK::pasteMethod() {
 }
 
 void VisualIDK::openFile() {
-	if (mainMenu[0].buttons[1].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
+	if (mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_O))) {
 		#ifdef _WIN32
 		#ifndef IDE_ANTI_ERROR
 		OPENFILENAME ofn ;
@@ -468,7 +468,7 @@ void VisualIDK::openFile() {
 			fileDialog.Open();
 
 		#endif
-		mainMenu[0].buttons[1].active = false;
+		mainMenu[MENU_FILE].buttons[MENU_FILE_OPEN].active = false;
 	}
 
 	#ifdef __linux__
@@ -483,8 +483,8 @@ void VisualIDK::openFile() {
 }
 
 void VisualIDK::saveFile() {
-	if ((mainMenu[0].active && mainMenu[0].buttons[2].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
-		cout << ((mainMenu[0].active && mainMenu[0].buttons[2].active) ? "true" : "false") << endl;
+	if ((mainMenu[MENU_FILE].active && mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) || (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyDown(ImGuiKey_S))) {
+		cout << ((mainMenu[MENU_FILE].active && mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active) ? "true" : "false") << endl;
 	#ifdef __linux__
 		fileDialogSave.Open();
 	}
@@ -493,7 +493,7 @@ void VisualIDK::saveFile() {
 	{
 		tabs[current_tab].post.write(fileDialogSave.GetSelected().string());
 		fileDialogSave.ClearSelected();
-		mainMenu[0].buttons[2].active = false;
+		mainMenu[MENU_FILE].buttons[MENU_FILE_SAVE].active = false;
 	}
 	#elif _WIN32
 		#ifndef IDE_ANTI_ERROR
