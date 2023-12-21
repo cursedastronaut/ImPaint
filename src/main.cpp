@@ -88,6 +88,7 @@ int main(int argc, char* argv[])
 
 	VisualIDK vsi;
 	vsi.window = window;
+	std::thread convertThread;
 	
 	// Main loop
 #ifdef __EMSCRIPTEN__
@@ -99,6 +100,7 @@ int main(int argc, char* argv[])
 	while (!glfwWindowShouldClose(window))
 #endif
 	{
+		convertThread = std::thread(&VisualIDK::imageRefreshing, &vsi);
 		// Poll and handle events (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
 		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
@@ -112,11 +114,10 @@ int main(int argc, char* argv[])
 		ImGui::NewFrame();
 		vsi.dl = ImGui::GetBackgroundDrawList();
 		vsi.io = &ImGui::GetIO();
-		std::thread convertThread(&VisualIDK::imageRefreshing, &vsi);
 		vsi.Update();
+
 		vsi.Draw(convertThread);
 		vsi.UI();
-		
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;
@@ -135,6 +136,8 @@ int main(int argc, char* argv[])
 try {
 
 	// Cleanup
+	if (convertThread.joinable())
+		convertThread.join();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();

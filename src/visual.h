@@ -70,6 +70,7 @@ struct ImageTab {
 	Image original = Image(0,0);
 	Image post = Image(0,0);
 	vector<boolFuncPointers> effects;
+	vector<boolFuncPointers> effectsCopy;
 	std::vector<unsigned char> imageData;
 	GLuint textureID;
 	int width;

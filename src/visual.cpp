@@ -5,6 +5,7 @@ void VisualIDK::loadFile(const string& filePath, size_t loadingTab) {
 	tabs[loadingTab].original = Image(filePath);
 	tabs[loadingTab].post = tabs[loadingTab].original;
 	tabs[loadingTab].loading = false;
+	noModif = false;
 }
 
 void ImageTab::initEffects() {
@@ -32,6 +33,7 @@ void ImageTab::initEffects() {
 		{false, 0, &Image::sobelOperator},
 		{false, 3, nullptr, nullptr, nullptr, CONTRASTOR}
 	};
+	effectsCopy = effects;
 }
 
 VisualIDK::VisualIDK() {
@@ -88,8 +90,14 @@ void VisualIDK::Update() {
 }
 
 void VisualIDK::imageRefreshing() {
-	if (tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original))
+	if ((tabs[current_tab].loading || Image::isEmpty(tabs[current_tab].original)) && !noModif)
 		return;
+	bool effectsChanged = noModif;
+	for (size_t i = 0; !effectsChanged && i < tabs[current_tab].effects.size(); ++i)
+		effectsChanged = tabs[current_tab].effects[i].active != tabs[current_tab].effectsCopy[i].active;
+	if (!effectsChanged)
+		return;
+	
 	applyEffects();
 	tabs[current_tab].width = tabs[current_tab].post.getWidth();
 	tabs[current_tab].height = tabs[current_tab].post.getHeight();
@@ -104,6 +112,8 @@ void VisualIDK::imageRefreshing() {
 			}
 		}
 	}
+	tabs[current_tab].effectsCopy = tabs[current_tab].effects;
+	noModif = !noModif;
 }
 
 void VisualIDK::Draw(thread &func) {
@@ -120,6 +130,8 @@ void VisualIDK::Draw(thread &func) {
 	//ImGui::Image((void*)(intptr_t)textureID, ImVec2(post.img.r.size(), post.img.r[0].size()));
 	ImGui::Begin("Image", (bool*)__null, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoResize);
 	if (!tabs[current_tab].loading) {
+		//if (func.joinable())
+		//	func.join();
 		if (!hasSetDefaultSizes) {
 			ImGui::SetWindowPos({ImageSize.x, ImageSize.y});
 			ImGui::SetWindowSize({ImageSize.z, ImageSize.w});
@@ -452,7 +464,7 @@ void VisualIDK::openFile() {
 			if (fileLoadingThread.joinable())
 				fileLoadingThread.join();
 			fileLoadingThread = thread(&VisualIDK::loadFile, this, string(ofn.lpstrFile), current_tab);
-
+			//loadFile(string(ofn.lpstrFile), current_tab);
 		}
 		#endif
 		#elif __linux__
